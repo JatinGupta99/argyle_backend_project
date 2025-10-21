@@ -6,7 +6,7 @@ interface UiState {
 }
 
 const initialState: UiState = {
-  isLive: true, 
+  isLive: true,
   roomUrl: 'https://jatinguptawork.daily.co/IYgdOmH87NbECz55EZ3t',
 };
 

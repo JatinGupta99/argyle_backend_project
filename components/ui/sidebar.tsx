@@ -69,7 +69,6 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
-
   const [_open, _setOpen] = React.useState(defaultOpen);
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
@@ -81,12 +80,10 @@ function SidebarProvider({
         _setOpen(openState);
       }
 
- 
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open]
   );
-
 
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
@@ -106,7 +103,6 @@ function SidebarProvider({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [toggleSidebar]);
-
 
   const state = open ? 'expanded' : 'collapsed';
 
@@ -423,7 +419,7 @@ function SidebarGroupAction({
       data-sidebar="group-action"
       className={cn(
         'text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
-    
+
         'after:absolute after:-inset-2 md:after:hidden',
         'group-data-[collapsible=icon]:hidden',
         className
@@ -453,14 +449,14 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<'ul'>) {
       data-slot="sidebar-menu"
       data-sidebar="menu"
       className={cn(
-        'flex flex-col gap-1', 
+        'flex flex-col gap-1',
         className,
-        'absolute', 
-        'w-[226px]', 
-        'h-[141px]', 
+        'absolute',
+        'w-[226px]',
+        'h-[141px]',
         'top-[162px]',
         'left-[30px]',
-        'opacity-100' 
+        'opacity-100'
       )}
       {...props}
     />

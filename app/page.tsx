@@ -7,7 +7,6 @@ export default function Page() {
     <ReduxProvider>
       <SidebarProvider>
         <AppSidebar />
-
         <SidebarInset>
           <div className="h-dvh overflow-hidden flex flex-col items-center justify-center bg-background">
             <h1 className="text-4xl font-bold text-foreground">

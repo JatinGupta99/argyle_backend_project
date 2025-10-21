@@ -21,7 +21,12 @@ export default function Page() {
               <AppSidebar />
             </Sidebar>
             <div className="w-[21.75%] h-full p-0 m-0 bg-red-500">
-              <ChatPanel role="speaker" />
+              <ChatPanel
+                role="speaker"
+                title1="Everyone"
+                title2="BackStage"
+                title3="Everyone"
+              />
             </div>
             <div className="flex-[2] ">
               <Header />

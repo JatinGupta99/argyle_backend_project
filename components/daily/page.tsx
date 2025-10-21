@@ -22,7 +22,6 @@ function Tiles() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-   
     if (page >= totalPages) {
       setPage(0);
     }
@@ -33,7 +32,7 @@ function Tiles() {
 
     timeoutRef.current = setTimeout(() => {
       setPage((p) => (p + 1) % totalPages);
-    }, 5000);  
+    }, 5000);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -80,11 +79,9 @@ export default function DailyRoom({
     callObject.join({ url: roomUrl }).catch((err: any) => {
       console.error('Join error:', err);
 
-      
       if (typeof err === 'string') {
         setError(err);
       } else if (err?.error) {
-       
         if (err.error === 'account-missing-payment-method') {
           setError(
             'Your Daily account is missing a payment method. Please update your billing information.'

@@ -23,7 +23,7 @@ export default function AttendeeViewProfilePage() {
               <AppSidebar />
             </div>
             <div className="w-[12.5%] min-w-[12.5%] border-r h-full">
-              <ChatPanel />
+              <ChatPanel title1="Everyone" title2="BackStage" />
             </div>
             <div className="flex-1 bg-white h-full overflow-hidden">
               {isLive && roomUrl ? (

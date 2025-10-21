@@ -75,7 +75,6 @@ export default function AttendeeViewProfilePage({
     // fetchRoomUrl();
   }, [(eventId = 'cjksb')]);
 
- 
   useEffect(() => {
     if (callObject && roomUrl) {
       callObject.join({ url: roomUrl }).catch((err) => {
@@ -122,7 +121,12 @@ export default function AttendeeViewProfilePage({
               <AppSidebar />
             </Sidebar>
             <div className="w-[21.75%] h-full p-0 m-0 bg-red-500">
-              <ChatPanel role="attendee" />
+              <ChatPanel
+                role="attendee"
+                title1="Everyone"
+                title2=""
+                title3="Everyone"
+              />
             </div>
 
             <div className="flex-[2]">

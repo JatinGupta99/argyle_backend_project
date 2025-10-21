@@ -14,13 +14,23 @@ export function SessionCard({
       <Image
         src={imageSrc || '/images/event_image.png'}
         alt={title}
-        width={480} 
+        width={480}
         height={270}
-        className="h-48 w-full object-cover" 
+        className="h-48 w-full object-cover"
         priority
       />
       <div className="absolute inset-x-0 bottom-0 p-4">
-        <div className="rounded-md bg-background/80 px-3 py-2 text-sm font-semibold text-gray-900">
+        <div
+          className="rounded-md bg-black/50 px-3 py-2 text-sm font-semibold text-white"
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontWeight: '700',
+            fontSize: '18px',
+            lineHeight: '130%',
+            letterSpacing: '0%',
+            opacity: 1,
+          }}
+        >
           {title}
         </div>
       </div>
