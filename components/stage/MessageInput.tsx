@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
-import { GridIcon } from './grid-icon';
+import { GridIcon } from './GridIconMessage';
 
 export function MessageInput({ onSend }: { onSend: (text: string) => void }) {
   const [value, setValue] = useState('');
