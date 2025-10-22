@@ -20,8 +20,8 @@ import { SessionCard } from './SessionCard';
 
 type ChatPanelProps = {
   role?: RoleView;
-  title1: ChatTab | StageView;
-  title2: ChatTab | StageView;
+  title1?: ChatTab | StageView;
+  title2?: ChatTab | StageView;
   title3: string;
 };
 
@@ -71,40 +71,46 @@ export function ChatPanel({
         {/* Tabs */}
         {isSpeaker ? (
           <div className="flex gap-2 px-2.5 py-2 items-center bg-[#E8F4FB]">
-            <Button
-              className={`${
-                tab === title1
-                  ? 'bg-[#1C96D3] text-white'
-                  : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
-              } w-[129px] h-[33px] text-xs rounded-[4px] flex items-center justify-center`}
-              onClick={() => dispatch(setChatTab(title1))}
-            >
-              {title1}
-            </Button>
+            {title1 && (
+              <Button
+                className={`${
+                  tab === title1
+                    ? 'bg-[#1C96D3] text-white'
+                    : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
+                } w-[129px] h-[33px] text-xs rounded-[4px] flex items-center justify-center`}
+                onClick={() => dispatch(setChatTab(title1))}
+              >
+                {title1}
+              </Button>
+            )}
 
-            <Button
-              className={`${
-                tab === title2
-                  ? 'bg-[#1C96D3] text-white'
-                  : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
-              } w-[120px] h-[33px] text-xs rounded-[4px] flex items-center justify-center`}
-              onClick={() => dispatch(setChatTab(title2))}
-            >
-              {title2}
-            </Button>
+            {title2 && (
+              <Button
+                className={`${
+                  tab === title2
+                    ? 'bg-[#1C96D3] text-white'
+                    : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
+                } w-[120px] h-[33px] text-xs rounded-[4px] flex items-center justify-center`}
+                onClick={() => dispatch(setChatTab(title2))}
+              >
+                {title2}
+              </Button>
+            )}
           </div>
         ) : (
           <div className="flex gap-2 pl-4 pr-6 py-10 items-center bg-[#E8F4FB]">
-            <Button
-              className={`w-full h-8 text-xs rounded-md font-medium transition-colors ${
-                tab === title1
-                  ? 'bg-[#1C96D3] text-white'
-                  : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
-              }`}
-              onClick={() => dispatch(setChatTab(title1))}
-            >
-              {title1}
-            </Button>
+            {title1 && (
+              <Button
+                className={`w-full h-8 text-xs rounded-md font-medium transition-colors ${
+                  tab === title1
+                    ? 'bg-[#1C96D3] text-white'
+                    : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
+                }`}
+                onClick={() => dispatch(setChatTab(title1))}
+              >
+                {title1}
+              </Button>
+            )}
           </div>
         )}
       </div>

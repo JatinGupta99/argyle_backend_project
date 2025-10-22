@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-export type ChatTab = 'Everyone' | 'Backstage';
-export type StageView = 'Chat' | 'profiles' | 'Q&A';
+export type ChatTab = 'Everyone' | 'Backstage' | '';
+export type StageView = 'Chat' | 'profiles' | 'Q&A' | '';
 export type RoleView = 'attendee' | 'speaker' | 'organizer';
 
 interface UIState {
