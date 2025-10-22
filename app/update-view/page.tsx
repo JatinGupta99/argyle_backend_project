@@ -30,9 +30,7 @@ export default function Page() {
 
             {/* Main content area */}
             <div className="flex-[2]">
-
-                <EventUpdates/>
-
+              <EventUpdates />
             </div>
           </div>
         </div>
