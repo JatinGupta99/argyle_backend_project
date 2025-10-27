@@ -1,7 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-export type ChatTab = 'Everyone' | 'Backstage' | '';
-export type StageView = 'Chat' | 'profiles' | 'Q&A' | '';
+export type ChatTab =
+  | 'Everyone'
+  | 'Backstage'
+  | 'Chat'
+  | 'profiles'
+  | 'Q&A'
+  | '';
 export type RoleView = 'attendee' | 'speaker' | 'organizer';
 
 interface UIState {
@@ -9,7 +14,7 @@ interface UIState {
   unread: number;
   isLive: boolean;
   roomUrl: string | null;
-  stageView: StageView;
+  stageView: ChatTab;
 }
 
 const initialState: UIState = {
@@ -36,7 +41,7 @@ const uiSlice = createSlice({
     setRoomUrl(state, action: PayloadAction<string | null>) {
       state.roomUrl = action.payload;
     },
-    setStageView(state, action: PayloadAction<StageView>) {
+    setStageView(state, action: PayloadAction<ChatTab>) {
       state.stageView = action.payload;
     },
   },

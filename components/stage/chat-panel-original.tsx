@@ -7,7 +7,6 @@ import { addMessage } from '@/lib/slices/chat-slice';
 import {
   setChatTab,
   type ChatTab,
-  type StageView,
   type RoleView,
 } from '@/lib/slices/uiSlice.ts';
 import type { RootState } from '@/lib/store';
@@ -15,13 +14,13 @@ import { ArrowLeftFromLine } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { MessageInput } from './MessageInput';
-import { SessionCard } from './SessionCard';
+import { MessageInput } from './message/MessageInput';
+import { SessionCard } from './session-card';
 
 type ChatPanelProps = {
   role?: RoleView;
-  title1?: ChatTab | StageView;
-  title2?: ChatTab | StageView;
+  title1?: ChatTab;
+  title2?: ChatTab;
   title3: string;
 };
 

@@ -5,51 +5,62 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeftFromLine, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { MessageInput } from './MessageInput';
-import { SessionCard } from './SessionCard';
-import { useMessages } from '@/hooks/use-messages';
-import { RoleView, setChatTab } from '@/lib/slices/uiSlice.ts';
+import { MessageInput } from './message/MessageInput';
+import { SessionCard } from './session-card';
+import {
+  type ChatTab,
+  type RoleView,
+  setChatTab,
+} from '@/lib/slices/uiSlice.ts';
 import { Button } from '@/components/ui/button';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/lib/store';
+import type { RootState } from '@/lib/store';
+import { useMessages } from '@/hooks/useMessages';
 
 type ChatPanelProps = {
-  title1?: string;
-  title2?: string;
-  title3?: string;
+  title1?: ChatTab;
+  title2?: ChatTab;
+  title3?: ChatTab;
+  eventId?: string;
   currentUserId?: string;
-  role: RoleView;
+  role?: RoleView;
 };
 
 export function ChatPanel({
   title1,
   title2,
   title3,
+  eventId,
   role,
+  // 🔹 Hardcoded fallback user ID for now
   currentUserId = '68e630972af1374ec4c36630',
 }: ChatPanelProps) {
   const router = useRouter();
   const dispatch = useDispatch();
   const isSpeaker = role === 'speaker' || role === 'organizer';
-  const { messages, isLoading, createMessage } = useMessages();
+
+  // 📨 Custom hook to fetch and send messages
+  const { messages = [], isLoading, createMessage } = useMessages(eventId);
+
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const tab = useSelector((s: RootState) => s.ui.chatTab);
 
+  /** Handle sending messages */
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
     setIsSending(true);
     try {
       await createMessage(currentUserId, text);
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error('❌ Failed to send message:', error);
     } finally {
       setIsSending(false);
     }
   };
 
+  /** Auto-scroll to bottom when messages update */
   useEffect(() => {
-    // Scroll smoothly to bottom whenever new messages arrive
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'end',
@@ -58,7 +69,7 @@ export function ChatPanel({
 
   return (
     <div className="flex flex-col h-full bg-blue-50 border-r border-gray-200 text-gray-900 w-full">
-      {/* Header */}
+      {/* ===== Header ===== */}
       <div className="flex-shrink-0 bg-blue-50 border-b border-gray-200 px-4 h-14 flex items-center justify-between">
         <h2 className="text-lg font-bold text-black-900">{title3}</h2>
         <button
@@ -70,7 +81,7 @@ export function ChatPanel({
         </button>
       </div>
 
-      {/* Chat Tabs */}
+      {/* ===== Chat Tabs ===== */}
       {isSpeaker ? (
         <div className="flex gap-2 px-2.5 py-2 items-center bg-[#E8F4FB]">
           {title1 && (
@@ -79,7 +90,7 @@ export function ChatPanel({
                 tab === title1
                   ? 'bg-[#1C96D3] text-white'
                   : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
-              } w-[129px] h-[33px] text-xs rounded-[4px] flex items-center justify-center`}
+              } w-[129px] h-[33px] text-xs rounded-[4px]`}
               onClick={() => dispatch(setChatTab(title1))}
             >
               {title1}
@@ -91,7 +102,7 @@ export function ChatPanel({
                 tab === title2
                   ? 'bg-[#1C96D3] text-white'
                   : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
-              } w-[120px] h-[33px] text-xs rounded-[4px] flex items-center justify-center`}
+              } w-[120px] h-[33px] text-xs rounded-[4px]`}
               onClick={() => dispatch(setChatTab(title2))}
             >
               {title2}
@@ -102,7 +113,7 @@ export function ChatPanel({
         <div className="flex gap-2 pl-4 pr-6 py-10 items-center bg-[#E8F4FB]">
           {title1 && (
             <Button
-              className={`w-full h-8 text-xs rounded-md font-medium transition-colors ${
+              className={`w-full h-8 text-xs rounded-md font-medium ${
                 tab === title1
                   ? 'bg-[#1C96D3] text-white'
                   : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
@@ -115,9 +126,9 @@ export function ChatPanel({
         </div>
       )}
 
-      {/* Chat Content */}
+      {/* ===== Chat Content ===== */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
-        {/* Session Header Card */}
+        {/* Session Info Card */}
         <div className="px-4 pt-4 flex-shrink-0">
           <SessionCard
             imageSrc="/images/event_image.png"
@@ -134,9 +145,9 @@ export function ChatPanel({
           </div>
         </div>
 
-        {/* Messages */}
+        {/* ===== Message List ===== */}
         <div className="flex-1 overflow-hidden px-4 rounded-lg bg-blue-50">
-          <ScrollArea className="h-full">
+          <ScrollArea className="h-full" aria-live="polite">
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="animate-spin text-blue-600" size={24} />
@@ -144,7 +155,7 @@ export function ChatPanel({
             ) : (
               <div className="pb-4">
                 <ul className="space-y-5">
-                  {messages
+                  {(messages || [])
                     .sort(
                       (a, b) =>
                         new Date(a.createdAt).getTime() -
@@ -155,7 +166,7 @@ export function ChatPanel({
                         <Avatar className="h-12 w-12 flex-shrink-0">
                           <AvatarImage
                             src="/professional-man-in-red-shirt.jpg"
-                            alt="User"
+                            alt="User Avatar"
                             onError={(e) =>
                               (e.currentTarget.src =
                                 '/professional-man-in-red-shirt.jpg')
@@ -169,7 +180,7 @@ export function ChatPanel({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline gap-2">
                             <span className="text-sm font-medium text-gray-900">
-                              Jatin
+                              Jatin {/* 🔹 Hardcoded username */}
                             </span>
                             <span className="text-xs text-gray-500">
                               {new Date(m.createdAt).toLocaleTimeString([], {
@@ -191,7 +202,7 @@ export function ChatPanel({
           </ScrollArea>
         </div>
 
-        {/* Message Input */}
+        {/* ===== Message Input ===== */}
         <div className="px-4 pt-4 pb-2 flex-shrink-0">
           <MessageInput onSend={handleSendMessage} disabled={isSending} />
         </div>
@@ -200,7 +211,7 @@ export function ChatPanel({
   );
 }
 
-/** Utility to get initials from name */
+/** Utility: Get initials from a name */
 function initials(name: string) {
   if (!name) return '';
   return name

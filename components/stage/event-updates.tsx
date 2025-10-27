@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
-import { useEventPosts, EventPost } from '@/hooks/use-event-posts';
-import { MessageCard } from './MessageCard';
+import { MessageCard } from './message/MessageCard';
+import { useEventPosts } from '@/hooks/useEventPosts';
+import { EventId, UserID } from '@/lib/constants/api';
+import { EventPost } from '@/lib/types/api';
 
 export function EventUpdates({
   currentUserId = '68e630972af1374ec4c36630',
@@ -12,7 +14,7 @@ export function EventUpdates({
   currentUserId?: string;
 }) {
   const { posts, isLoading, likePost, unlikePost, addComment } =
-    useEventPosts();
+    useEventPosts(EventId);
   const [expandedComments, setExpandedComments] = useState<string | null>(null);
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
     {}
@@ -21,7 +23,6 @@ export function EventUpdates({
   const [submittingComments, setSubmittingComments] = useState<
     Record<string, boolean>
   >({});
-  const userId = '68e630972af1374ec4c36630';
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -33,7 +34,7 @@ export function EventUpdates({
   const handleLike = async (postId: string) => {
     setLoadingLikes((prev) => ({ ...prev, [postId]: true }));
     try {
-      const data = await likePost(postId, userId);
+      const data = await likePost(postId, UserID);
       console.log(data, 'snvsdvlnsdlvsdvlnd');
       return data;
     } finally {
@@ -44,7 +45,7 @@ export function EventUpdates({
   const handleUnlike = async (postId: string) => {
     setLoadingLikes((prev) => ({ ...prev, [postId]: true }));
     try {
-      await unlikePost(postId, userId);
+      await unlikePost(postId, UserID);
     } finally {
       setLoadingLikes((prev) => ({ ...prev, [postId]: false }));
     }
@@ -54,7 +55,7 @@ export function EventUpdates({
     if (!commentInputs[postId]?.trim()) return;
     setSubmittingComments((prev) => ({ ...prev, [postId]: true }));
     try {
-      await addComment(postId, userId, commentInputs[postId]);
+      await addComment(postId, UserID, commentInputs[postId]);
       setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
     } finally {
       setSubmittingComments((prev) => ({ ...prev, [postId]: false }));
@@ -80,8 +81,8 @@ export function EventUpdates({
       </div>
 
       <div className="flex-1 overflow-y-auto bg-gray-50 px-6 pb-6 pt-2 space-y-6 shadow-inner rounded-t-2xl">
-        {posts.length ? (
-          posts
+        {(posts || []).length ? (
+          (posts || [])
             .slice()
             .reverse()
             .map((post: EventPost) => (
