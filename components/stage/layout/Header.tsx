@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export function Header({ title = '', notificationCount = 5 }: HeaderProps) {
   return (
-    <header className="h-14 border-b bg-white flex items-center justify-between px-6 shadow-sm">
+    <header className=" sticky top-0 z-10 h-14 border-b bg-white flex items-center justify-between px-6 shadow-sm">
       {/* Left: Title */}
       <h1 className="text-lg font-semibold text-gray-800">{title}</h1>
 

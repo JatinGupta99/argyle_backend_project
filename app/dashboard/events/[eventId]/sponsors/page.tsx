@@ -1,9 +1,11 @@
 'use client';
 
-import { Header } from '@/components/stage/layout/Header';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
-import { Sidebar, SidebarProvider } from '@/components/ui/sidebar';
+import { ChatPanel } from '@/components/stage/ChatPanel';
+import { Header } from '@/components/stage/layout/Header';
 import { SponsorCard } from '@/components/stage/sponsor-card';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { EventId, UserID } from '@/lib/constants/api';
 
 export default function Page() {
   const sponsors = [
@@ -16,11 +18,14 @@ export default function Page() {
   return (
     <ReduxProvider>
       <SidebarProvider>
+     
         <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">
           <div className="flex flex-1 overflow-hidden">
+            
             <div className="flex-[2] ">
-              <Header title="Financial Controller Leadership Forum: Redefining Trad..." />
               <div>
+                     
+              <Header title="Financial Controller Leadership Forum: Redefining Trad..." />
                 <h1 className="font-bold text-center mt-9">
                   VISIT OUR SPONSORS BOOTHS:
                 </h1>

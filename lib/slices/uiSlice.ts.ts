@@ -6,7 +6,8 @@ export type ChatTab =
   | 'Chat'
   | 'profiles'
   | 'Q&A'
-  | '';
+  | ''
+  |'Chat with Argyle here';
 export type RoleView = 'attendee' | 'speaker' | 'organizer';
 
 interface UIState {

@@ -68,7 +68,7 @@ export function ChatPanel({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full bg-blue-50 border-r border-gray-200 text-gray-900 w-full">
+    <div className="flex flex-col h-full bg-blue-50 border-r border-gray-200 text-gray-900 w-50%">
       {/* ===== Header ===== */}
       <div className="flex-shrink-0 bg-blue-50 border-b border-gray-200 px-4 h-14 flex items-center justify-between">
         <h2 className="text-lg font-bold text-black-900">{title3}</h2>

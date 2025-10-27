@@ -9,7 +9,7 @@ import { EventId, UserID } from '@/lib/constants/api';
 import { EventPost } from '@/lib/types/api';
 
 export function EventUpdates({
-  currentUserId = '68e630972af1374ec4c36630',
+  currentUserId = UserID,
 }: {
   currentUserId?: string;
 }) {
@@ -63,10 +63,10 @@ export function EventUpdates({
   };
 
   return (
-    <div className="flex flex-col h-full bg-background overflow-hidden">
-      <div className="relative w-[700px] h-56 sm:h-64 rounded-xl overflow-hidden mx-auto mt-3">
+    <div className="flex flex-col h-full bg-background">
+      <div className="relative w-[800px] h-56 sm:h-44 rounded-xl mx-auto mt-4">
         <Image
-          src="images/virtual_event.webp"
+          src="/images/virtual_event.webp"
           alt="Event Banner"
           fill
           priority

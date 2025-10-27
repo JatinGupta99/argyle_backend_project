@@ -1,25 +1,39 @@
-// app/dashboard/layout.tsx
 'use client';
 
+import { ChatPanel } from '@/components/stage/ChatPanel';
 import { AppSidebar } from '@/components/stage/sidebar/AppSidebar';
+import { RoleView } from '@/lib/slices/uiSlice.ts';
 import React from 'react';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
+  chatTitles?: {
+    title1?: string;
+    title2?: string;
+    title3?: string;
+  };
+  chatRole?: RoleView;
+  eventId?: string;
+  currentUserId?: string;
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout({ children,chatTitles,
+  chatRole,
+  eventId,
+  currentUserId, }: DashboardLayoutProps) {
   return (
-    <div className="grid grid-flow-col grid-rows-8 h-screen w-screen">
-      {/* Sidebar - 1/8 width */}
-      <div className="col-span-2 bg-blue-500">
-        <AppSidebar />
-      </div>
+    <div className="flex h-screen w-screen">
+      {/* Sidebar - 1 part */}
 
-      {/* Main content - 7/8 width */}
-      <main className="col-span-6 bg-red-500 ">
+     <div className='flex-[1]'>
+       <AppSidebar />
+     </div>
+      
+      {/* Main content - 3 parts */}
+      <main className="flex-[5] bg-red-500 overflow-auto">
         {children}
       </main>
+      
     </div>
   );
 }

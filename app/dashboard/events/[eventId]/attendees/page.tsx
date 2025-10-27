@@ -31,7 +31,5 @@ export default function AttendeeViewPage({ params }: AttendeeViewPageProps) {
       </div>
     );
 
-  return (
-      <DailyRoom callObject={callObject} roomUrl={roomUrl} />
-  );
+  return <DailyRoom callObject={callObject} roomUrl={roomUrl} />;
 }
