@@ -2,6 +2,7 @@ import { apiClient } from '@/lib/api-client';
 import { useApiRequest } from '@/lib/useApiRequest';
 import { API_ROUTES } from '@/lib/api-routes';
 import { Message } from '@/lib/types/api';
+import { EventId } from '@/lib/constants/api';
 
 export function useMessages(eventId: string, query?: Record<string, string>) {
   const {
@@ -10,8 +11,8 @@ export function useMessages(eventId: string, query?: Record<string, string>) {
     error,
     refetch,
   } = useApiRequest<Message[]>(
-    () => apiClient.get(API_ROUTES.chat.history(eventId, query)),
-    [eventId, JSON.stringify(query)]
+    () => apiClient.get(API_ROUTES.chat.history(EventId, query)),
+    [EventId, JSON.stringify(query)]
   );
 
   const createMessage = async (userId: string, content: string) => {

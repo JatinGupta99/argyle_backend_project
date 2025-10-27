@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import { useMessages } from '@/hooks/useMessages';
+import { EventId } from '@/lib/constants/api';
 
 type ChatPanelProps = {
   title1?: ChatTab;
@@ -40,7 +41,7 @@ export function ChatPanel({
   const isSpeaker = role === 'speaker' || role === 'organizer';
 
   // 📨 Custom hook to fetch and send messages
-  const { messages = [], isLoading, createMessage } = useMessages(eventId);
+  const { messages = [], isLoading, createMessage } = useMessages(EventId);
 
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -68,7 +69,7 @@ export function ChatPanel({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full bg-blue-50 border-r border-gray-200 text-gray-900 w-50%">
+    <div className="flex flex-col h-full border-r bg-blue-50 text-gray-900">
       {/* ===== Header ===== */}
       <div className="flex-shrink-0 bg-blue-50 border-b border-gray-200 px-4 h-14 flex items-center justify-between">
         <h2 className="text-lg font-bold text-black-900">{title3}</h2>
@@ -83,7 +84,7 @@ export function ChatPanel({
 
       {/* ===== Chat Tabs ===== */}
       {isSpeaker ? (
-        <div className="flex gap-2 px-2.5 py-2 items-center bg-[#E8F4FB]">
+        <div className="flex gap-2 px-2.5 py-2 items-center justify-around bg-[#E8F4FB]">
           {title1 && (
             <Button
               className={`${
@@ -110,7 +111,7 @@ export function ChatPanel({
           )}
         </div>
       ) : (
-        <div className="flex gap-2 pl-4 pr-6 py-10 items-center bg-[#E8F4FB]">
+        <div className="flex gap-2 pl-4 pr-6 py-10 justify-around items-center bg-[#E8F4FB]">
           {title1 && (
             <Button
               className={`w-full h-8 text-xs rounded-md font-medium ${

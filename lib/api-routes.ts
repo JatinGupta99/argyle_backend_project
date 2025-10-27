@@ -1,4 +1,4 @@
-import { EventId } from "./constants/api";
+import { EventId } from './constants/api';
 
 export const API_ROUTES = {
   comments: {

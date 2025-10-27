@@ -10,13 +10,11 @@ interface SpeakerStageProps {
 
 export function SpeakerStage({ eventId }: SpeakerStageProps) {
   return (
-    <div className="flex flex-col flex-1">
-      {/* Header */}
-      <Header title="Speaker Backstage" />
-
+    <div className="flex flex-col flex-1 bg-white-500">
       {/* Video Area */}
-      <div className="flex justify-center items-center flex-1 bg-black">
-        <div className="relative w-[700px] aspect-[4/3] bg-gray-900 rounded-lg overflow-hidden">
+      <div className="flex justify-center items-center flex-1 bg-white-500">
+        {/* Shift box slightly to the right */}
+        <div className="relative w-[650px] aspect-[4/3] rounded-lg  translate-x-4">
           <VideoPanel eventId={eventId} role="speaker" />
         </div>
       </div>

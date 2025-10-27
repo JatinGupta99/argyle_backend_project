@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import { DailyRoomUrl } from '@/lib/constants/api';
 
 interface UseDailyRoomOptions {
   roomUrl: string;
@@ -17,7 +18,7 @@ export function useDailyRoom({ roomUrl }: UseDailyRoomOptions) {
 
     async function joinRoom() {
       try {
-        await call.join({ url: roomUrl });
+        await call.join({ url: DailyRoomUrl });
       } catch (err: any) {
         console.error('Join error:', err);
         if (typeof err === 'string') {

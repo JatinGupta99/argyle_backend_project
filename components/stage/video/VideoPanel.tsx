@@ -10,6 +10,7 @@ interface VideoPanelProps {
   eventId: string;
   role?: 'attendee' | 'speaker' | 'organizer';
 }
+
 export function VideoPanel({ eventId, role = 'attendee' }: VideoPanelProps) {
   const dispatch = useDispatch();
   const isLive = useSelector((state: RootState) => state.ui.isLive);
@@ -50,8 +51,8 @@ export function VideoPanel({ eventId, role = 'attendee' }: VideoPanelProps) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background pb-16">
-      <div className="relative flex-none w-[650px] aspect-[4/3] bg-gray-900 rounded-2xl shadow-lg">
+    <div className="flex flex-col h-full bg-background pb-8 mt-2">
+      <div className="relative flex-none w-full aspect-[4/3] bg-gray-900 rounded-2xl shadow-lg">
         {isLive && roomUrl ? (
           <DailyVideoGrid roomUrl={roomUrl} />
         ) : (
@@ -63,9 +64,14 @@ export function VideoPanel({ eventId, role = 'attendee' }: VideoPanelProps) {
           </div>
         )}
       </div>
+
       {role !== 'attendee' && (
-        <div className="mt-4 text-center">
-          <Button onClick={handleGoLive} disabled={loading}>
+        <div className="mt-2 text-center">
+          <Button
+            onClick={handleGoLive}
+            disabled={loading}
+            className="bg-sky-400 hover:bg-sky-500 text-white"
+          >
             {loading ? 'Loading...' : isLive ? 'End Live' : 'Go Live'}
           </Button>
         </div>

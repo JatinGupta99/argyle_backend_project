@@ -1,6 +1,5 @@
 'use client';
 
-import { ChatPanel } from '@/components/stage/ChatPanel';
 import { AppSidebar } from '@/components/stage/sidebar/AppSidebar';
 import { RoleView } from '@/lib/slices/uiSlice.ts';
 import React from 'react';
@@ -17,23 +16,23 @@ interface DashboardLayoutProps {
   currentUserId?: string;
 }
 
-export default function DashboardLayout({ children,chatTitles,
+export default function DashboardLayout({
+  children,
+  chatTitles,
   chatRole,
   eventId,
-  currentUserId, }: DashboardLayoutProps) {
+  currentUserId,
+}: DashboardLayoutProps) {
   return (
     <div className="flex h-screen w-screen">
       {/* Sidebar - 1 part */}
 
-     <div className='flex-[1]'>
-       <AppSidebar />
-     </div>
-      
+      <div className="flex-[1]">
+        <AppSidebar />
+      </div>
+
       {/* Main content - 3 parts */}
-      <main className="flex-[5] bg-red-500 overflow-auto">
-        {children}
-      </main>
-      
+      <main className="flex-[5] bg-white-500 overflow-auto">{children}</main>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   useParticipantIds,
   DailyVideo,
 } from '@daily-co/daily-react';
+import { DailyRoomUrl } from '@/lib/constants/api';
 
 const VIDEOS_PER_PAGE = 6;
 
@@ -76,7 +77,7 @@ export default function DailyRoom({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    callObject.join({ url: roomUrl }).catch((err: any) => {
+    callObject.join({ url: DailyRoomUrl }).catch((err: any) => {
       console.error('Join error:', err);
 
       if (typeof err === 'string') {

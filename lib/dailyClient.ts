@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import { DailyRoomUrl } from './constants/api';
 
 interface UseDailyRoomResult {
   callObject: DailyCall | null;
@@ -16,9 +17,7 @@ interface UseDailyRoomResult {
  */
 export function useDailyRoom(eventId: string): UseDailyRoomResult {
   const [callObject, setCallObject] = useState<DailyCall | null>(null);
-  const [roomUrl] = useState(
-    'https://jatinguptawork.daily.co/IYgdOmH87NbECz55EZ3t'
-  );
+  const [roomUrl] = useState(DailyRoomUrl);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

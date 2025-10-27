@@ -28,7 +28,7 @@ export function AppSidebar() {
     <div>
       <Sidebar>
         {/* Header */}
-        <SidebarHeader className=" h-20 flex items-center px-5 relative bg-red-500 bg-transparent">
+        <SidebarHeader className=" h-20 flex items-center px-5 relative bg-white-500 bg-transparent">
           <Image
             src="/argyle-logo.png"
             alt="Argyle"

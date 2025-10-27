@@ -1,3 +1,4 @@
+import { DailyRoomUrl } from '@/lib/constants/api';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UiState {
@@ -7,7 +8,7 @@ interface UiState {
 
 const initialState: UiState = {
   isLive: true,
-  roomUrl: 'https://jatinguptawork.daily.co/IYgdOmH87NbECz55EZ3t',
+  roomUrl: DailyRoomUrl,
 };
 
 const uiSlice = createSlice({

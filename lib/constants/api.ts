@@ -7,3 +7,6 @@ const chatTitles = {
   title2: 'Q&A',
   title3: 'Everyone',
 };
+
+export const DailyRoomUrl =
+  'https://jatinguptawork.daily.co/IYgdOmH87NbECz55EZ3t';
