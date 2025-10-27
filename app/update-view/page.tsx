@@ -21,7 +21,7 @@ export default function Page() {
 
           <main className="flex flex-1 overflow-hidden">
             <aside className="w-[22%] min-w-[280px] border-l bg-white">
-              <ChatPanel currentUserId="68e630972af1374ec4c36630" />
+              <ChatPanel role='attendee' title1='EveryOne' title2='EveryOne' title3='Chat with Argyle here' currentUserId="68e630972af1374ec4c36630" />
             </aside>
             <section className="flex-1 overflow-y-auto">
               <EventUpdates />

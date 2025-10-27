@@ -24,6 +24,7 @@ interface ChatHistoryQuery {
 }
 
 const HARD_CODED_EVENT_ID = '68ebe2a64674fa429419ba7d';
+const HARD_CODED_USER_ID = '68e630972af1374ec4c36630';
 
 export function useMessages(query: ChatHistoryQuery = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
