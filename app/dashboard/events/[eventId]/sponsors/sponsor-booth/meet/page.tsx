@@ -34,7 +34,7 @@ export default function SponsorBoothMeet() {
       {/* Left Sidebar - Chat */}
       <div className="w-[310px] border-r border-gray-200">
         <ChatPanel
-         title1="Chat"
+          title1="Chat"
           title2="Q&A"
           title3="Chat"
           role="speaker"

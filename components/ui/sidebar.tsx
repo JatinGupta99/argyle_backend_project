@@ -199,7 +199,7 @@ function Sidebar({
 
   return (
     <div
-      className="group peer text-sidebar-foreground hidden md:block bg-white-500"
+      className="group peer text-sidebar-foreground hidden md:block bg-red-500"
       data-state={state}
       data-collapsible={state === 'collapsed' ? collapsible : ''}
       data-variant={variant}
@@ -451,7 +451,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<'ul'>) {
         'flex flex-col gap-1',
         className,
         'absolute',
-        'w-[226px]',
+        'w-[170px]',
         'h-[141px]',
         'top-[162px]',
         'left-[30px]',

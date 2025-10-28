@@ -7,15 +7,12 @@ interface SessionCardProps {
 
 export function SessionCard({ imageSrc, title }: SessionCardProps) {
   return (
-    <div className="rounded-lg overflow-hidden shadow-md bg-white">
+    <div className="w-64 rounded-lg overflow-hidden mb-0 pl-1">
       <img
         src={imageSrc || '/placeholder.svg'}
         alt={title}
-        className="w-full h-40 object-cover"
+        className="w-[calc(100%-0.4rem)] ml-4 rounded-md object-cover"
       />
-      <div className="p-3 bg-gray-50">
-        <h3 className="font-semibold text-sm text-gray-900">{title}</h3>
-      </div>
     </div>
   );
 }

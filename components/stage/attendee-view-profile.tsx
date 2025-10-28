@@ -2,12 +2,13 @@
 
 import { Header } from '@/components/stage/layout/Header';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
-import { AppSidebar } from '@/components/stage/appSidebar';
 import { ChatPanel } from '@/components/stage/ChatPanel';
-import { SidebarProvider } from '@/components/ui/Sidebar';
+
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import DailyVideoGrid from '@/components/stage/video/DailyVideoGrid';
+import { AppSidebar } from './sidebar/AppSidebar';
 
 export default function AttendeeViewProfilePage() {
   const isLive = useSelector((state: RootState) => state.ui.isLive);
@@ -23,7 +24,12 @@ export default function AttendeeViewProfilePage() {
               <AppSidebar />
             </div>
             <div className="w-[12.5%] min-w-[12.5%] border-r h-full">
-              <ChatPanel role="attendee" title1="Everyone" title2="BackStage" />
+              <ChatPanel
+                role="attendee"
+                title1="Everyone"
+                title2="Backstage"
+                title3="Everyone"
+              />
             </div>
             <div className="flex-1 bg-white h-full overflow-hidden">
               {isLive && roomUrl ? (

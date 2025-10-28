@@ -8,10 +8,9 @@ export default function DashboardPage() {
   return (
     <ReduxProvider>
       <SidebarProvider>
-        <div className="flex h-dvh overflow-hidden bg-background">
+        <div className="flex h-dvh overflow-hidden bg-background ">
           {/* Left Sidebar */}
           <AppSidebar />
-
           {/* Main Content */}
           <SidebarInset className="flex flex-1 flex-col items-center justify-center">
             <h1 className="text-4xl font-bold text-foreground">
