@@ -23,8 +23,7 @@ export function AppSidebar() {
   ];
 
   return (
-    // ↓ Add width class here
-    <Sidebar className="w-52  ">
+    <Sidebar className="w-65  ">
       {/* Header */}
       <SidebarHeader className="h-20 flex items-center px-5 relative bg-transparent ">
         <Image

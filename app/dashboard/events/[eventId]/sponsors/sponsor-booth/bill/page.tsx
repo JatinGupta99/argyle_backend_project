@@ -8,7 +8,6 @@ import { EventId, UserID } from '@/lib/constants/api';
 export default function SponsorBoothBillPage() {
   return (
     <div className="flex h-screen ">
-
       {/* ====== Chat Panel (Immediately Next to Sidebar) ====== */}
       <div className="flex-shrink-0 w-[290px] bg-white  border-gray-200">
         <AppSidebar />

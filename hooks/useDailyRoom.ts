@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
-import { DailyRoomUrl } from '@/lib/constants/api';
+import DailyIframe, { type DailyCall } from '@daily-co/daily-js';
 
 interface UseDailyRoomOptions {
   roomUrl: string;
@@ -10,36 +9,39 @@ interface UseDailyRoomOptions {
 
 export function useDailyRoom({ roomUrl }: UseDailyRoomOptions) {
   const [callObject, setCallObject] = useState<DailyCall | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!roomUrl) {
+      setError('Missing room URL');
+      setLoading(false);
+      return;
+    }
+
     const call = DailyIframe.createCallObject();
     setCallObject(call);
 
     async function joinRoom() {
       try {
-        await call.join({ url: DailyRoomUrl });
+        setLoading(true);
+        await call.join({ url: roomUrl });
+        setLoading(false);
       } catch (err: any) {
-        console.error('Join error:', err);
-        if (typeof err === 'string') {
-          setError(err);
-        } else if (err?.error === 'account-missing-payment-method') {
-          setError('Your Daily account is missing a payment method.');
-        } else if (err?.message) {
-          setError(err.message);
-        } else {
-          setError('Unknown error occurred while joining the room.');
-        }
+        console.error('Error joining Daily room:', err);
+        setError(err?.message || 'Failed to join Daily room');
+        setLoading(false);
       }
     }
 
     joinRoom();
 
+    // Cleanup when component unmounts
     return () => {
       call.leave().catch(() => {});
       call.destroy();
     };
   }, [roomUrl]);
 
-  return { callObject, error };
+  return { callObject, loading, error };
 }
