@@ -44,14 +44,6 @@ export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
       <div className="flex items-center gap-1 ml-2">
         <button
           type="button"
-          aria-label="Open grid menu"
-          className="p-1.5 -ml-[20px] hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center"
-        >
-          <GridIcon className="w-4 h-4 text-gray-600" />
-        </button>
-
-        <button
-          type="button"
           onClick={handleSend}
           disabled={!message.trim() || disabled}
           aria-label="Send message"
