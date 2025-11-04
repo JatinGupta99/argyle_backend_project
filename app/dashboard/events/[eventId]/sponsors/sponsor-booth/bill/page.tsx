@@ -10,7 +10,6 @@ export default function SponsorBoothBillPage() {
     <div className="flex h-screen ">
       {/* ====== Chat Panel (Immediately Next to Sidebar) ====== */}
       <div className="flex-shrink-0 w-[290px] bg-white  border-gray-200">
-        <AppSidebar />
         <ChatPanel
           title1="Chat"
           title2="Q&A"

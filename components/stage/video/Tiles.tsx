@@ -9,7 +9,7 @@ import {
 
 const VIDEOS_PER_PAGE = 6;
 
-export function Tiles() {
+export default function Tiles() {
   const localId = useLocalSessionId();
   const remoteIds = useParticipantIds({ filter: 'remote' });
   const allIds = localId ? [localId, ...remoteIds] : [...remoteIds];
