@@ -26,7 +26,7 @@ const initialState: ChatState = {
       id: nanoid(),
       author: 'Allan Johns',
       role: 'attendee',
-      text: 'Hello in this btwn there\'s space why?',
+      text: "Hello in this btwn there's space why?",
       timestamp: '7:40AM',
     },
   ],
