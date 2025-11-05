@@ -1,20 +1,23 @@
-import { ReduxProvider } from '@/components/providers/redux-provider';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/stage/app-sidebar';
+'use client';
 
-export default function Page() {
+import { ReduxProvider } from '@/components/providers/ReduxProvider';
+import { AppSidebar } from '@/components/stage/sidebar/AppSidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+
+export default function DashboardPage() {
   return (
     <ReduxProvider>
       <SidebarProvider>
-        <AppSidebar />
-
-        <SidebarInset>
-          <div className="h-dvh overflow-hidden flex flex-col items-center justify-center bg-background">
+        <div className="flex h-dvh overflow-hidden bg-background ">
+          {/* Left Sidebar */}
+          <AppSidebar />
+          {/* Main Content */}
+          <SidebarInset className="flex flex-1 flex-col items-center justify-center">
             <h1 className="text-4xl font-bold text-foreground">
-              Welcome to argyle frontend project
+              Welcome to Argyle frontend project
             </h1>
-          </div>
-        </SidebarInset>
+          </SidebarInset>
+        </div>
       </SidebarProvider>
     </ReduxProvider>
   );

@@ -1,29 +1,18 @@
 'use client';
 
-import Image from 'next/image';
-
-export function SessionCard({
-  imageSrc,
-  title,
-}: {
+interface SessionCardProps {
   imageSrc: string;
   title: string;
-}) {
+}
+
+export function SessionCard({ imageSrc, title }: SessionCardProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border ring-1 ring-primary/30">
-      <Image
-        src={imageSrc || '/images/event_image.png'} // fallback corrected
+    <div className="w-64 rounded-lg overflow-hidden mb-0 pl-1">
+      <img
+        src={imageSrc || '/placeholder.svg'}
         alt={title}
-        width={320}
-        height={180}
-        className="h-36 w-full object-cover"
-        priority
+        className="w-[calc(100%-0.4rem)] ml-4 rounded-md object-cover"
       />
-      <div className="absolute inset-x-0 bottom-0 p-3">
-        <div className="rounded bg-background/80 px-2 py-1 text-xs font-semibold">
-          {title}
-        </div>
-      </div>
     </div>
   );
 }
