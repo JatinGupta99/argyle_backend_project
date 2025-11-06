@@ -23,8 +23,8 @@ interface ChatHistoryQuery {
   limit?: number;
 }
 
-const HARD_CODED_EVENT_ID = '68ebe2a64674fa429419ba7d';
-const HARD_CODED_USER_ID = '68e630972af1374ec4c36630';
+const HARD_CODED_EVENT_ID = '672b9df7b91f4d8f1e1c2a9a';
+const HARD_CODED_USER_ID = '690c48c8882b436e3343b919';
 
 export function useMessages(type: 'live' | 'preLive', query: ChatHistoryQuery = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -44,7 +44,7 @@ export function useMessages(type: 'live' | 'preLive', query: ChatHistoryQuery = 
 
       const endpoint = `/chat/${HARD_CODED_EVENT_ID}/history?${params}`;
       const data = await apiClient.get(endpoint);
-
+      console.log(data);
       console.log(data, 'Fetched chat messages');
       setMessages(data);
     } catch (err) {

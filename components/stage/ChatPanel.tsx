@@ -57,6 +57,7 @@ export function ChatPanel({
       behavior: 'smooth',
       block: 'end',
     });
+    console.log(messages,'snclsdnlsd')
   }, [messages]);
 
   return (

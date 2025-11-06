@@ -139,7 +139,7 @@ export function ChatPanel({
           <ScrollArea className="h-full">
             <ul className="space-y-5 pb-4">
               {messages.map((m) => (
-                <li key={m.id} className="flex gap-3">
+                <li key={`{m.id}-${m.createdAt}`} className="flex gap-3">
                   <Avatar className="h-12 w-12">
                     <AvatarImage
                       src="/diverse-profile-avatars.png"
