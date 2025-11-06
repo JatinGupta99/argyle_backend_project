@@ -7,6 +7,7 @@ import { AppSidebar } from '@/components/stage/AppSideBar';
 import { ChatPanel } from '@/components/stage/ChatPanel';
 import { SidebarProvider } from '@/components/ui/Sidebar';
 import DailyIframe from '@daily-co/daily-js';
+import { ChatType } from '@/lib/constants/chat';
 
 interface AttendeeViewProfilePageProps {
   eventId: string;
@@ -88,6 +89,7 @@ export default function AttendeeViewProfilePage({
                 title2="Chat With Argyle"
                 title3="Everyone"
                 currentUserId=""
+                type={ChatType.LIVE}
               />
             </div>
           </div>

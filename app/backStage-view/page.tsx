@@ -6,6 +6,7 @@ import { AppSidebar } from '@/components/stage/AppSideBar';
 import { CountdownTimer } from '@/components/stage/backStage/CountDownTimer';
 import { ChatPanel } from '@/components/stage/ChatPanel';
 import { Sidebar, SidebarProvider } from '@/components/ui/Sidebar';
+import { ChatType } from '@/lib/constants/chat';
 
 export default function Page() {
   return (
@@ -26,6 +27,7 @@ export default function Page() {
                 title1="Everyone"
                 title2="Backstage"
                 title3="Backstage"
+                type={ChatType.PRE_LIVE}
               />
             </div>
             <div className="flex-[2] bg-black ">

@@ -92,3 +92,4 @@ export const SAMPLE_ATTENDEES: Attendee[] = [
     isMuted: false,
   },
 ];
+

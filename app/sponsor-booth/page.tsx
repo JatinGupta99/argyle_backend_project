@@ -6,6 +6,7 @@ import { AppSidebar } from '@/components/stage/AppSideBar';
 import { ChatPanel } from '@/components/stage/ChatPanel';
 import { SponsorCard } from '@/components/stage/SponsorCard';
 import { Sidebar, SidebarProvider } from '@/components/ui/Sidebar';
+import { ChatType } from '@/lib/constants/chat';
 
 export default function Page() {
   const sponsors = [
@@ -33,6 +34,7 @@ export default function Page() {
                 title1="Chat"
                 title2="Q&A"
                 title3="Chat"
+                type={ChatType.LIVE}
               />
             </div>
             <div className="flex-[2] ">
