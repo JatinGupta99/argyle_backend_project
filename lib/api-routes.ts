@@ -16,8 +16,8 @@ export const API_ROUTES = {
   chat: {
     history: (eventId: string, query?: Record<string, string>) => {
       const params = query ? `?${new URLSearchParams(query).toString()}` : '';
-      return `/chat/${EventId}/history${params}`;
+      return `/chat/${eventId}/history${params}`;
     },
-    create: () => '/chat',
+    create: (eventId:string) => `/chat/${EventId}`,
   },
 };

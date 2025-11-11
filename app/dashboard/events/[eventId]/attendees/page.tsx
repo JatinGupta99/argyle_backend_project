@@ -1,57 +1,83 @@
 'use client';
+import React, { useEffect, useState } from 'react';
+import DailyIframe from '@daily-co/daily-js';
+import DailyRoom from '@/components/daily/DailyRoom';
 
-import DailyRoom from '@/components/daily/page';
 import { ChatPanel } from '@/components/stage/ChatPanel';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { ChatType } from '@/lib/constants/chat';
+import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import { Header } from '@/components/stage/layout/Header';
-import { DailyRoomUrl, EventId, UserID } from '@/lib/constants/api';
+import { EventId, UserID } from '@/lib/constants/api';
 
-export default function AttendeeViewPage({
-  params,
-}: {
-  params: { eventId: string };
-}) {
-  //  const { roomUrl, loading, error } = useDailyRoomUrl(eventId);
-  const roomUrl = DailyRoomUrl;
 
-  //  if (loading)
-  //   return (
-  //     <div className="flex items-center justify-center h-screen text-gray-500">
-  //       Loading video session...
-  //     </div>
-  //   );
+interface AttendeeViewProfilePageProps {
+  eventId: string;
+}
 
-  // if (error)
-  //   return (
-  //     <div className="flex items-center justify-center h-screen text-red-600 p-4">
-  //       <p>{error}</p>
-  //     </div>
-  //   );
+export default function AttendeeViewProfilePage({ eventId }: AttendeeViewProfilePageProps) {
+  const [callObject, setCallObject] = useState<ReturnType<typeof DailyIframe.createCallObject> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!roomUrl)
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p>No room found for this event.</p>
-      </div>
-    );
+  const roomUrl = process.env.NEXT_PUBLIC_DAILY_ROOM_URL 
+    || 'https://argyleexecutiveforum.daily.co/techconnect-ssssummit-2025';
+
+  useEffect(() => {
+    const co = DailyIframe.createCallObject();
+    setCallObject(co);
+
+    co.join({ url: roomUrl })
+      .then(() => setLoading(false))
+      .catch((err) => {
+        console.error('Join error:', err);
+        setError('Failed to join the meeting');
+        setLoading(false);
+      });
+
+    return () => {
+      co.leave().finally(() => co.destroy());
+    };
+  }, [roomUrl]);
+
+  if (loading) return <CenteredMessage>Loading video...</CenteredMessage>;
+  if (error) return <CenteredMessage className="text-red-600">{error}</CenteredMessage>;
+  if (!callObject) return <CenteredMessage>Unable to initialize Daily call</CenteredMessage>;
+
   return (
-    <div className="flex h-screen">
-      <div className="w-[310px] border-r border-gray-200 flex-shrink-0">
-        <ChatPanel
-          title1="Everyone"
-          title2="Backstage"
-          title3="Everyone"
-          role="attendee"
-          eventId={EventId}
-          currentUserId={UserID}
-        />
-      </div>
+    <ReduxProvider>
+      <SidebarProvider>
+        <div className="flex h-screen w-screen overflow-hidden bg-background">
+          <aside className="w-[29.00%] flex-shrink-0 bg-[#FAFAFA] flex flex-col">
+            <div className="flex-1 overflow-y-auto">
+              <ChatPanel
+                title1="Everyone"
+                title2="Backstage"
+                title3="Everyone"
+                role="attendee"
+                eventId={EventId}
+                currentUserId={UserID}
+                type={ChatType.LIVE}
+              />
+            </div>
+          </aside>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title="Event Stage" />
-        <div className="flex-1">
-          <DailyRoom roomUrl={roomUrl} />
+          <main className="flex flex-1 flex-col overflow-hidden">
+            <Header />
+            <div className="flex-1 overflow-y-auto bg-white">
+              <DailyRoom callObject={callObject} />
+            </div>
+          </main>
         </div>
-      </div>
+      </SidebarProvider>
+    </ReduxProvider>
+  );
+}
+
+function CenteredMessage({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`flex items-center justify-center h-screen p-4 text-center ${className}`}>
+      {children}
     </div>
   );
 }

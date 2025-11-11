@@ -23,16 +23,15 @@ export default function DashboardLayout({
   eventId,
   currentUserId,
 }: DashboardLayoutProps) {
-  return (
+ return (
     <div className="flex h-screen w-screen">
-      {/* Sidebar - 1 part */}
-
-      <div className="flex-[1]">
+      {/* Sidebar - takes exact space required */}
+      <div className="flex-shrink-0">
         <AppSidebar />
       </div>
 
-      {/* Main content - 3 parts */}
-      <main className="flex-[5] bg-white-500 overflow-auto">{children}</main>
+      {/* Main content - covers the rest of the space */}
+      <main className="flex-grow bg-white-500 overflow-auto">{children}</main>
     </div>
   );
 }

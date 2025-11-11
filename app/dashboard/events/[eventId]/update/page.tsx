@@ -6,6 +6,7 @@ import { ChatPanel } from '@/components/stage/ChatPanel';
 import { EventUpdates } from '@/components/stage/event-updates';
 import { Header } from '@/components/stage/layout/Header';
 import { EventId, UserID } from '@/lib/constants/api';
+import { ChatType } from '@/lib/constants/chat';
 export default function Page() {
   return (
     <ReduxProvider>
@@ -19,6 +20,7 @@ export default function Page() {
               role={'attendee'}
               eventId={EventId}
               currentUserId={UserID}
+              type={ChatType.PRE_LIVE}
             />
           </div>
           <section className="flex-1 flex flex-col">

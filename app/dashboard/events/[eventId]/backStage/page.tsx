@@ -5,6 +5,7 @@ import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { EventId, UserID } from '@/lib/constants/api';
 import { RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatType } from '@/lib/constants/chat';
 
 const targetDate = new Date('2025-11-01T15:00:00Z');
 
@@ -24,6 +25,7 @@ export default function BackstagePage() {
               role={chatRole}
               eventId={EventId}
               currentUserId={UserID}
+              type={ChatType.LIVE}
             />
           </div>
 
