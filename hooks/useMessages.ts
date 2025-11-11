@@ -4,7 +4,11 @@ import { API_ROUTES } from '@/lib/api-routes';
 import { Message } from '@/lib/types/api';
 import { ChatType } from '@/lib/constants/chat';
 
-export function useMessages(type: ChatType, eventId: string, query?: Record<string, string>) {
+export function useMessages(
+  type: ChatType,
+  eventId: string,
+  query?: Record<string, string>
+) {
   const fullQuery = { ...(query || {}), type };
 
   const {
@@ -17,7 +21,7 @@ export function useMessages(type: ChatType, eventId: string, query?: Record<stri
     [eventId, type, JSON.stringify(query)]
   );
 
-  const messages = response?.data ?? []; 
+  const messages = response?.data ?? [];
 
   const createMessage = async (content: string) => {
     const newMessage = await apiClient.post(API_ROUTES.chat.create(eventId), {

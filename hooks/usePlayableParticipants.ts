@@ -18,8 +18,7 @@ export function usePlayableParticipants() {
       const allParticipants = daily.participants();
       const newPlayableIds = Object.entries(allParticipants)
         .filter(
-          ([, participant]) =>
-            participant.tracks?.video?.state === 'playable'
+          ([, participant]) => participant.tracks?.video?.state === 'playable'
         )
         .map(([id]) => id);
       setPlayableIds(newPlayableIds);

@@ -18,6 +18,13 @@ export const API_ROUTES = {
       const params = query ? `?${new URLSearchParams(query).toString()}` : '';
       return `/chat/${eventId}/history${params}`;
     },
-    create: (eventId:string) => `/chat/${EventId}`,
+    create: (eventId: string) => `/chat/${EventId}`,
+  },
+ sponsor: {
+    fetchALL: (eventId: string) => `/events/${eventId}/sponsors`,
+    fetchById: (eventId: string, sponsorId: string) =>
+      `/events/${eventId}/sponsors/${sponsorId}`,
+    uploadUrl: (eventId: string, sponsorId: string) =>
+      `/events/${eventId}/sponsors/${sponsorId}/upload-url`,
   },
 };

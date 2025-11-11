@@ -26,7 +26,7 @@ export function VideoTile({ id }: VideoTileProps) {
 
       {/* Overlay */}
       <div
-  className="
+        className="
     absolute
     bottom-0
     left-0
@@ -42,16 +42,16 @@ export function VideoTile({ id }: VideoTileProps) {
     text-white
     rounded-b-xl
   "
->
-  <span className="truncate">
-    {isLocal ? 'You' : userName || `User: ${id.slice(0, 4)}...`}
-  </span>
-  {isMicOn ? (
-    <Mic className="w-5 h-5 text-green-400" />
-  ) : (
-    <MicOff className="w-5 h-5 text-red-500" />
-  )}
-</div>
+      >
+        <span className="truncate">
+          {isLocal ? 'You' : userName || `User: ${id.slice(0, 4)}...`}
+        </span>
+        {isMicOn ? (
+          <Mic className="w-5 h-5 text-green-400" />
+        ) : (
+          <MicOff className="w-5 h-5 text-red-500" />
+        )}
+      </div>
     </div>
   );
 }

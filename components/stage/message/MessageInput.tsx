@@ -1,16 +1,12 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Smile } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import emojiData from '@emoji-mart/data';
+import { MessageInputProps } from '@/lib/types/components';
 
 const Picker = dynamic(() => import('@emoji-mart/react'), { ssr: false });
-
-interface MessageInputProps {
-  onSend: (message: string) => void;
-  disabled?: boolean;
-}
 
 export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
   const [message, setMessage] = useState('');
@@ -23,29 +19,29 @@ export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const toggleRef = useRef<HTMLButtonElement | null>(null);
 
-  // Send message
-  const handleSend = () => {
-    if (message.trim()) {
-      onSend(message);
-      setMessage('');
-      setShowEmojiPicker(false);
-    }
-  };
+  const handleSend = useCallback(() => {
+    const trimmed = message.trim();
+    if (!trimmed || disabled) return;
+    onSend(trimmed);
+    setMessage('');
+    setShowEmojiPicker(false);
+  }, [message, disabled, onSend]);
 
-  // Handle Enter key
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [handleSend]
+  );
 
-  const handleEmojiSelect = (emoji: any) => {
+  const handleEmojiSelect = useCallback((emoji: any) => {
     setMessage((prev) => prev + emoji.native);
     inputRef.current?.focus();
-  };
+  }, []);
 
-  // Close picker on outside click + responsive repositioning
   useEffect(() => {
     if (!showEmojiPicker) return;
 
@@ -60,48 +56,46 @@ export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
       }
     };
 
-    const handleResizeOrOpen = () => {
+    const adjustPickerPosition = () => {
       if (pickerRef.current) {
         const rect = pickerRef.current.getBoundingClientRect();
-        const spaceLeft = rect.left;
-        if (spaceLeft < 10) {
-          setPickerPosition('left');
-        } else {
-          setPickerPosition('right');
-        }
+        setPickerPosition(rect.left < 10 ? 'left' : 'right');
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('resize', handleResizeOrOpen);
-
-    setTimeout(handleResizeOrOpen, 0);
+    window.addEventListener('resize', adjustPickerPosition);
+    adjustPickerPosition();
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('resize', handleResizeOrOpen);
+      window.removeEventListener('resize', adjustPickerPosition);
     };
   }, [showEmojiPicker]);
 
   return (
-    <div className="relative flex items-center bg-white rounded-xl px-3 py-1.5 border border-gray-200 shadow-sm">
-      {/* Emoji Picker popup */}
+    <div
+      className="relative flex items-center bg-white rounded-xl px-3 py-1.5 border border-gray-200 shadow-sm focus-within:ring-1 focus-within:ring-blue-400 transition-shadow"
+      role="form"
+      aria-label="Message input form"
+    >
       <div
         ref={pickerRef}
-        className={`absolute bottom-full mb-2 z-50 shadow-lg rounded-lg overflow-hidden transition-all duration-200 ease-out transform
-    ${pickerPosition === 'right' ? 'origin-right right-0' : 'origin-left left-0'}
-    ${showEmojiPicker ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0 pointer-events-none'}
-    h-[225px] w-[280px]
-  `}
+        className={`absolute bottom-full mb-2 z-50 shadow-lg rounded-lg overflow-hidden transform transition-all duration-200 ease-out
+          ${pickerPosition === 'right' ? 'origin-right right-0' : 'origin-left left-0'}
+          ${showEmojiPicker ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}
+          h-[225px] w-[280px] bg-white`}
       >
-        <div className="overflow-auto h-full w-full">
-          <Picker
-            data={emojiData}
-            onEmojiSelect={handleEmojiSelect}
-            theme="light"
-            previewPosition="none"
-          />
-        </div>
+        {showEmojiPicker && (
+          <div className="overflow-auto h-full w-full">
+            <Picker
+              data={emojiData}
+              onEmojiSelect={handleEmojiSelect}
+              theme="light"
+              previewPosition="none"
+            />
+          </div>
+        )}
       </div>
 
       <input
@@ -112,28 +106,32 @@ export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyPress}
         disabled={disabled}
+        aria-disabled={disabled}
+        aria-label="Message input"
         className="flex-1 bg-transparent outline-none text-sm text-gray-900 placeholder-gray-500 disabled:opacity-50"
       />
-      <div className="flex items-center gap-1 ml-2">
+
+      <div className="flex items-center gap-1 ml-0">
         <button
           ref={toggleRef}
           type="button"
           onClick={() => setShowEmojiPicker((prev) => !prev)}
-          aria-label="Add emoji"
-          className={`p-1.5 rounded-full transition-colors flex items-center justify-center ${
+          aria-label="Toggle emoji picker"
+          className={`p-1.5 rounded-full flex items-center justify-center transition-colors ${
             showEmojiPicker
-              ? 'bg-blue-100 text-blue-500'
-              : 'hover:bg-blue-50 text-gray-500 hover:text-blue-500'
+              ? 'bg-blue-100 text-blue-600'
+              : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
           }`}
         >
           <Smile size={18} />
         </button>
+
         <button
           type="button"
           onClick={handleSend}
           disabled={!message.trim() || disabled}
           aria-label="Send message"
-          className="p-1.5 hover:bg-blue-50 rounded-full transition-colors flex items-center justify-center disabled:opacity-50 disabled:hover:bg-transparent"
+          className="p-1.5 rounded-full flex items-center justify-center transition-colors hover:bg-blue-50 disabled:opacity-50 disabled:hover:bg-transparent"
         >
           <Send
             size={18}

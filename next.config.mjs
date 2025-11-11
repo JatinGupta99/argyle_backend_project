@@ -4,6 +4,12 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'dl.dir.freefiremobile.com',
+      },
+    ],
     unoptimized: true,
   },
 }

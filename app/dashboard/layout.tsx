@@ -23,14 +23,9 @@ export default function DashboardLayout({
   eventId,
   currentUserId,
 }: DashboardLayoutProps) {
- return (
+  return (
     <div className="flex h-screen w-screen">
-      {/* Sidebar - takes exact space required */}
-      <div className="flex-shrink-0">
-        <AppSidebar />
-      </div>
-
-      {/* Main content - covers the rest of the space */}
+      <AppSidebar />
       <main className="flex-grow bg-white-500 overflow-auto">{children}</main>
     </div>
   );

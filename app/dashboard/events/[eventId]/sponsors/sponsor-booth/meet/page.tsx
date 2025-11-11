@@ -8,6 +8,8 @@ import { useState } from 'react';
 import { ChatPanel } from '@/components/stage/ChatPanel';
 import { EventId, UserID } from '@/lib/constants/api';
 import { Header } from '@/components/stage/layout/Header';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatType } from '@/lib/constants/chat';
 
 export default function SponsorBoothMeet() {
   const [formData, setFormData] = useState({
@@ -34,12 +36,13 @@ export default function SponsorBoothMeet() {
       {/* Left Sidebar - Chat */}
       <div className="w-[310px] border-r border-gray-200">
         <ChatPanel
-          title1="Chat"
-          title2="Q&A"
-          title3="Chat"
-          role="speaker"
+          title1={ChatTab.Chat}
+          title2={ChatTab.QA}
+          title3={ChatTab.Chat}
+          role={RoleView.Attendee}
           eventId={EventId}
           currentUserId={UserID}
+          type={ChatType.LIVE}
         />
       </div>
 
