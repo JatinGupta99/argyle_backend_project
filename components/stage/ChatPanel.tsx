@@ -12,6 +12,7 @@ import { RoleView, setChatTab } from '@/lib/slices/uiSlice.ts';
 import { Button } from '@/components/ui/button';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
+import { ChatType } from '@/lib/constants/chat';
 
 type ChatPanelProps = {
   title1?: string;
@@ -19,6 +20,7 @@ type ChatPanelProps = {
   title3?: string;
   currentUserId?: string;
   role: RoleView;
+  type: ChatType;
 };
 
 export function ChatPanel({
@@ -26,12 +28,14 @@ export function ChatPanel({
   title2,
   title3,
   role,
-  currentUserId = '68e630972af1374ec4c36630',
+  type,
+  currentUserId,
 }: ChatPanelProps) {
   const router = useRouter();
   const dispatch = useDispatch();
   const isSpeaker = role === 'speaker' || role === 'organizer';
-  const { messages, isLoading, createMessage } = useMessages();
+
+  const { messages, isLoading, createMessage } = useMessages(type);
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const tab = useSelector((s: RootState) => s.ui.chatTab);
@@ -40,7 +44,7 @@ export function ChatPanel({
     if (!text.trim()) return;
     setIsSending(true);
     try {
-      await createMessage(currentUserId, text);
+      await createMessage(text);
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {
@@ -49,11 +53,11 @@ export function ChatPanel({
   };
 
   useEffect(() => {
-    // Scroll smoothly to bottom whenever new messages arrive
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'end',
     });
+    console.log(messages,'snclsdnlsd')
   }, [messages]);
 
   return (
@@ -117,7 +121,6 @@ export function ChatPanel({
 
       {/* Chat Content */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
-        {/* Session Header Card */}
         <div className="px-4 pt-4 flex-shrink-0">
           <SessionCard
             imageSrc="/images/event_image.png"
@@ -125,7 +128,6 @@ export function ChatPanel({
           />
         </div>
 
-        {/* Divider */}
         <div className="px-4 py-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-blue-600" />
@@ -200,7 +202,6 @@ export function ChatPanel({
   );
 }
 
-/** Utility to get initials from name */
 function initials(name: string) {
   if (!name) return '';
   return name

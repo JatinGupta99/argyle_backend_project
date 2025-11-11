@@ -3,11 +3,19 @@
 import { Header } from '@/components/layout/Header/Page';
 import { ReduxProvider } from '@/components/providers/redux-provider';
 import { AppSidebar } from '@/components/stage/AppSideBar';
-import { CountdownTimer } from '@/components/stage/backStage/CountDownTimer';
 import { ChatPanel } from '@/components/stage/ChatPanel';
+import { SponsorCard } from '@/components/stage/SponsorCard';
 import { Sidebar, SidebarProvider } from '@/components/ui/Sidebar';
+import { ChatType } from '@/lib/constants/chat';
 
 export default function Page() {
+  const sponsors = [
+    { imageSrc: '/sponsors/bill-logo.jpg', name: 'bill' },
+    { imageSrc: '/sponsors/argyle-logo.png', name: 'argyle' },
+    { imageSrc: '/sponsors/ibm-logo.png', name: 'IBM' },
+    { imageSrc: '/sponsors/Oracle-logo.png', name: 'Oracle' },
+  ];
+
   return (
     <ReduxProvider>
       <SidebarProvider>
@@ -20,17 +28,28 @@ export default function Page() {
             >
               <AppSidebar />
             </Sidebar>
-            <div className="w-[21.75%] h-full p-0 m-0 bg-red-500">
+            <div className="w-[21.75%] h-full p-0 m-0">
               <ChatPanel
                 role="speaker"
-                title1="Everyone"
-                title2="Backstage"
-                title3="Backstage"
+                title1="Chat"
+                title2="Q&A"
+                title3="Chat"
+                type={ChatType.LIVE}
               />
             </div>
-            <div className="flex-[2] bg-black ">
+            <div className="flex-[2] ">
               <Header title="Financial Controller Leadership Forum: Redefining Trad..." />
-              <CountdownTimer targetDate={new Date('2025-10-21T15:00:00Z')} />
+              <div>
+                <h1 className="font-bold text-center mt-9">
+                  VISIT OUR SPONSORS BOOTHS:
+                </h1>
+
+                <div className="grid grid-cols-2 gap-6">
+                  {sponsors.map((s, i) => (
+                    <SponsorCard key={i} imageSrc={s.imageSrc} name={s.name} />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ interface UiState {
 
 const initialState: UiState = {
   isLive: true,
-  roomUrl: 'https://jatinguptawork.daily.co/IYgdOmH87NbECz55EZ3t',
+  roomUrl: 'https://argyleexecutiveforum.daily.co/ssvlssd2wdssswwwwsvn',
 };
 
 const uiSlice = createSlice({

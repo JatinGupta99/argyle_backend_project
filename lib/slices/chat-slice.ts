@@ -7,6 +7,7 @@ export interface ChatMessage {
   role?: Role;
   text: string;
   timestamp: string;
+  createdAt?: string;
 }
 
 interface ChatState {

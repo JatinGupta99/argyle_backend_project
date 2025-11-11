@@ -23,46 +23,53 @@ interface ChatHistoryQuery {
   limit?: number;
 }
 
-const HARD_CODED_EVENT_ID = '68ebe2a64674fa429419ba7d';
-const HARD_CODED_USER_ID = '68e630972af1374ec4c36630';
+const HARD_CODED_EVENT_ID = '672b9df7b91f4d8f1e1c2a9a';
+const HARD_CODED_USER_ID = '690c48c8882b436e3343b919';
 
-export function useMessages(query: ChatHistoryQuery = {}) {
+export function useMessages(type: 'live' | 'preLive', query: ChatHistoryQuery = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch chat history
+  // ✅ Always include `type` in the query params
   const fetchMessages = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+
     try {
-      const params = new URLSearchParams(
-        query as Record<string, string>
-      ).toString();
-      const endpoint = `/chat/${HARD_CODED_EVENT_ID}/history${params ? `?${params}` : ''}`;
+      const params = new URLSearchParams({
+        ...(query as Record<string, string>),
+        type, // ensure type is always passed
+      }).toString();
+
+      const endpoint = `/chat/${HARD_CODED_EVENT_ID}/history?${params}`;
       const data = await apiClient.get(endpoint);
-      console.log(data, 'snvdlksdv');
+      console.log(data);
+      console.log(data, 'Fetched chat messages');
       setMessages(data);
     } catch (err) {
       console.error(err);
-      setError(
-        err instanceof Error ? err.message : 'Failed to fetch chat messages'
-      );
+      setError(err instanceof Error ? err.message : 'Failed to fetch chat messages');
     } finally {
       setIsLoading(false);
     }
-  }, [JSON.stringify(query)]);
+  }, [JSON.stringify(query), type]);
 
-  // Create a new message
-  const createMessage = useCallback(async (userId: string, content: string) => {
-    const payload = { eventId: HARD_CODED_EVENT_ID, userId, content };
-    const newMessage = await apiClient.post('/chat', payload);
+  const createMessage = useCallback(
+    async (content: string) => {
+      const payload = {
+        eventId: HARD_CODED_EVENT_ID,
+        userId: HARD_CODED_USER_ID,
+        content,
+        type, // include same type for sending
+      };
 
-    // Use functional update to avoid stale closure
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-    return newMessage;
-  }, []);
+      const newMessage = await apiClient.post('/chat', payload);
+      setMessages((prev) => [...prev, newMessage]);
+      return newMessage;
+    },
+    [type]
+  );
 
   useEffect(() => {
     fetchMessages();

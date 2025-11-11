@@ -6,6 +6,7 @@ import { AppSidebar } from '@/components/stage/AppSideBar';
 import { ChatPanel } from '@/components/stage/ChatPanel';
 import { VideoPanel } from '@/components/stage/VideoPanel';
 import { Sidebar, SidebarProvider } from '@/components/ui/Sidebar';
+import { ChatType } from '@/lib/constants/chat';
 
 export default function Page() {
   return (
@@ -26,6 +27,7 @@ export default function Page() {
                 title1="Everyone"
                 title2="BackStage"
                 title3="Everyone"
+                 type={ChatType.LIVE}
               />
             </div>
             <div className="flex-[2] ">

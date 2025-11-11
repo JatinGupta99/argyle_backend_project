@@ -1,22 +1,29 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/';
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+
+function buildUrl(endpoint: string) {
+  return `${API_BASE_URL.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
+}
+
 
 export const apiClient = {
   async get(endpoint: string) {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+    const response = await fetch(buildUrl(endpoint));
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
         `GET ${endpoint} failed: ${response.status} - ${errorText}`
       );
     }
-    // Safely handle empty responses
     const text = await response.text();
-    return text ? JSON.parse(text) : null;
+    console.log('Fetching URL:', buildUrl(endpoint));
+    const data= text ? JSON.parse(text) : null;
+    return data?data.data:null;
   },
 
+
   async post(endpoint: string, data: any) {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(buildUrl(endpoint), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -30,11 +37,12 @@ export const apiClient = {
     }
 
     const text = await response.text();
-    return text ? JSON.parse(text) : null;
+    const result= text ? JSON.parse(text) : null;
+    return result?result.data:null;
   },
 
   async put(endpoint: string, data: any) {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(buildUrl(endpoint), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -52,7 +60,7 @@ export const apiClient = {
   },
 
   async delete(endpoint: string) {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(buildUrl(endpoint), {
       method: 'DELETE',
     });
 
