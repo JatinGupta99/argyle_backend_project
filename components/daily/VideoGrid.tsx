@@ -9,13 +9,18 @@ import { GRID_CONFIG } from '@/lib/constants/grid';
 export function VideoGrid() {
   const playableIds = usePlayableParticipants();
   const [page, setPage] = useState(0);
-  const totalPages = Math.max(1, Math.ceil(playableIds.length / GRID_CONFIG.VIDEOS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(playableIds.length / GRID_CONFIG.VIDEOS_PER_PAGE)
+  );
   const visibleIds = playableIds.slice(
     page * GRID_CONFIG.VIDEOS_PER_PAGE,
     (page + 1) * GRID_CONFIG.VIDEOS_PER_PAGE
   );
 
-  const { gridTemplateColumns, gridTemplateRows } = useGridLayout(visibleIds.length);
+  const { gridTemplateColumns, gridTemplateRows } = useGridLayout(
+    visibleIds.length
+  );
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const handleScroll = useCallback(
@@ -25,7 +30,9 @@ export function VideoGrid() {
 
       scrollTimeout.current = setTimeout(() => {
         setPage((prev) =>
-          e.deltaY > 0 ? (prev + 1) % totalPages : (prev - 1 + totalPages) % totalPages
+          e.deltaY > 0
+            ? (prev + 1) % totalPages
+            : (prev - 1 + totalPages) % totalPages
         );
       }, GRID_CONFIG.SCROLL_DEBOUNCE_MS);
     },
@@ -37,7 +44,10 @@ export function VideoGrid() {
   }, [page, totalPages]);
 
   return (
-    <div className=" relative h-full w-full overflow-hidden select-none" onWheel={handleScroll}>
+    <div
+      className=" relative h-full w-full overflow-hidden select-none"
+      onWheel={handleScroll}
+    >
       {totalPages > 1 && (
         <div className="absolute top-2 right-2 z-10 px-2 py-1 bg-blue/60 text-white text-xs rounded">
           Page {page + 1} / {totalPages}

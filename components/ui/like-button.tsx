@@ -1,7 +1,7 @@
 'use client';
 
 import { Heart } from 'lucide-react';
-import { useLikes } from '@/hooks/use-likes';
+import { useLikes } from '@/hooks/useLikes';
 
 interface LikeButtonProps {
   targetId: string;

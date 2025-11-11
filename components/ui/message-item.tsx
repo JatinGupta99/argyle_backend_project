@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { MessageCircle, MoreVertical } from 'lucide-react';
 import LikeButton from './like-button';
-import CommentSection from '../comment-section';
+import CommentSection from '../stage/comments/commentSection';
 
 interface Message {
   _id: string;
