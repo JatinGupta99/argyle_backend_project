@@ -7,8 +7,8 @@ import { addMessage } from '@/lib/slices/chat-slice';
 import {
   setChatTab,
   type ChatTab,
-  type StageView,
   type RoleView,
+  type StageView,
 } from '@/lib/slices/uiSlice.ts';
 import type { RootState } from '@/lib/store';
 import { ArrowLeftFromLine } from 'lucide-react';
@@ -138,45 +138,44 @@ export function ChatPanel({
         <div className="flex-1 overflow-hidden px-4 rounded-lg bg-[#E8F4FB] shadow-inner">
           <ScrollArea className="h-full">
             <ul className="space-y-5 pb-4">
-              {messages.map((m) => (
-                <li key={`{m.id}-${m.createdAt}`} className="flex gap-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage
-                      src="/diverse-profile-avatars.png"
-                      alt={m.author}
-                    />
-                    <AvatarFallback className="text-[10px] text-gray-900">
-                      {initials(m.author)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-sm font-medium text-gray-900">
-                        {m.author}
-                      </span>
-                      {m.role === 'organizer' && (
-                        <span
-                          className="text-[14px] font-semibold"
-                          style={{
-                            fontFamily: 'Inter, sans-serif',
-                            lineHeight: '125%',
-                            letterSpacing: '0%',
-                            color: '#EE9F15',
-                          }}
-                        >
-                          (Organizer)
-                        </span>
-                      )}
-                      <span className="text-[10px] text-gray-500">
-                        {m.timestamp}
-                      </span>
-                    </div>
-                    <p className="text-sm leading-relaxed text-gray-800">
-                      {m.text}
-                    </p>
-                  </div>
-                </li>
-              ))}
+           {messages.map((m, i) => (
+  <li key={m.id || i} className="flex gap-3">
+    <Avatar className="h-12 w-12">
+      <AvatarImage
+        src="/diverse-profile-avatars.png"
+        alt={m.author}
+      />
+      <AvatarFallback className="text-[10px] text-gray-900">
+        {initials(m.author)}
+      </AvatarFallback>
+    </Avatar>
+    <div>
+      <div className="flex items-baseline gap-2">
+        <span className="text-sm font-medium text-gray-900">
+          {m.author}
+        </span>
+        {m.role === 'organizer' && (
+          <span
+            className="text-[14px] font-semibold"
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              lineHeight: '125%',
+              letterSpacing: '0%',
+              color: '#EE9F15',
+            }}
+          >
+            (Organizer)
+          </span>
+        )}
+        <span className="text-[10px] text-gray-500">
+          {m.timestamp}
+        </span>
+      </div>
+      <p className="text-sm leading-relaxed text-gray-800">{m.text}</p>
+    </div>
+  </li>
+))}
+
               <li aria-hidden="true">
                 <div ref={endRef} />
               </li>
