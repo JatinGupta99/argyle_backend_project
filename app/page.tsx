@@ -1,5 +1,5 @@
 import { ReduxProvider } from '@/components/providers/redux-provider';
-import { SidebarProvider, SidebarInset } from '@/components/ui/Sidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/stage/AppSideBar';
 
 export default function Page() {

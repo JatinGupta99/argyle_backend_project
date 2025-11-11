@@ -6,7 +6,7 @@ import { Header } from '@/components/layout/Header/Page';
 import { ReduxProvider } from '@/components/providers/redux-provider';
 import { AppSidebar } from '@/components/stage/AppSideBar';
 import { ChatPanel } from '@/components/stage/ChatPanel';
-import { SidebarProvider } from '@/components/ui/Sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { ChatType } from '@/lib/constants/chat';
 
 interface AttendeeViewProfilePageProps {
@@ -47,15 +47,9 @@ export default function AttendeeViewProfilePage({ eventId }: AttendeeViewProfile
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
           {/* Sidebar */}
-          <aside className="w-[260px] flex-shrink-0 border-r bg-[#F9F9F9]">
             <AppSidebar />
-          </aside>
-
-          {/* Main Content */}
-          
-
           {/* Chat */}
-          <aside className="w-[21.75%] flex-shrink-0 border-l bg-[#FAFAFA] flex flex-col">
+          <aside className="w-[21.75%] flex-shrink-0 bg-[#FAFAFA] flex flex-col">
             <div className="flex-1 overflow-y-auto">
               <ChatPanel
                 role="attendee"
