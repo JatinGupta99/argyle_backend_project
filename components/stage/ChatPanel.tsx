@@ -128,7 +128,6 @@ export function ChatPanel({
           </div>
         </div>
 
-        {/* Divider */}
         <div className="px-4 py-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-blue-600" />
