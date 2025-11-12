@@ -27,7 +27,6 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
     if (sorted.length > 0) {
       endRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-    console.log('Sorted messages:', sorted);
   }, [sorted]);
 
   const getInitials = (name: string) =>

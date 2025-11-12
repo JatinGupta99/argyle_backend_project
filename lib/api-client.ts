@@ -15,7 +15,6 @@ export const apiClient = {
       );
     }
     const text = await response.text();
-    console.log('Fetching URL:', buildUrl(endpoint));
     const data = text ? JSON.parse(text) : null;
     return data ? data : null;
   },

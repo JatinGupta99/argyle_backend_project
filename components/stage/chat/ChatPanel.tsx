@@ -21,7 +21,6 @@ export function ChatPanel({
   type,
 }: ChatPanelProps) {
   const router = useRouter();
-  // const isSpeaker = role === RoleView.Speaker || role === RoleView.Organiser
   const resolvedEventId = eventId ?? EventId;
 
   const { messages, isLoading, createMessage } = useMessages(

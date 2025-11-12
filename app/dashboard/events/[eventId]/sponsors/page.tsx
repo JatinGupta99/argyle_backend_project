@@ -1,6 +1,8 @@
+import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
 import { SponsorCard } from '@/components/stage/sponsor-card';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { EventId, UserID } from '@/lib/constants/api';
 import { ChatType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
@@ -14,19 +16,23 @@ export default async function Page({ params }: EventPageProps) {
   const eventId = EventId;
   const sponsors = await getSponsors(eventId);
 
-  return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <div className="w-[310px] border-r border-gray-200">
-        <ChatPanel
-          title1={ChatTab.Chat}
-          title2={ChatTab.QA}
-          title3={ChatTab.Chat}
-          role={RoleView.Attendee}
-          eventId={eventId}
-          currentUserId={UserID}
-          type={ChatType.LIVE}
-        />
-      </div>
+
+
+ return (
+       <ReduxProvider>
+      <SidebarProvider>
+        <div className="flex h-screen w-screen overflow-hidden bg-background">
+          <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] flex flex-col">
+            <ChatPanel
+              title1={ChatTab.Chat}
+              title2={ChatTab.QA}
+              title3={ChatTab.Chat}
+              role={RoleView.Attendee}
+              eventId={eventId}
+              currentUserId={UserID}
+              type={ChatType.LIVE}
+            />
+          </aside>
 
       <div className="flex flex-col h-screen w-full overflow-hidden bg-background">
         <div className="flex flex-1 overflow-hidden">
@@ -51,6 +57,9 @@ export default async function Page({ params }: EventPageProps) {
           </div>
         </div>
       </div>
-    </div>
-  );
+        </div>
+      </SidebarProvider>
+    </ReduxProvider>
+ )
+
 }

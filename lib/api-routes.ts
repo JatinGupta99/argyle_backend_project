@@ -1,5 +1,3 @@
-import { EventId } from './constants/api';
-
 export const API_ROUTES = {
   comments: {
     base: 'comments',
@@ -18,7 +16,7 @@ export const API_ROUTES = {
       const params = query ? `?${new URLSearchParams(query).toString()}` : '';
       return `/chat/${eventId}/history${params}`;
     },
-    create: (eventId: string) => `/chat/${EventId}`,
+    create: (eventId: string) => `/chat/${eventId}`,
   },
   sponsor: {
     fetchALL: (eventId: string) => `/events/${eventId}/sponsors`,
@@ -26,5 +24,8 @@ export const API_ROUTES = {
       `/events/${eventId}/sponsors/${sponsorId}`,
     uploadUrl: (eventId: string, sponsorId: string) =>
       `/events/${eventId}/sponsors/${sponsorId}/upload-url`,
+  },
+  event: {
+    fetchById: (eventId: string) => `events/${eventId}`,
   },
 };

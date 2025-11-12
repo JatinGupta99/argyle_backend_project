@@ -1,80 +1,49 @@
 'use client';
-
-import { useEffect, useState, useMemo } from 'react';
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
-import { Header } from '@/components/stage/layout/Header';
 import DailyRoom from '@/components/daily/DailyRoom';
-import { ChatPanel } from '@/components/stage/chat/ChatPanel';
-import { SidebarProvider } from '@/components/ui/sidebar';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
+import { Header } from '@/components/stage/layout/Header';
 import CenteredMessage from '@/components/ui/CenteredMessage';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { useDailyRoomConnector } from '@/hooks/useDailyRoom';
 import { chatTitles, UserID } from '@/lib/constants/api';
 import { ChatType } from '@/lib/constants/chat';
-import { AttendeeViewProfilePageProps } from '@/lib/types/components';
 import { RoleView } from '@/lib/slices/uiSlice.ts';
+import { EventPageProps } from '@/lib/types/components';
+import { DailyCall } from '@daily-co/daily-js';
+import React, { use, useMemo } from 'react';
 
 export default function AttendeeViewProfilePage({
-  eventId,
-}: AttendeeViewProfilePageProps) {
+  params,
+}: EventPageProps) {
+  const { eventId } = use(params);
   const userId = UserID;
 
-  const [callObject, setCallObject] = useState<DailyCall | null>(null);
-  const [status, setStatus] = useState<'idle' | 'joining' | 'ready' | 'error'>(
-    'idle'
-  );
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    callObject, 
+    loading, 
+    error: dailyConnectError, 
+    isRoomReady, 
+    eventTitle,
+    eventError,
+  } = useDailyRoomConnector(eventId);
+  console.log(callObject,'callObject')
 
-  const roomUrl = useMemo(
-    () =>
-      process.env.NEXT_PUBLIC_DAILY_ROOM_URL ??
-      'https://argyleexecutiveforum.daily.co/techconnect-ssssummit-2025',
-    []
-  );
-  useEffect(() => {
-    if (!roomUrl) {
-      setError('Missing Daily room URL');
-      setStatus('error');
-      return;
-    }
+  const displayMessage = useMemo(() => {
+    if (!userId) return 'Loading user...';
+    if (loading) return 'Loading event details or joining call...';
+    
+    if (eventError) return eventError.message || 'Failed to load event details.'; 
+    
+    if (dailyConnectError) return dailyConnectError;
+    
+    if (!isRoomReady && !loading) return 'Unable to initialize Daily call.';
+    
+    return null; 
+  }, [userId, loading, eventError, dailyConnectError, isRoomReady]);
 
-    const co = DailyIframe.createCallObject();
-    setCallObject(co);
-    setStatus('joining');
-
-    co.join({
-      url: roomUrl,
-      userName: userId || 'Guest',
-    })
-      .then(() => {
-        setStatus('ready');
-      })
-      .catch((err) => {
-        console.error('Daily join failed:', err);
-        setError('Failed to join the meeting');
-        setStatus('error');
-      });
-
-    return () => {
-      co.leave()
-        .catch(() => {})
-        .finally(() => co.destroy());
-    };
-  }, [roomUrl, userId]);
-
-  if (!userId) return <CenteredMessage>Loading user...</CenteredMessage>;
-
-  if (status === 'joining')
-    return <CenteredMessage>Joining Daily call...</CenteredMessage>;
-
-  if (status === 'error' || error)
-    return (
-      <CenteredMessage className="text-red-600">
-        {error || 'An unexpected error occurred.'}
-      </CenteredMessage>
-    );
-
-  if (!callObject)
-    return <CenteredMessage>Unable to initialize Daily call</CenteredMessage>;
+  // 3. Determine error state for styling
+  const isErrorMessage = eventError || dailyConnectError;
 
   return (
     <ReduxProvider>
@@ -93,9 +62,15 @@ export default function AttendeeViewProfilePage({
           </aside>
 
           <main className="flex flex-1 flex-col overflow-hidden bg-white">
-            <Header title="Financial Controller Leadership Forum: Redefining Trad..." />
+            <Header title={eventTitle || 'Loading Event...'} />
             <div className="flex-1 overflow-y-auto flex items-center justify-center">
-              <DailyRoom callObject={callObject} />
+              {displayMessage ? (
+                <CenteredMessage className={isErrorMessage ? 'text-red-600' : ''}>
+                  {displayMessage}
+                </CenteredMessage>
+              ) : (
+                isRoomReady && <DailyRoom callObject={callObject as DailyCall} />
+              )}
             </div>
           </main>
         </div>
