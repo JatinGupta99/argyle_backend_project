@@ -1,4 +1,4 @@
-import { ChatPanel } from '@/components/stage/ChatPanel';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
 import { SponsorCard } from '@/components/stage/sponsor-card';
 import { EventId, UserID } from '@/lib/constants/api';
@@ -6,8 +6,14 @@ import { ChatType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 import { getSponsors } from '@/lib/sponsor';
 
-export default async function Page() {
-  const sponsors = await getSponsors(EventId);
+interface EventPageProps {
+  params: { eventId: string };
+}
+
+export default async function Page({ params }: EventPageProps) {
+  const eventId = EventId;
+  const sponsors = await getSponsors(eventId);
+
   return (
     <div className="flex h-screen w-full overflow-hidden">
       <div className="w-[310px] border-r border-gray-200">
@@ -16,7 +22,7 @@ export default async function Page() {
           title2={ChatTab.QA}
           title3={ChatTab.Chat}
           role={RoleView.Attendee}
-          eventId={EventId}
+          eventId={eventId}
           currentUserId={UserID}
           type={ChatType.LIVE}
         />
@@ -31,7 +37,6 @@ export default async function Page() {
               VISIT OUR SPONSORS BOOTHS:
             </h1>
 
-    
             <div className="grid grid-cols-2 gap-5 p-3 overflow-y-auto flex-1">
               {Array.isArray(sponsors) && sponsors.length > 0 ? (
                 sponsors.map((s, i) => (

@@ -5,7 +5,6 @@ function buildUrl(endpoint: string) {
   return `${API_BASE_URL.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
 }
 
-
 export const apiClient = {
   async get(endpoint: string) {
     const response = await fetch(buildUrl(endpoint));
@@ -17,10 +16,9 @@ export const apiClient = {
     }
     const text = await response.text();
     console.log('Fetching URL:', buildUrl(endpoint));
-    const data= text ? JSON.parse(text) : null;
-    return data?data.data:null;
+    const data = text ? JSON.parse(text) : null;
+    return data ? data : null;
   },
-
 
   async post(endpoint: string, data: any) {
     const response = await fetch(buildUrl(endpoint), {
@@ -37,8 +35,8 @@ export const apiClient = {
     }
 
     const text = await response.text();
-    const result= text ? JSON.parse(text) : null;
-    return result?result.data:null;
+    const result = text ? JSON.parse(text) : null;
+    return result ? result.data : null;
   },
 
   async put(endpoint: string, data: any) {

@@ -1,10 +1,11 @@
 'use client';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLive, setRoomUrl } from '@/lib/slices/uiSlice.ts';
+import { setRoomUrl } from '@/lib/slices/uiSlice.ts';
 import type { RootState } from '@/lib/store';
 import { useState } from 'react';
-import DailyVideoGrid from './DailyVideoGrid';
 import { Button } from '../../ui/button';
+import { DailyRoom } from './DailyRoom';
+import { setLive } from '@/components/ui/ui-slice';
 
 interface VideoPanelProps {
   eventId: string;
@@ -54,7 +55,7 @@ export function VideoPanel({ eventId, role = 'attendee' }: VideoPanelProps) {
     <div className="flex flex-col h-full bg-background pb-8 mt-2">
       <div className="relative flex-none w-full aspect-[4/3] bg-gray-900 rounded-2xl shadow-lg">
         {isLive && roomUrl ? (
-          <DailyVideoGrid roomUrl={roomUrl} />
+          <DailyRoom roomUrl={roomUrl} />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-4">
             <h3 className="text-white text-lg font-semibold">Event Not Live</h3>

@@ -1,10 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-/**
- * ----------------------------------------
- * Enums for better type safety
- * ----------------------------------------
- */
 export enum ChatTab {
   Everyone = 'Everyone',
   Backstage = 'Backstage',
@@ -16,16 +11,11 @@ export enum ChatTab {
 }
 
 export enum RoleView {
-  Attendee = 'attendee',
-  Speaker = 'speaker',
-  Organizer = 'organizer',
+  Speaker = 'Speaker',
+  Attendee = 'Attendee',
+  Organiser = 'Organiser',
 }
 
-/**
- * ----------------------------------------
- * State Definition
- * ----------------------------------------
- */
 export interface UIState {
   chatTab: ChatTab;
   unreadCount: number;
@@ -34,30 +24,26 @@ export interface UIState {
   stageView: ChatTab;
 }
 
-/**
- * ----------------------------------------
- * Initial State
- * ----------------------------------------
- */
+const savedTab = (typeof window !== 'undefined' &&
+  localStorage.getItem('chatTab')) as ChatTab | null;
+
 const initialState: UIState = {
-  chatTab: ChatTab.Everyone||ChatTab.Chat,
+  chatTab: savedTab || ChatTab.None,
   unreadCount: 0,
   isLive: false,
   roomUrl: null,
   stageView: ChatTab.Chat,
 };
 
-/**
- * ----------------------------------------
- * Slice
- * ----------------------------------------
- */
 const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
     setChatTab(state, action: PayloadAction<ChatTab>) {
       state.chatTab = action.payload;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('chatTab', action.payload);
+      }
     },
     setUnreadCount(state, action: PayloadAction<number>) {
       state.unreadCount = action.payload;
@@ -74,11 +60,6 @@ const uiSlice = createSlice({
   },
 });
 
-/**
- * ----------------------------------------
- * Actions
- * ----------------------------------------
- */
 export const {
   setChatTab,
   setUnreadCount,
@@ -87,11 +68,6 @@ export const {
   setStageView,
 } = uiSlice.actions;
 
-/**
- * ----------------------------------------
- * Selectors (for cleaner component use)
- * ----------------------------------------
- */
 export const selectChatTab = (state: { ui: UIState }) => state.ui.chatTab;
 export const selectUnreadCount = (state: { ui: UIState }) =>
   state.ui.unreadCount;

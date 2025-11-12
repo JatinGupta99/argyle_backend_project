@@ -11,17 +11,15 @@ export function useMessages(
 ) {
   const fullQuery = { ...(query || {}), type };
 
-  const {
-    data: response,
-    isLoading,
-    error,
-    refetch,
-  } = useApiRequest<{ statusCode: number; data: Message[] }>(
+  const { data, isLoading, error, refetch } = useApiRequest<{
+    data: {
+      data: Message[];
+    };
+  }>(
     () => apiClient.get(API_ROUTES.chat.history(eventId, fullQuery)),
     [eventId, type, JSON.stringify(query)]
   );
-
-  const messages = response?.data ?? [];
+  const messages = data?.data ?? [];
 
   const createMessage = async (content: string) => {
     const newMessage = await apiClient.post(API_ROUTES.chat.create(eventId), {

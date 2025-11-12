@@ -20,7 +20,7 @@ export const API_ROUTES = {
     },
     create: (eventId: string) => `/chat/${EventId}`,
   },
- sponsor: {
+  sponsor: {
     fetchALL: (eventId: string) => `/events/${eventId}/sponsors`,
     fetchById: (eventId: string, sponsorId: string) =>
       `/events/${eventId}/sponsors/${sponsorId}`,

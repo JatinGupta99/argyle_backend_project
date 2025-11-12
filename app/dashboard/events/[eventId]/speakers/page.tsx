@@ -1,7 +1,7 @@
 'use client';
 
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
-import { ChatPanel } from '@/components/stage/ChatPanel';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
 import { SpeakerStage } from '@/components/stage/views/SpeakerStage';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -15,10 +15,10 @@ interface SpeakerPageProps {
 
 export default function SpeakerPage({ params }: SpeakerPageProps) {
   // const { eventId } = params;
-  const userId=UserID;
-  const eventId=EventId;
+  const userId = UserID;
+  const eventId = EventId;
 
-    return (
+  return (
     <ReduxProvider>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
@@ -35,11 +35,11 @@ export default function SpeakerPage({ params }: SpeakerPageProps) {
           </aside>
 
           <div className="flex-1 flex flex-col">
-        <Header title="" />
-        <div className="flex-1">
-          <SpeakerStage eventId={EventId} />
-        </div>
-      </div>
+            <Header title="" />
+            <div className="flex-1">
+              <SpeakerStage eventId={EventId} />
+            </div>
+          </div>
         </div>
       </SidebarProvider>
     </ReduxProvider>

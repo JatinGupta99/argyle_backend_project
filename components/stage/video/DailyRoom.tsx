@@ -1,9 +1,8 @@
 'use client';
 
-import React from 'react';
-import { DailyProvider } from '@daily-co/daily-react';
 import { useDailyRoom } from '@/hooks/useDailyRoom';
-import { Tiles } from '@/components/stage/video/Tiles';
+import { DailyProvider } from '@daily-co/daily-react';
+import Tiles from './Tiles';
 
 interface DailyRoomProps {
   roomUrl: string;

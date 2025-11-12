@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import DailyIframe, { DailyCall } from '@daily-co/daily-js';
 import { Header } from '@/components/stage/layout/Header';
 import DailyRoom from '@/components/daily/DailyRoom';
-import { ChatPanel } from '@/components/stage/ChatPanel';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import CenteredMessage from '@/components/ui/CenteredMessage';

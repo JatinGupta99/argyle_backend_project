@@ -1,6 +1,6 @@
 'use client';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
-import { ChatPanel } from '@/components/stage/ChatPanel';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
 import { AppSidebar } from '@/components/stage/sidebar/AppSidebar';
 import SponsorDetails from '@/components/stage/sponsor-details/SponsorDetails';

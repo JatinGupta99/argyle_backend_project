@@ -2,7 +2,7 @@
 
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { ChatPanel } from '@/components/stage/ChatPanel';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { EventUpdates } from '@/components/stage/event-updates';
 import { Header } from '@/components/stage/layout/Header';
 import { EventId, UserID } from '@/lib/constants/api';

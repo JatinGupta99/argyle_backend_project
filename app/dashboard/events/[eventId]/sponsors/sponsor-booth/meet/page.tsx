@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
-import { ChatPanel } from '@/components/stage/ChatPanel';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { EventId, UserID } from '@/lib/constants/api';
 import { Header } from '@/components/stage/layout/Header';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
