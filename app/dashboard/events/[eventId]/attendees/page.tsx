@@ -56,7 +56,7 @@ export default function AttendeeViewProfilePage({
           eventId={eventId}
           currentUserId={userId}
           type={ChatSessionType.LIVE}
-          tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.BACKSTAGE]}
+          tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
         />
       </aside>
 
