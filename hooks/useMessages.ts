@@ -1,31 +1,46 @@
 import { apiClient } from '@/lib/api-client';
-import { useApiRequest } from '@/lib/useApiRequest';
 import { API_ROUTES } from '@/lib/api-routes';
+import { UserID } from '@/lib/constants/api';
+import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { Message } from '@/lib/types/api';
-import { ChatType } from '@/lib/constants/chat';
+import { useApiRequest } from '@/lib/useApiRequest';
 
 export function useMessages(
-  type: ChatType,
+  sessionType: ChatSessionType,
   eventId: string,
-  query?: Record<string, string>
+  category: ChatCategoryType,
+  query?: Record<string, string | number>
 ) {
-  const fullQuery = { ...(query || {}), type };
-  const { data:Result, isLoading, error, refetch } = useApiRequest<{
-    data: {
-      data: Message[];
-    };
-  }>(
-    () => apiClient.get(API_ROUTES.chat.history(eventId, fullQuery)),
-    [eventId, type, JSON.stringify(query)]
-  );
-  const messages = Result?.data ?? [];
+  const fullQuery = {
+    sessionType,
+    category,
+    ...(query || {}),
+  };
 
-  const createMessage = async (content: string) => {
-     console.log(eventId,'eventIDddd')
-    const newMessage = await apiClient.post(API_ROUTES.chat.create(eventId), {
+  const { data: result, isLoading, error, refetch } = useApiRequest<{
+    data: Message[];
+  }>(
+    () =>
+      apiClient.get(
+        API_ROUTES.chat.history(eventId, fullQuery)
+      ),
+    [eventId, sessionType, category, JSON.stringify(query)]
+  );
+
+  const messages = result?.data ?? [];
+
+  const createMessage = async (content: string, userId?: string) => {
+    const payload = {
       content,
-      type,
-    });
+      sessionType,
+      category,
+    };
+
+    const newMessage = await apiClient.post(
+      API_ROUTES.chat.create(eventId),
+      payload
+    );
+
     await refetch();
     return newMessage;
   };

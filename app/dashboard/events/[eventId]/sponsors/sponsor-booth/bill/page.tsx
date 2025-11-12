@@ -6,7 +6,7 @@ import { AppSidebar } from '@/components/stage/sidebar/AppSidebar';
 import SponsorDetails from '@/components/stage/sponsor-details/SponsorDetails';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { EventId, UserID } from '@/lib/constants/api';
-import { ChatType } from '@/lib/constants/chat';
+import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 
 export default function SponsorBoothBillPage() {
@@ -16,13 +16,12 @@ export default function SponsorBoothBillPage() {
         <div className="flex h-screen w-screen overflow-hidden bg-background">
           <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] flex flex-col">
             <ChatPanel
-              title1={ChatTab.Chat}
-              title2={ChatTab.QA}
               title3={ChatTab.Chat}
               role={RoleView.Attendee}
               eventId={EventId}
               currentUserId={UserID}
-              type={ChatType.LIVE}
+              type={ChatSessionType.LIVE}
+                tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
             />
           </aside>
 

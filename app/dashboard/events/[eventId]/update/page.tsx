@@ -6,7 +6,7 @@ import { EventUpdates } from '@/components/stage/event-updates';
 import { Header } from '@/components/stage/layout/Header';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { UserID } from '@/lib/constants/api';
-import { ChatType } from '@/lib/constants/chat';
+import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 import { EventPageProps } from '@/lib/types/components';
 import { use } from 'react';
@@ -21,13 +21,12 @@ export default function Page({
         <div className="flex h-screen w-screen bg-background overflow-hidden">
           <div className="w-[310px] border-r border-gray-200">
             <ChatPanel
-              title1={ChatTab.Everyone}
-              title2={ChatTab.None}
               title3={ChatTab.Argyle}
               role={RoleView.Attendee}
               eventId={eventId}
               currentUserId={UserID}
-              type={ChatType.PRE_LIVE}
+              type={ChatSessionType.PRE_LIVE}
+              tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
             />
           </div>
           <section className="flex-1 flex flex-col">

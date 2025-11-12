@@ -1,4 +1,4 @@
-import { ChatType } from '../constants/chat.js';
+import { ChatCategoryType, ChatSessionType } from '../constants/chat.js';
 import { RoleView } from '../slices/uiSlice.ts';
 
 export interface EventPageProps {
@@ -15,15 +15,10 @@ export interface ChatPanelProps {
   eventId?: string;
   currentUserId?: string;
   role: RoleView;
-  type: ChatType;
+  type: ChatSessionType;
+  tabs: ChatCategoryType[];
 }
 
-/**
- * src/lib/types/event.ts
- * * TypeScript interfaces derived from the Event API response structure.
- */
-
-// --- Nested Interfaces ---
 
 export interface DailyRoomDetails {
   dailyRoomName: string;

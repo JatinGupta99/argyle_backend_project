@@ -7,8 +7,8 @@ import CenteredMessage from '@/components/ui/CenteredMessage';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useDailyRoomConnector } from '@/hooks/useDailyRoom';
 import { UserID } from '@/lib/constants/api';
-import { ChatType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
+import { ChatTab, chatTabsFinal, RoleView } from '@/lib/slices/uiSlice.ts';
 import { EventPageProps } from '@/lib/types/components';
 import { DailyCall } from '@daily-co/daily-js';
 import React, { use, useMemo } from 'react';
@@ -49,17 +49,17 @@ export default function AttendeeViewProfilePage({
     <ReduxProvider>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
-          <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] flex flex-col border-r border-gray-200">
-            <ChatPanel
-              title1={ChatTab.Everyone}
-              title2={ChatTab.None}
-              title3={ChatTab.Everyone}
-              role={RoleView.Attendee}
-              eventId={eventId}
-              currentUserId={userId}
-              type={ChatType.LIVE}
-            />
-          </aside>
+       <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] flex flex-col border-r border-gray-200">
+        <ChatPanel
+          title3={ChatTab.Everyone}
+          role={RoleView.Attendee}
+          eventId={eventId}
+          currentUserId={userId}
+          type={ChatSessionType.LIVE}
+          tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.BACKSTAGE]}
+        />
+      </aside>
+
 
           <main className="flex flex-1 flex-col overflow-hidden bg-white">
             <Header title={eventTitle || 'Loading Event...'} />
