@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Message } from '@/lib/types/api';
 import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
-import { ChatType } from '@/lib/constants/chat';
+import { ChatSessionType } from '@/lib/constants/chat';
+import { Message } from '@/lib/types/api';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-const getWsUrl = (eventId: string, type: ChatType) =>
+const getWsUrl = (eventId: string, type: ChatSessionType) =>
   `wss://your-websocket-server/ws/chat/${eventId}?type=${type}`;
 
 interface UseChatWebsocketResult {
@@ -18,7 +18,7 @@ interface UseChatWebsocketResult {
 
 export function useChatWebsocket(
   eventId: string,
-  type: ChatType,
+  type: ChatSessionType,
   currentUserId: string
 ): UseChatWebsocketResult {
   const [messages, setMessages] = useState<Message[]>([]);

@@ -1,15 +1,15 @@
 'use client';
 
-import Image from 'next/image';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
+import { Header } from '@/components/stage/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
-import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { EventId, UserID } from '@/lib/constants/api';
-import { Header } from '@/components/stage/layout/Header';
+import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
-import { ChatType } from '@/lib/constants/chat';
+import Image from 'next/image';
+import { useState } from 'react';
 
 export default function SponsorBoothMeet() {
   const [formData, setFormData] = useState({
@@ -36,13 +36,12 @@ export default function SponsorBoothMeet() {
       {/* Left Sidebar - Chat */}
       <div className="w-[310px] border-r border-gray-200">
         <ChatPanel
-          title1={ChatTab.Chat}
-          title2={ChatTab.QA}
           title3={ChatTab.Chat}
           role={RoleView.Attendee}
           eventId={EventId}
           currentUserId={UserID}
-          type={ChatType.LIVE}
+          type={ChatSessionType.LIVE}
+            tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
         />
       </div>
 

@@ -42,7 +42,10 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => setOpenLobby((prev) => !prev)}
-              className="items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/20 font-bold"
+              className={cn(
+                'items-center gap-2 px-2 py-1.5 rounded-md font-bold transition-colors',
+                'hover:bg-sky-100 hover:text-gray-900'
+              )}
             >
               <span>Lobby</span>
               <ChevronDown
@@ -63,7 +66,12 @@ export function AppSidebar() {
               <ul className="mt-1 ml-3 space-y-0.5">
                 {lobbySubItems.map((sub) => (
                   <li key={sub.label}>
-                    <button className="w-full text-left px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/20 rounded-md transition font-bold">
+                    <button
+                      className={cn(
+                        'w-full text-left px-2 py-1 text-sm font-bold rounded-md transition-colors',
+                        'text-gray-700 hover:text-gray-900 hover:bg-sky-100'
+                      )}
+                    >
                       {sub.label}
                     </button>
                   </li>
@@ -74,7 +82,12 @@ export function AppSidebar() {
 
           {/* Stage Menu Item */}
           <SidebarMenuItem>
-            <SidebarMenuButton className="flex items-center gap-2 px-2 py-1.5 rounded-md font-bold">
+            <SidebarMenuButton
+              className={cn(
+                'flex items-center gap-2 px-2 py-1.5 rounded-md font-bold transition-colors',
+                'hover:bg-sky-100 hover:text-gray-900'
+              )}
+            >
               <span>Stage</span>
               <span className="ml-auto w-5" />
             </SidebarMenuButton>
@@ -82,7 +95,12 @@ export function AppSidebar() {
 
           {/* Sponsor Menu Item */}
           <SidebarMenuItem>
-            <SidebarMenuButton className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/20 font-bold">
+            <SidebarMenuButton
+              className={cn(
+                'flex items-center gap-2 px-2 py-1.5 rounded-md font-bold transition-colors',
+                'hover:bg-sky-100 hover:text-gray-900'
+              )}
+            >
               <span>Sponsor</span>
               <span className="ml-auto w-5" />
             </SidebarMenuButton>

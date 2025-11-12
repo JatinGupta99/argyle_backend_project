@@ -1,15 +1,21 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { ChatCategoryType } from '../constants/chat';
 
 export enum ChatTab {
   Everyone = 'Everyone',
   Backstage = 'Backstage',
   Chat = 'Chat',
-  Profiles = 'profiles',
   QA = 'Q&A',
   Argyle = 'Chat with Argyle here',
   None = '',
 }
 
+export enum chatTabsFinal {
+  Everyone = 'Everyone',
+  Backstage = 'Backstage',
+  Chat = 'Chat',
+  QA = 'Q&A',
+}
 export enum RoleView {
   Speaker = 'Speaker',
   Attendee = 'Attendee',
@@ -17,7 +23,7 @@ export enum RoleView {
 }
 
 export interface UIState {
-  chatTab: ChatTab;
+  chatTab: ChatCategoryType|ChatTab;
   unreadCount: number;
   isLive: boolean;
   roomUrl: string | null;
