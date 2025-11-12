@@ -6,7 +6,7 @@ import React from 'react';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  chatTitles?: {
+  ChatTab?: {
     title1?: string;
     title2?: string;
     title3?: string;
@@ -18,7 +18,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({
   children,
-  chatTitles,
+  ChatTab,
   chatRole,
   eventId,
   currentUserId,

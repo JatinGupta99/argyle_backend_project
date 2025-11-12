@@ -4,8 +4,8 @@ import { setRoomUrl } from '@/lib/slices/uiSlice.ts';
 import type { RootState } from '@/lib/store';
 import { useState } from 'react';
 import { Button } from '../../ui/button';
-import { DailyRoom } from './DailyRoom';
 import { setLive } from '@/components/ui/ui-slice';
+import { DailyRoom } from './DailyRoom';
 
 interface VideoPanelProps {
   eventId: string;

@@ -5,9 +5,9 @@ import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
 import { SpeakerStage } from '@/components/stage/views/SpeakerStage';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { chatTitles, EventId, UserID } from '@/lib/constants/api';
+import { EventId, UserID } from '@/lib/constants/api';
 import { ChatType } from '@/lib/constants/chat';
-import { RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 
 interface SpeakerPageProps {
   params: { eventId: string };
@@ -24,9 +24,9 @@ export default function SpeakerPage({ params }: SpeakerPageProps) {
         <div className="flex h-screen w-screen overflow-hidden bg-background">
           <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] flex flex-col border-r border-gray-200">
             <ChatPanel
-              title1={chatTitles.Everyone}
-              title2={chatTitles.Backstage}
-              title3="Chat with Argyle here"
+              title1={ChatTab.Everyone}
+              title2={ChatTab.Backstage}
+              title3={ChatTab.Argyle}
               role={RoleView.Speaker}
               eventId={eventId}
               currentUserId={userId}

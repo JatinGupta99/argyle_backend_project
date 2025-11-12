@@ -5,7 +5,8 @@ import { ChatMessages } from '@/components/stage/chat/ChatMessages';
 import { ChatTabs } from '@/components/stage/chat/ChatTabs';
 import { SessionCard } from '@/components/stage/session-card';
 import { useMessages } from '@/hooks/useMessages';
-import { chatTitles, EventId } from '@/lib/constants/api';
+import { EventId } from '@/lib/constants/api';
+import { ChatTab } from '@/lib/slices/uiSlice.ts';
 import { ChatPanelProps } from '@/lib/types/components';
 import { ArrowLeftFromLine } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -14,7 +15,7 @@ import { useCallback, useState } from 'react';
 export function ChatPanel({
   title1,
   title2,
-  title3 = chatTitles.Everyone,
+  title3 = ChatTab.Everyone,
   eventId,
   currentUserId,
   role,
