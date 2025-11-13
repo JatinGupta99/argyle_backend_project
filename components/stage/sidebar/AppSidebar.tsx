@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Sidebar,
   SidebarContent,
@@ -12,14 +13,18 @@ import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function AppSidebar() {
   const [openLobby, setOpenLobby] = useState(false);
+  const router = useRouter();
+
+  const eventId = '69147d39e923fc90e241ee91'; // can be made dynamic later
 
   const lobbySubItems = [
-    { label: 'Updates' },
-    { label: 'Agenda' },
-    { label: 'Info' },
+    { label: 'Updates', path: `/dashboard/events/${eventId}/update` },
+    { label: 'Agenda', path: `/dashboard/events/${eventId}/agenda` },
+    { label: 'Info', path: `/dashboard/events/${eventId}/info` },
   ];
 
   return (
@@ -67,6 +72,7 @@ export function AppSidebar() {
                 {lobbySubItems.map((sub) => (
                   <li key={sub.label}>
                     <button
+                      onClick={() => router.push(sub.path)}
                       className={cn(
                         'w-full text-left px-2 py-1 text-sm font-bold rounded-md transition-colors',
                         'text-gray-700 hover:text-gray-900 hover:bg-sky-100'
@@ -83,6 +89,7 @@ export function AppSidebar() {
           {/* Stage Menu Item */}
           <SidebarMenuItem>
             <SidebarMenuButton
+              onClick={() => router.push(`/dashboard/events/${eventId}/backStage`)}
               className={cn(
                 'flex items-center gap-2 px-2 py-1.5 rounded-md font-bold transition-colors',
                 'hover:bg-sky-100 hover:text-gray-900'
@@ -96,6 +103,9 @@ export function AppSidebar() {
           {/* Sponsor Menu Item */}
           <SidebarMenuItem>
             <SidebarMenuButton
+              onClick={() =>
+                router.push(`/dashboard/events/${eventId}/sponsors`)
+              }
               className={cn(
                 'flex items-center gap-2 px-2 py-1.5 rounded-md font-bold transition-colors',
                 'hover:bg-sky-100 hover:text-gray-900'

@@ -1,158 +1,203 @@
 'use client';
+
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Edit2, Plus, Trash2 } from 'lucide-react';
+import { SocialLink, Sponsor } from '@/lib/sponsor';
+import {
+  ArrowLeft,
+  Edit2,
+  Trash2,
+  Globe,
+  Twitter,
+  Instagram,
+  Linkedin,
+} from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 
 interface SponsorDetailsProps {
-  sponsorId?: string;
-  onBack?: () => void;
+  sponsor?: Sponsor;
+  eventId?: string;
 }
 
-export default function SponsorDetails({
-  sponsorId,
-  onBack,
-}: SponsorDetailsProps) {
-  const sponsor = {
-    id: 'bill-001',
-    name: 'BILL',
-    description:
-      'BILL (NYSE: BILL) is a leader in financial automation software for small and mid-sized businesses (SMBs). We are dedicated to automating the future so businesses can thrive. Hundreds of thousands of businesses trust BILL solutions to manage financial workflows, including payables, receivables, and spend and expense management. With BILL, businesses are connected to a network of millions of members, so they can pay or get paid faster. Through our automated solutions, we help SMBs simplify and control their finances, so they can confidently manage their finances and succeed on their terms.',
-    documents: [
-      { id: 1, title: 'Website', url: 'https://www.bill.com', icon: '🔗' },
-      { id: 2, title: 'LinkedIn', url: '', icon: '🔗' },
-    ],
-    socialMedia: [
-      { platform: 'facebook', icon: '📘' },
-      { platform: 'twitter', icon: '𝕏' },
-      { platform: 'instagram', icon: '📷' },
-      { platform: 'linkedin', icon: '💼' },
-    ],
+export default function SponsorDetails({ sponsor,eventId }: SponsorDetailsProps) {
+  const sponsorId=sponsor?._id;
+    const router = useRouter();
+    const handleRequestInfo = () => {
+    if (eventId && sponsorId) {
+      router.push(`/dashboard/events/${eventId}/sponsors/${sponsorId}/meet`);
+    } else {
+      console.warn('Missing event or sponsor ID.');
+    }
   };
+  if (!sponsor) {
+    return (
+      <div className="flex h-full items-center justify-center text-gray-500">
+        Loading sponsor details...
+      </div>
+    );
+  }
 
+  const {
+    name,
+    description,
+    logoKey,
+    documents = [],
+    websiteUrl,
+    twitterUrl,
+    instagramUrl,
+    linkedInUrl,
+  } = sponsor;
+
+  const socialLinks: SocialLink[] = [
+    websiteUrl && { platform: 'Website', icon: <Globe size={16} />, url: websiteUrl },
+    twitterUrl && { platform: 'Twitter', icon: <Twitter size={16} />, url: twitterUrl },
+    instagramUrl && { platform: 'Instagram', icon: <Instagram size={16} />, url: instagramUrl },
+    linkedInUrl && { platform: 'LinkedIn', icon: <Linkedin size={16} />, url: linkedInUrl },
+    ...(sponsor.socialMedia || []),
+  ].filter(Boolean) as SocialLink[];
+
+   const handleBack = () => {
+    router.push(`/dashboard/events/${eventId}/sponsors`);
+  };
   return (
     <div className="flex flex-col flex-1 bg-white h-full px-4 sm:px-6 py-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4 flex-shrink-0">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3 flex-wrap">
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="flex items-center gap-2 text-blue-500 hover:text-blue-600 text-sm sm:text-base"
           >
             <ArrowLeft size={18} />
             <span>Back to Sponsors</span>
           </button>
-          <span className="hidden sm:block text-gray-400">|</span>
-          <span className="font-semibold text-gray-800 text-sm sm:text-base translate-y-[2px] inline-block">
-            {sponsor.name}
-          </span>
+          {name && (
+            <>
+              <span className="hidden sm:block text-gray-400">|</span>
+              <span className="font-semibold text-gray-800 text-sm sm:text-base">{name}</span>
+            </>
+          )}
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" className="text-sm">
+
+        <div className="flex flex-wrap items-center">
+          <Button variant="outline" className="text-sm rounded-r-none border-r-0">
             Video
           </Button>
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm">
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-l-none">
             Company Details
           </Button>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto mt-4 space-y-4 pr-2">
-        {/* ✅ Text on left, logo on right */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 text-center sm:text-left">
-          {/* Text Section */}
-          {/* ✅ Text on left, name/logo on right */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 text-center sm:text-left">
-            {/* Left: Description Text */}
-            <div className="flex-1 space-y-4 order-2 sm:order-1">
-              <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
-                {sponsor.description}
+      <main className="flex-1 overflow-y-auto mt-4 space-y-8 pr-2">
+        <section className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 relative flex flex-col sm:flex-row justify-between gap-6">
+          <div className="flex-1 flex flex-col justify-between text-center sm:text-left relative">
+            <div className="flex-1 overflow-y-auto max-h-[300px] pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+              <p className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-line break-words">
+                {description || 'No description provided.'}
               </p>
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base mt-2">
+            </div>
+            <div className="mt-auto pt-4 flex justify-center sm:justify-start">
+                <Button
+                onClick={handleRequestInfo}
+                className="bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base w-fit"
+              >
                 Request More Information
               </Button>
             </div>
-
-            {/* Right: Company Name (and optional Logo) */}
-            <div className="flex flex-col items-center sm:items-end flex-shrink-0 order-1 sm:order-2">
-              <h1 className="text-3xl sm:text-4xl font-bold text-orange-500 translate-y-[4px]">
-                {sponsor.name}
-              </h1>
-
-              {/* Optional Logo */}
-            </div>
-          </div>
-        </div>
-
-        {/* Documents & Links */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <h2 className="text-lg sm:text-2xl font-bold text-gray-800">
-              Documents & Links
-            </h2>
-            <div className="flex gap-2">
-              {sponsor.socialMedia.map((social) => (
-                <button
-                  key={social.platform}
-                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 text-lg"
-                >
-                  {social.icon}
-                </button>
-              ))}
-            </div>
           </div>
 
-          {/* Links List */}
+          {logoKey && (
+            <div className="flex justify-end items-start shrink-0 self-start">
+              <Image
+                src={logoKey}
+                alt={name}
+                width={160}
+                height={80}
+                className="rounded-md object-contain shadow-sm border border-gray-100"
+              />
+            </div>
+          )}
+        </section>
+
+        <section className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between flex-wrap gap-3 border-b border-gray-100 pb-3 mb-4">
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-800">Documents & Links</h2>
+            {socialLinks.length > 0 && (
+              <div className="flex items-center gap-2 sm:gap-3">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.platform}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-9 h-9 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"
+                    title={link.platform}
+                  >
+                    {link.icon}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
-            {sponsor.documents.map((doc) => (
-              <div
-                key={doc.id}
-                className="flex items-center justify-between bg-gray-50 p-3 rounded text-sm"
-              >
-                <div className="flex items-center gap-3 flex-1">
-                  <span className="text-lg">{doc.icon}</span>
-                  <input
-                    type="text"
-                    value={doc.url || 'No link provided'}
-                    readOnly
-                    className="flex-1 bg-transparent text-gray-600 outline-none"
-                  />
+            {documents.length > 0 ? (
+              documents.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="flex items-center justify-between bg-gray-50 p-3 rounded text-sm"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <span className="text-lg">{doc.icon}</span>
+                    <input
+                      type="text"
+                      value={doc.url || 'No link provided'}
+                      readOnly
+                      className="flex-1 bg-transparent text-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="flex gap-1">
+                    <button className="p-2 hover:bg-gray-200 rounded">
+                      <Edit2 size={16} className="text-gray-600" />
+                    </button>
+                    <button className="p-2 hover:bg-gray-200 rounded">
+                      <Trash2 size={16} className="text-red-500" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-1">
-                  <button className="p-2 hover:bg-gray-200 rounded">
-                    <Edit2 size={16} className="text-gray-600" />
-                  </button>
-                  <button className="p-2 hover:bg-gray-200 rounded">
-                    <Trash2 size={16} className="text-red-500" />
-                  </button>
+              ))
+            ) : websiteUrl ? null : (
+              <p className="text-gray-500 text-sm">No documents available.</p>
+            )}
+
+            {websiteUrl && (
+              <div className="flex items-center justify-between bg-gray-50 p-3 rounded text-sm mt-3">
+                <div className="flex items-center gap-3 flex-1">
+                  <Globe size={18} className="text-sky-600" />
+                  <a
+                    href={websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline break-all"
+                  >
+                    {websiteUrl}
+                  </a>
                 </div>
               </div>
-            ))}
-            <button className="w-full flex items-center justify-center gap-2 bg-gray-50 p-3 rounded border-2 border-dashed border-blue-500 text-blue-500 hover:bg-blue-50 text-sm">
-              <Plus size={18} />
-              <span>Add Link</span>
-            </button>
+            )}
           </div>
-        </div>
+        </section>
 
-        {/* Meeting Request */}
-        {/* ✅ Meeting Request Section (Text Left, Title Right) */}
-        <div className="bg-gray-50 p-6 rounded-lg mt-4 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-          {/* Left: Button / Call to Action */}
-          <div className="order-2 sm:order-1">
-            <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base">
-              Request a Meeting
-            </Button>
-          </div>
-
-          {/* Right: Heading / Message */}
-          <div className="order-1 sm:order-2">
-            <h3 className="text-base sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-0">
-              Hey, would you like to meet?
-            </h3>
-          </div>
+        <div className="flex flex-wrap items-center justify-center mt-8 gap-3 text-center">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-800 ml-2">
+            Hey, would you like to meet?
+          </h3>
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base">
+            Request a Meeting
+          </Button>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
