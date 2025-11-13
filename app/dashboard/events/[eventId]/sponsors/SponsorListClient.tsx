@@ -32,10 +32,7 @@ export default function SponsorListClient({ eventId }: { eventId: string }) {
       <p className="text-center text-gray-500 mt-10">Loading sponsors...</p>
     );
 
-  if (error)
-    return (
-      <p className="text-center text-red-500 mt-10">{error}</p>
-    );
+  if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
 
   if (sponsors.length === 0)
     return (

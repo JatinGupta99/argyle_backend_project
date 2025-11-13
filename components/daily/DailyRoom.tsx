@@ -1,15 +1,9 @@
 'use client';
-import { type DailyCall } from '@daily-co/daily-js';
 import { DailyProvider } from '@daily-co/daily-react';
 import { VideoGrid } from './VideoGrid';
-
-interface DailyRoomProps {
-  callObject: DailyCall;
-}
-
-export default function DailyRoom({ callObject }: DailyRoomProps) {
+export default function DailyRoom() {
   return (
-    <DailyProvider callObject={callObject}>
+    <DailyProvider >
       <VideoGrid />
     </DailyProvider>
   );

@@ -20,10 +20,13 @@ interface SponsorDetailsProps {
   eventId?: string;
 }
 
-export default function SponsorDetails({ sponsor,eventId }: SponsorDetailsProps) {
-  const sponsorId=sponsor?._id;
-    const router = useRouter();
-    const handleRequestInfo = () => {
+export default function SponsorDetails({
+  sponsor,
+  eventId,
+}: SponsorDetailsProps) {
+  const sponsorId = sponsor?._id;
+  const router = useRouter();
+  const handleRequestInfo = () => {
     if (eventId && sponsorId) {
       router.push(`/dashboard/events/${eventId}/sponsors/${sponsorId}/meet`);
     } else {
@@ -50,14 +53,30 @@ export default function SponsorDetails({ sponsor,eventId }: SponsorDetailsProps)
   } = sponsor;
 
   const socialLinks: SocialLink[] = [
-    websiteUrl && { platform: 'Website', icon: <Globe size={16} />, url: websiteUrl },
-    twitterUrl && { platform: 'Twitter', icon: <Twitter size={16} />, url: twitterUrl },
-    instagramUrl && { platform: 'Instagram', icon: <Instagram size={16} />, url: instagramUrl },
-    linkedInUrl && { platform: 'LinkedIn', icon: <Linkedin size={16} />, url: linkedInUrl },
+    websiteUrl && {
+      platform: 'Website',
+      icon: <Globe size={16} />,
+      url: websiteUrl,
+    },
+    twitterUrl && {
+      platform: 'Twitter',
+      icon: <Twitter size={16} />,
+      url: twitterUrl,
+    },
+    instagramUrl && {
+      platform: 'Instagram',
+      icon: <Instagram size={16} />,
+      url: instagramUrl,
+    },
+    linkedInUrl && {
+      platform: 'LinkedIn',
+      icon: <Linkedin size={16} />,
+      url: linkedInUrl,
+    },
     ...(sponsor.socialMedia || []),
   ].filter(Boolean) as SocialLink[];
 
-   const handleBack = () => {
+  const handleBack = () => {
     router.push(`/dashboard/events/${eventId}/sponsors`);
   };
   return (
@@ -74,13 +93,18 @@ export default function SponsorDetails({ sponsor,eventId }: SponsorDetailsProps)
           {name && (
             <>
               <span className="hidden sm:block text-gray-400">|</span>
-              <span className="font-semibold text-gray-800 text-sm sm:text-base">{name}</span>
+              <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                {name}
+              </span>
             </>
           )}
         </div>
 
         <div className="flex flex-wrap items-center">
-          <Button variant="outline" className="text-sm rounded-r-none border-r-0">
+          <Button
+            variant="outline"
+            className="text-sm rounded-r-none border-r-0"
+          >
             Video
           </Button>
           <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-l-none">
@@ -98,7 +122,7 @@ export default function SponsorDetails({ sponsor,eventId }: SponsorDetailsProps)
               </p>
             </div>
             <div className="mt-auto pt-4 flex justify-center sm:justify-start">
-                <Button
+              <Button
                 onClick={handleRequestInfo}
                 className="bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base w-fit"
               >
@@ -122,7 +146,9 @@ export default function SponsorDetails({ sponsor,eventId }: SponsorDetailsProps)
 
         <section className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between flex-wrap gap-3 border-b border-gray-100 pb-3 mb-4">
-            <h2 className="text-lg sm:text-2xl font-bold text-gray-800">Documents & Links</h2>
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-800">
+              Documents & Links
+            </h2>
             {socialLinks.length > 0 && (
               <div className="flex items-center gap-2 sm:gap-3">
                 {socialLinks.map((link) => (

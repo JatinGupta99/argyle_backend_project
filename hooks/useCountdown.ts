@@ -2,25 +2,25 @@
 
 import { useEffect, useState } from 'react';
 
-/**
- * A reusable countdown timer hook.
- */
 export function useCountdown(targetDate: Date) {
-  const calculateTimeLeft = () => {
-    const difference = +targetDate - +new Date();
-    if (difference <= 0) return { hours: 0, minutes: 0, seconds: 0 };
+  const calculate = () => {
+    const now = new Date().getTime();
+    const target = targetDate.getTime();
+    const diff = target - now;
+    if (diff <= 0) return { hours: 0, minutes: 0, seconds: 0, done: true };
 
     return {
-      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((difference / 1000 / 60) % 60),
-      seconds: Math.floor((difference / 1000) % 60),
+      hours: Math.floor(diff / (1000 * 60 * 60)),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
+      done: false,
     };
   };
 
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const [timeLeft, setTimeLeft] = useState(calculate());
 
   useEffect(() => {
-    const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
+    const timer = setInterval(() => setTimeLeft(calculate()), 1000);
     return () => clearInterval(timer);
   }, [targetDate]);
 

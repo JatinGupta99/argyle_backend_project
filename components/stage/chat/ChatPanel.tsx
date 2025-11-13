@@ -18,10 +18,9 @@ export function ChatPanel({
   currentUserId,
   role,
   type = ChatSessionType.LIVE,
-  tabs ,
+  tabs,
 }: ChatPanelProps) {
   const router = useRouter();
-  const resolvedEventId = eventId ?? EventId;
 
   const [activeCategory, setActiveCategory] = useState<ChatCategoryType>(
     tabs[0] || ChatCategoryType.EVERYONE
@@ -29,7 +28,7 @@ export function ChatPanel({
 
   const { messages, isLoading, createMessage, refetch } = useMessages(
     type,
-    resolvedEventId,
+    eventId,
     activeCategory
   );
 

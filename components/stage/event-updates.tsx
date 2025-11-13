@@ -1,28 +1,30 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { Loader2 } from 'lucide-react';
-import { MessageCard } from './message/MessageCard';
 import { useEventPosts } from '@/hooks/useEventPosts';
-import { EventId, UserID } from '@/lib/constants/api';
+import { UserID } from '@/lib/constants/api';
 import { EventPost } from '@/lib/types/api';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { MessageCard } from './message/MessageCard';
 
 export function EventUpdates({
+  eventId,
   currentUserId = UserID,
 }: {
+  eventId: string;
   currentUserId?: string;
 }) {
+
   const { posts, isLoading, likePost, unlikePost, addComment } =
-    useEventPosts(EventId);
+    useEventPosts(eventId);
+
   const [expandedComments, setExpandedComments] = useState<string | null>(null);
-  const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
-    {}
-  );
+  const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [loadingLikes, setLoadingLikes] = useState<Record<string, boolean>>({});
   const [submittingComments, setSubmittingComments] = useState<
     Record<string, boolean>
   >({});
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -31,12 +33,12 @@ export function EventUpdates({
     );
   }
 
+  const safePosts = posts ?? [];
+
   const handleLike = async (postId: string) => {
     setLoadingLikes((prev) => ({ ...prev, [postId]: true }));
     try {
-      const data = await likePost(postId, UserID);
-      console.log(data, 'snvsdvlnsdlvsdvlnd');
-      return data;
+      await likePost(postId, currentUserId);
     } finally {
       setLoadingLikes((prev) => ({ ...prev, [postId]: false }));
     }
@@ -45,7 +47,7 @@ export function EventUpdates({
   const handleUnlike = async (postId: string) => {
     setLoadingLikes((prev) => ({ ...prev, [postId]: true }));
     try {
-      await unlikePost(postId, UserID);
+      await unlikePost(postId, currentUserId);
     } finally {
       setLoadingLikes((prev) => ({ ...prev, [postId]: false }));
     }
@@ -55,7 +57,7 @@ export function EventUpdates({
     if (!commentInputs[postId]?.trim()) return;
     setSubmittingComments((prev) => ({ ...prev, [postId]: true }));
     try {
-      await addComment(postId, UserID, commentInputs[postId]);
+      await addComment(postId, currentUserId, commentInputs[postId]);
       setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
     } finally {
       setSubmittingComments((prev) => ({ ...prev, [postId]: false }));
@@ -64,25 +66,9 @@ export function EventUpdates({
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="relative w-[800px] h-56 sm:h-44 rounded-xl mx-auto mt-4">
-        <Image
-          src="/images/virtual_event.webp"
-          alt="Event Banner"
-          fill
-          priority
-          className="object-cover"
-        />
-      </div>
-
-      <div className="px-6 pt-6 pb-4">
-        <h1 className="text-3xl sm:text-2xl font-bold text-foreground tracking-wide mt-0">
-          Event Updates
-        </h1>
-      </div>
-
-      <div className="flex-1 overflow-y-auto bg-gray-50 px-6 pb-6 pt-2 space-y-6 shadow-inner rounded-t-2xl">
-        {(posts || []).length ? (
-          (posts || [])
+      <div className="flex-1 overflow-y-auto bg-gray-50 px-8 pb-6 pt-2 space-y-6 shadow-inner rounded-t-2xl">
+        {safePosts.length > 0 ? (
+          safePosts
             .slice()
             .reverse()
             .map((post: EventPost) => (

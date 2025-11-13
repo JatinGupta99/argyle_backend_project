@@ -13,14 +13,12 @@ interface UseDailyRoomResult {
   eventError: Error | null;
 }
 
-export function useDailyRoomConnector(eventId: string): UseDailyRoomResult {
+export function useDailyRoomConnector(event: Event): UseDailyRoomResult {
   const userId = UserID;
-  const { event, isLoading: isEventLoading, error: eventError } = useEvent(eventId);
-
-  const roomUrl = useMemo(() => event?.dailyRoomDetails?.dailyRoomUrl, [event]);
-  const eventTitle = event?.title || null;
   const [callObject, setCallObject] = useState<DailyCall | null>(null);
-  const [dailyStatus, setDailyStatus] = useState<'idle' | 'joining' | 'ready' | 'error'>('idle');
+  const [dailyStatus, setDailyStatus] = useState<
+    'idle' | 'joining' | 'ready' | 'error'
+  >('idle');
   const [dailyError, setDailyError] = useState<string | null>(null);
 
   const loading = isEventLoading || dailyStatus === 'joining';
@@ -31,10 +29,8 @@ export function useDailyRoomConnector(eventId: string): UseDailyRoomResult {
   useEffect(() => {
     const co = DailyIframe.createCallObject();
     setCallObject(co);
-    console.log('[Daily] Call object created');
 
     return () => {
-      console.log('[Daily] Destroying call object');
       co.destroy();
     };
   }, []);
@@ -43,7 +39,6 @@ export function useDailyRoomConnector(eventId: string): UseDailyRoomResult {
     if (!callObject || isEventLoading || !roomUrl) return;
 
     const handleJoined = () => {
-      console.log('[Daily] joined-meeting fired ✅');
       setDailyStatus('ready');
     };
     const handleError = (err: any) => {
@@ -55,7 +50,6 @@ export function useDailyRoomConnector(eventId: string): UseDailyRoomResult {
     callObject.on('joined-meeting', handleJoined);
     callObject.on('error', handleError);
 
-    console.log('[Daily] joining room', roomUrl);
     setDailyStatus('joining');
 
     callObject
@@ -67,15 +61,20 @@ export function useDailyRoomConnector(eventId: string): UseDailyRoomResult {
       });
 
     return () => {
-      console.log('[Daily] leaving meeting...');
       callObject.off('joined-meeting', handleJoined);
       callObject.off('error', handleError);
       callObject.leave().catch(() => {});
     };
   }, [callObject, roomUrl, userId, isEventLoading]);
 
-  useEffect(() => {
-  }, [eventId, roomUrl, dailyStatus, isRoomReady, loading, eventError]);
+  useEffect(() => {}, [
+    eventId,
+    roomUrl,
+    dailyStatus,
+    isRoomReady,
+    loading,
+    eventError,
+  ]);
 
   return {
     callObject,
@@ -83,6 +82,6 @@ export function useDailyRoomConnector(eventId: string): UseDailyRoomResult {
     error: finalError,
     isRoomReady,
     eventTitle,
-    eventError
+    eventError,
   };
 }

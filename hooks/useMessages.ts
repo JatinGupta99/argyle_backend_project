@@ -17,13 +17,15 @@ export function useMessages(
     ...(query || {}),
   };
 
-  const { data: result, isLoading, error, refetch } = useApiRequest<{
+  const {
+    data: result,
+    isLoading,
+    error,
+    refetch,
+  } = useApiRequest<{
     data: Message[];
   }>(
-    () =>
-      apiClient.get(
-        API_ROUTES.chat.history(eventId, fullQuery)
-      ),
+    () => apiClient.get(API_ROUTES.chat.history(eventId, fullQuery)),
     [eventId, sessionType, category, JSON.stringify(query)]
   );
 

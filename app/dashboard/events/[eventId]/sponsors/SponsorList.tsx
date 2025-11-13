@@ -1,8 +1,8 @@
 'use client';
 
-import { SponsorCard } from "@/components/stage/sponsor-card";
-import { Sponsor } from "@/lib/sponsor";
-import { useRouter } from "next/navigation";
+import { SponsorCard } from '@/components/stage/sponsor-card';
+import { Sponsor } from '@/lib/sponsor';
+import { useRouter } from 'next/navigation';
 
 interface SponsorListProps {
   sponsors: Sponsor[];
@@ -30,10 +30,7 @@ export default function SponsorList({ sponsors, eventId }: SponsorListProps) {
           }
           className="transition-all hover:shadow-md hover:scale-[1.02] focus:outline-none text-left"
         >
-          <SponsorCard
-            imageSrc={sponsor.logoKey}
-            name={sponsor.name}
-          />
+          <SponsorCard imageSrc={sponsor.logoKey} name={sponsor.name} />
         </button>
       ))}
     </div>

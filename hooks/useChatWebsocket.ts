@@ -58,7 +58,6 @@ export function useChatWebsocket(
     setIsConnecting(true);
 
     ws.onopen = () => {
-      console.log('✅ WebSocket connected:', wsUrl);
       setIsConnecting(false);
       fetchHistory();
     };
@@ -86,14 +85,12 @@ export function useChatWebsocket(
 
       // --- Optional reconnect after 5s ---
       reconnectTimeout.current = setTimeout(() => {
-        console.log('🔄 Reconnecting WebSocket...');
         wsRef.current = null;
         // trigger reconnect by re-running effect
       }, 5000);
     };
 
     return () => {
-      console.log('🧹 Cleaning up WebSocket...');
       ws.close();
       wsRef.current = null;
       if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);

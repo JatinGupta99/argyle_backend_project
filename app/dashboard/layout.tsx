@@ -18,10 +18,6 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({
   children,
-  ChatTab,
-  chatRole,
-  eventId,
-  currentUserId,
 }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen w-screen">

@@ -12,13 +12,12 @@ export interface ChatPanelProps {
   title1?: string;
   title2?: string;
   title3?: string;
-  eventId?: string;
+  eventId: string;
   currentUserId?: string;
   role: RoleView;
   type: ChatSessionType;
   tabs: ChatCategoryType[];
 }
-
 
 export interface DailyRoomDetails {
   dailyRoomName: string;
@@ -28,8 +27,8 @@ export interface DailyRoomDetails {
 }
 
 export interface EventSchedule {
-  startTime: string; // ISO 8601 Date string, e.g., "2025-11-11T08:41:00.000Z"
-  endTime: string; // ISO 8601 Date string
+  startTime: Date; // ISO 8601 Date string, e.g., "2025-11-11T08:41:00.000Z"
+  endTime: Date; // ISO 8601 Date string
   _id: string;
 }
 

@@ -7,7 +7,6 @@ import { GRID_CONFIG } from '@/lib/constants/grid';
 
 export function VideoGrid() {
   const playableIds = usePlayableParticipants();
-  console.log('[VideoGrid] playableIds:', playableIds);
 
   const [page, setPage] = useState(0);
   const totalPages = Math.max(

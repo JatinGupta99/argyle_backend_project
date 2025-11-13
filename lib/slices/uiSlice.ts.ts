@@ -23,7 +23,7 @@ export enum RoleView {
 }
 
 export interface UIState {
-  chatTab: ChatCategoryType|ChatTab;
+  chatTab: ChatCategoryType | ChatTab;
   unreadCount: number;
   isLive: boolean;
   roomUrl: string | null;

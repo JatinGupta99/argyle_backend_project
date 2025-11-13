@@ -15,7 +15,10 @@ import { getDetailedSponsors } from '@/lib/sponsor';
 export default function SponsorBoothBillPage() {
   const params = useParams();
   const router = useRouter();
-  const { eventId, sponsorId } = params as { eventId: string; sponsorId: string };
+  const { eventId, sponsorId } = params as {
+    eventId: string;
+    sponsorId: string;
+  };
 
   const [sponsor, setSponsor] = useState<any>(null);
   const [loading, setLoading] = useState(true);

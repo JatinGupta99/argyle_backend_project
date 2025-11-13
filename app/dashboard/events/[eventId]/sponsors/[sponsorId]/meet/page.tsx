@@ -28,7 +28,6 @@ export default function SponsorBoothMeet() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
   };
 
   return (
@@ -41,7 +40,7 @@ export default function SponsorBoothMeet() {
           eventId={EventId}
           currentUserId={UserID}
           type={ChatSessionType.LIVE}
-            tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
+          tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
         />
       </div>
 

@@ -33,8 +33,7 @@ export default function SponsorMeet() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // TODO: send data to your API or backend
+
   };
 
   return (
