@@ -2,7 +2,7 @@ import { ChatCategoryType, ChatSessionType } from '../constants/chat.js';
 import { RoleView } from '../slices/uiSlice.ts';
 
 export interface EventPageProps {
-  params: Promise<{ eventId: string }>;
+  params: { eventId: string };
 }
 export interface MessageInputProps {
   onSend: (message: string) => void;

@@ -1,5 +1,3 @@
-'use client';
-
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { EventUpdates } from '@/components/stage/event-updates';
@@ -9,11 +7,10 @@ import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 import { EventPageProps } from '@/lib/types/components';
-import { use } from 'react';
-export default function Page({
+export default async function Page({
   params,
 }: EventPageProps) {
-  const { eventId } = use(params);
+  const { eventId } = await params;
   const userId = UserID;
   return (
     <ReduxProvider>
@@ -24,7 +21,7 @@ export default function Page({
               title3={ChatTab.Argyle}
               role={RoleView.Attendee}
               eventId={eventId}
-              currentUserId={UserID}
+              currentUserId={userId}
               type={ChatSessionType.PRE_LIVE}
               tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
             />
