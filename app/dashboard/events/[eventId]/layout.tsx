@@ -20,7 +20,6 @@ export default function EventLayout({
       </div>
     );
   }
-
   if (error || !event) {
     console.error('❌ Failed to load event:', error);
     return (

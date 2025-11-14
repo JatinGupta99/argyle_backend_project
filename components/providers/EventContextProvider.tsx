@@ -23,7 +23,6 @@ export function EventContextProvider({
       },
     };
   }, [event]);
-
   return (
     <EventContext.Provider value={{ event: normalizedEvent }}>
       {children}

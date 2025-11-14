@@ -32,7 +32,8 @@ export default function AttendeeViewProfilePage() {
           <main className="flex flex-1 flex-col overflow-hidden bg-white">
             <Header title={event.title || 'Loading Event...'} />
             <div className="flex-1 overflow-y-auto flex items-center justify-center">
-            <DailyRoom />
+          <DailyRoom event={event} userId={userId} />
+
             </div>
           </main>
         </div>
