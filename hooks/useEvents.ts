@@ -8,7 +8,7 @@ export function useEvent(eventId: string) {
     () => apiClient.get(API_ROUTES.event.fetchById(eventId)),
     [eventId]
   );
-
+  console.log(data,'csanlcks')
   const event: Event | undefined = data?.data;
   return {
     event,

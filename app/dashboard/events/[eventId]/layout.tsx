@@ -13,6 +13,7 @@ export default function EventLayout({
   const params = useParams();
   const eventId = params?.eventId as string;
   const { event, isLoading, error } = useEvent(eventId);
+  console.log(event,'ascnlskcn')
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
