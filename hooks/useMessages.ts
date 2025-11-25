@@ -1,6 +1,5 @@
 import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
-import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { Message } from '@/lib/types/api';
 import { useApiRequest } from '@/lib/useApiRequest';

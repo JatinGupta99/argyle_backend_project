@@ -11,28 +11,30 @@ import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 interface BaseEventLayoutProps {
   children: React.ReactNode;
   role: RoleView;
-  eventId: string;
   title: string;
+  eventId: string;
 }
 
 export function BaseEventLayout({
   children,
   role,
-  eventId,
   title,
+  eventId,
 }: BaseEventLayoutProps) {
   const userId = UserID;
 
-  const chatTabs =
-    role === RoleView.Attendee
-      ? [ChatCategoryType.CHAT, ChatCategoryType.QA]
-      : [ChatCategoryType.EVERYONE, ChatCategoryType.BACKSTAGE];
+  const attendeeTabs = [ChatCategoryType.CHAT, ChatCategoryType.QA];
+  const speakerTabs   = [ChatCategoryType.EVERYONE, ChatCategoryType.BACKSTAGE];
+
+  const chatTabs = role === RoleView.Attendee ? attendeeTabs : speakerTabs;
 
   return (
     <ReduxProvider>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
-          <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] flex flex-col border-r border-gray-200">
+
+          {/* Left Chat Sidebar */}
+          <aside className="w-[27%] border-r border-gray-200 bg-[#FAFAFA]">
             <ChatPanel
               title3={ChatTab.Chat}
               role={role}
@@ -43,10 +45,12 @@ export function BaseEventLayout({
             />
           </aside>
 
-          <main className="flex flex-col flex-1 overflow-hidden bg-background">
+          {/* Main Content */}
+          <main className="flex flex-col flex-1 overflow-hidden">
             <Header title={title} />
             {children}
           </main>
+
         </div>
       </SidebarProvider>
     </ReduxProvider>

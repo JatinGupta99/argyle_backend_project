@@ -1,6 +1,6 @@
 'use client';
 
-import { useDailyRoom } from '@/hooks/useDailyRoom';
+import { useDailyRoomConnector } from '@/hooks/useDailyRoom';
 import { DailyProvider } from '@daily-co/daily-react';
 import Tiles from './Tiles';
 
@@ -9,7 +9,7 @@ interface DailyRoomProps {
 }
 
 export function DailyRoom({ roomUrl }: DailyRoomProps) {
-  const { callObject, error } = useDailyRoom({ roomUrl });
+  const { callObject, error } = useDailyRoomConnector({ roomUrl });
 
   if (error) {
     return (

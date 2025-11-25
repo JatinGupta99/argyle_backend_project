@@ -4,8 +4,10 @@ import { DailyProvider } from '@daily-co/daily-react';
 import { VideoGrid } from './VideoGrid';
 import { Event } from '@/lib/types/components';
 import { useDailyRoomConnector } from '@/hooks/useDailyRoom';
+import { useEventContext } from '../providers/EventContextProvider';
 
-export default function DailyRoom({ event, userId }: { event: Event; userId: string }) {
+export default function DailyRoom({ userId }: { userId: string }) {
+  const event = useEventContext();
   const { callObject, isRoomReady, loading, error } = useDailyRoomConnector(event);
 
   if (loading) return <div>Joining room…</div>;

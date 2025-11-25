@@ -5,13 +5,29 @@ import { Header } from '@/components/stage/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { EventId, UserID } from '@/lib/constants/api';
+import { useDetailedSponsor } from '@/hooks/useDetailedSponsor';
+import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
 export default function SponsorBoothMeet() {
+  const { eventId, sponsorId } = useParams() as {
+    eventId?: string;
+    sponsorId?: string;
+  };
+
+  const ready = Boolean(eventId && sponsorId);
+
+  // ❗DECLARE THESE ALWAYS – NEVER CONDITIONAL
+  const { sponsor, loading, error } = useDetailedSponsor(
+    ready ? eventId! : '',
+    ready ? sponsorId! : ''
+  );
+
+  // ❗Declare local state BEFORE ANY conditional return
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -30,40 +46,71 @@ export default function SponsorBoothMeet() {
     e.preventDefault();
   };
 
+  // ❗NO RETURNS ABOVE — RETURN ONLY HERE
+  if (!ready) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Invalid sponsor URL.
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center text-red-500">
+        {error}
+      </div>
+    );
+  }
+
+  if (!sponsor) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        No sponsor data found.
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-background">
-      {/* Left Sidebar - Chat */}
-      <div className="w-[310px] border-r border-gray-200">
-        <ChatPanel
-          title3={ChatTab.Chat}
-          role={RoleView.Attendee}
-          eventId={EventId}
-          currentUserId={UserID}
-          type={ChatSessionType.LIVE}
-          tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
-        />
-      </div>
 
-      {/* Right Content Area */}
+     <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] border-r">
+            <ChatPanel
+              title3={ChatTab.Chat}
+              role={RoleView.Attendee}
+              eventId={eventId!}
+              currentUserId={UserID}
+              type={ChatSessionType.LIVE}
+              tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
+            />
+          </aside>
+
       <main className="flex-1 flex flex-col overflow-y-auto">
-        <Header title="Financial Controller Leadership Forum: Redefining Trad..." />
+        <Header title={sponsor.name} />
 
         <div className="flex flex-1 items-center justify-center px-6 py-10">
           <div className="max-w-4xl w-full bg-white border border-gray-200 shadow-sm rounded-lg p-8 space-y-8">
-            {/* Title */}
+
             <h1 className="text-3xl font-bold text-center text-gray-900">
               Meet Our Sponsor
             </h1>
 
-            {/* Main Two-Column Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left Section - Info */}
+
               <div className="space-y-6">
                 <section className="space-y-4">
                   <div className="flex justify-center">
                     <Image
-                      src="/images/bill.jpg"
-                      alt="Bill company logo"
+                      src={sponsor.logo}
+                      alt={`${sponsor.name} logo`}
                       width={180}
                       height={80}
                       className="rounded-md object-contain"
@@ -71,12 +118,11 @@ export default function SponsorBoothMeet() {
                   </div>
 
                   <h2 className="text-lg font-semibold text-gray-800">
-                    Introducing Bill
+                    Introducing {sponsor.name}
                   </h2>
+
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    BILL helps its clients automate financial workflows and
-                    manage their finances with confidence. We empower small and
-                    mid-sized businesses with smarter, faster financial tools.
+                    {sponsor.about}
                   </p>
                 </section>
 
@@ -85,60 +131,52 @@ export default function SponsorBoothMeet() {
                     Would you like to meet?
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Chat with our team now via{' '}
-                    <a href="#" className="text-primary hover:underline">
+                    Chat with our team via{' '}
+                    <a href={sponsor.meetingLink || '#'} className="text-primary hover:underline">
                       live chat
                     </a>{' '}
-                    or schedule a meeting using{' '}
-                    <a href="#" className="text-primary hover:underline">
+                    or schedule using{' '}
+                    <a href={sponsor.calendlyLink || '#'} className="text-primary hover:underline">
                       Calendly
-                    </a>
-                    .
+                    </a>.
                   </p>
                 </section>
               </div>
 
-              {/* Right Section - Form */}
               <div className="bg-gray-50 rounded-lg p-6 shadow-inner border border-gray-100">
                 <h2 className="text-lg font-semibold text-center mb-4 text-gray-800">
                   Need More Info?
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-3">
-                  {['name', 'address', 'phone', 'title', 'industry'].map(
-                    (field) => (
-                      <div key={field}>
-                        <Label
-                          htmlFor={field}
-                          className="capitalize text-xs text-gray-700"
-                        >
-                          {field}
-                        </Label>
-                        <Input
-                          id={field}
-                          name={field}
-                          value={(formData as any)[field]}
-                          onChange={handleInputChange}
-                          placeholder={`Enter your ${field}`}
-                          className="mt-1"
-                        />
-                      </div>
-                    )
-                  )}
+                  {['name', 'address', 'phone', 'title', 'industry'].map((field) => (
+                    <div key={field}>
+                      <Label htmlFor={field} className="capitalize text-xs text-gray-700">
+                        {field}
+                      </Label>
+                      <Input
+                        id={field}
+                        name={field}
+                        value={(formData as any)[field]}
+                        onChange={handleInputChange}
+                        placeholder={`Enter your ${field}`}
+                        className="mt-1"
+                      />
+                    </div>
+                  ))}
+
                   <Button type="submit" className="w-full mt-4">
                     Submit
                   </Button>
                 </form>
               </div>
+
             </div>
 
-            {/* Bottom Context */}
             <div className="text-center text-xs text-muted-foreground border-t pt-4">
-              <p>
-                Want to learn more about Bill’s solutions? Visit our company
-                page or reach out to our team for personalized support.
-              </p>
+              <p>{sponsor.description}</p>
             </div>
+
           </div>
         </div>
       </main>
