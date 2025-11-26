@@ -1,21 +1,19 @@
 'use client';
-
-import { DailyProvider } from '@daily-co/daily-react';
-import { VideoGrid } from './VideoGrid';
-import { Event } from '@/lib/types/components';
+import { DailyProvider, DailyAudio } from '@daily-co/daily-react';
 import { useDailyRoomConnector } from '@/hooks/useDailyRoom';
-import { useEventContext } from '../providers/EventContextProvider';
+import { useEventContext } from '@/components/providers/EventContextProvider';
+import { VideoGrid } from './VideoGrid';
 
-export default function DailyRoom({ userId }: { userId: string }) {
+export default function DailyRoom() {
   const event = useEventContext();
-  const { callObject, isRoomReady, loading, error } = useDailyRoomConnector(event);
+  const { callObject, isRoomReady, error } = useDailyRoomConnector(event);
 
-  if (loading) return <div>Joining room…</div>;
-  if (error) return <div className="text-red-600">Error: {error}</div>;
-  if (!isRoomReady || !callObject) return <div>Initializing…</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+  if (!isRoomReady || !callObject) return <div>Loading…</div>;
 
   return (
     <DailyProvider callObject={callObject}>
+      <DailyAudio autoSubscribeActiveSpeaker maxSpeakers={12} />
       <VideoGrid />
     </DailyProvider>
   );
