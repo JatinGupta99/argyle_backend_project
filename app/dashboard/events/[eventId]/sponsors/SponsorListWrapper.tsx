@@ -1,49 +1,20 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
-import { SidebarProvider } from '@/components/ui/sidebar';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
-import SponsorDetails from '@/components/stage/sponsor-details/SponsorDetails';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { useDetailedSponsor } from '@/hooks/useDetailedSponsor';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import SponsorList from './SponsorList';
 
-export default function SponsorBoothBillPage() {
-  const params = useParams();
-  const eventId = params?.eventId as string;
-  const sponsorId = params?.sponsorId as string;
+export default function SponsorListWrapper({ eventId }: { eventId: string }) {
 
-  if (!eventId || !sponsorId) {
+  if (!eventId) {
     return (
       <div className="flex h-screen items-center justify-center text-red-500">
-        Invalid URL parameters.
-      </div>
-    );
-  }
-
-  const { sponsor, loading, error } = useDetailedSponsor(eventId, sponsorId);
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">Loading…</div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-screen items-center justify-center text-red-500">
-        {error}
-      </div>
-    );
-  }
-
-  if (!sponsor) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        No sponsor data found.
+        Invalid event ID
       </div>
     );
   }
@@ -52,6 +23,8 @@ export default function SponsorBoothBillPage() {
     <ReduxProvider>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
+
+          {/* LEFT CHAT PANEL */}
           <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] border-r">
             <ChatPanel
               title3={ChatTab.Chat}
@@ -63,12 +36,15 @@ export default function SponsorBoothBillPage() {
             />
           </aside>
 
+          {/* MAIN CONTENT */}
           <main className="flex flex-col flex-1 overflow-hidden bg-white">
-            <Header title={sponsor.name ?? 'Sponsor'} />
+            <Header title="Sponsors" />
+
             <div className="flex-1 overflow-auto">
-              <SponsorDetails sponsor={sponsor} eventId={eventId} />
+              <SponsorList eventId={eventId} />
             </div>
           </main>
+
         </div>
       </SidebarProvider>
     </ReduxProvider>

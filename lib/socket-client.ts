@@ -16,11 +16,9 @@ export function initializeSocket(): Socket {
   });
 
   socket.on('connect', () => {
-    console.log('[Socket] Connected to server');
   });
 
   socket.on('disconnect', () => {
-    console.log('[Socket] Disconnected from server');
   });
 
   socket.on('connect_error', (error) => {

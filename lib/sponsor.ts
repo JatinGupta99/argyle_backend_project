@@ -1,7 +1,7 @@
 import { apiClient } from './api-client';
 import { API_ROUTES } from './api-routes';
 export interface Sponsor {
-  _id:string;
+  _id: string;
   name: string;
   description?: string;
   logoKey: string;
@@ -24,19 +24,17 @@ interface DocumentLink {
   url?: string;
 }
 
-
-export async function getSponsors(
-  eventId: string 
-): Promise<Sponsor[]> {
+export async function getSponsors(eventId: string): Promise<Sponsor[]> {
   const response = await apiClient.get(API_ROUTES.sponsor.fetchALL(eventId));
   return response?.data.results ?? [];
 }
 
-
 export async function getDetailedSponsors(
   eventId: string,
-  sponsorId:string
-): Promise<{statusCode:string,message:string,data:Sponsor[]}> {
-  const response = await apiClient.get(API_ROUTES.sponsor.fetchById(eventId,sponsorId));
+  sponsorId: string
+): Promise<{ statusCode: string; message: string; data: Sponsor[] }> {
+  const response = await apiClient.get(
+    API_ROUTES.sponsor.fetchById(eventId, sponsorId)
+  );
   return response?.data ?? [];
 }

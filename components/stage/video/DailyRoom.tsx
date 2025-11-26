@@ -1,16 +1,14 @@
 'use client';
 
-import { useDailyRoom } from '@/hooks/useDailyRoom';
+import { useEventContext } from '@/components/providers/EventContextProvider';
+import { useDailyRoomConnector } from '@/hooks/useDailyRoom';
 import { DailyProvider } from '@daily-co/daily-react';
 import Tiles from './Tiles';
 
-interface DailyRoomProps {
-  roomUrl: string;
-}
 
-export function DailyRoom({ roomUrl }: DailyRoomProps) {
-  const { callObject, error } = useDailyRoom({ roomUrl });
-
+export function DailyRoom() {
+    const event = useEventContext();
+    const { callObject, isRoomReady, loading, error } = useDailyRoomConnector(event);
   if (error) {
     return (
       <div className="flex h-full items-center justify-center p-6 bg-red-50 text-red-800">

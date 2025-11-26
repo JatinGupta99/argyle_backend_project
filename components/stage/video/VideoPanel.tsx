@@ -1,11 +1,12 @@
 'use client';
-import { useDispatch, useSelector } from 'react-redux';
+
+import { Button } from '@/components/ui/button';
 import { setRoomUrl } from '@/lib/slices/uiSlice.ts';
 import type { RootState } from '@/lib/store';
 import { useState } from 'react';
-import { Button } from '../../ui/button';
-import { setLive } from '@/components/ui/ui-slice';
+import { useDispatch, useSelector } from 'react-redux';
 import { DailyRoom } from './DailyRoom';
+import { setLive } from '@/components/ui/ui-slice';
 
 interface VideoPanelProps {
   eventId: string;
@@ -21,6 +22,7 @@ export function VideoPanel({ eventId, role = 'attendee' }: VideoPanelProps) {
   async function handleGoLive() {
     try {
       setLoading(true);
+
       if (!isLive) {
         const res = await fetch(`/api/events/${eventId}`, {
           method: 'GET',
@@ -44,20 +46,20 @@ export function VideoPanel({ eventId, role = 'attendee' }: VideoPanelProps) {
         dispatch(setLive(false));
         dispatch(setRoomUrl(null));
       }
-    } catch (e: any) {
-      console.error('[VideoPanel] Go Live error:', e.message);
+    } catch (error: any) {
+      console.error('[VideoPanel] Go Live error:', error.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex flex-col h-full bg-background pb-8 mt-2">
-      <div className="relative flex-none w-full aspect-[4/3] bg-gray-900 rounded-2xl shadow-lg">
+    <div className="flex flex-col h-full bg-background mt-2">
+      <div className="relative flex-none w-full max-w-[600px] aspect-[16/12.5] bg-gray-900 rounded-2xl shadow-lg mx-auto">
         {isLive && roomUrl ? (
           <DailyRoom roomUrl={roomUrl} />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center p-4">
+          <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
             <h3 className="text-white text-lg font-semibold">Event Not Live</h3>
             <p className="text-gray-400 text-sm mt-2">
               Waiting for the host to start the event.
@@ -67,11 +69,11 @@ export function VideoPanel({ eventId, role = 'attendee' }: VideoPanelProps) {
       </div>
 
       {role !== 'attendee' && (
-        <div className="mt-2 text-center">
+        <div className="mt-3 text-center">
           <Button
             onClick={handleGoLive}
             disabled={loading}
-            className="bg-sky-400 hover:bg-sky-500 text-white"
+            className="bg-sky-500 hover:bg-sky-600 text-white transition-colors"
           >
             {loading ? 'Loading...' : isLive ? 'End Live' : 'Go Live'}
           </Button>
