@@ -1,8 +1,8 @@
 'use client';
 
 import { useEventContext } from '@/components/providers/EventContextProvider';
-import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { BackstageContent } from '@/components/stage/backstage/BackstageContent';
+import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { RoleView } from '@/lib/slices/uiSlice.ts';
 
