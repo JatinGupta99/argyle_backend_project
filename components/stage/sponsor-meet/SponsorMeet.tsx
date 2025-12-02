@@ -33,7 +33,6 @@ export default function SponsorMeet() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
   };
 
   return (

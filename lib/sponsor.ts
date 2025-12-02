@@ -26,7 +26,7 @@ interface DocumentLink {
 
 export async function getSponsors(eventId: string): Promise<Sponsor[]> {
   const response = await apiClient.get(API_ROUTES.sponsor.fetchALL(eventId));
-  return response?.data.results ?? [];
+  return response?.data ?? [];
 }
 
 export async function getDetailedSponsors(

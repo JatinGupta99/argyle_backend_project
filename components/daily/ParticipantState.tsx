@@ -1,7 +1,8 @@
 'use client';
+
 import { useDailyActiveSpeaker } from '@/hooks/useDailyActiveSpeaker';
 import { useParticipantProperty } from '@daily-co/daily-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export interface ParticipantProps {
   id: string;
@@ -18,12 +19,13 @@ export interface ParticipantProps {
 export function ParticipantState({ id, children }: ParticipantProps) {
   const name = useParticipantProperty(id, 'user_name');
   const isLocal = useParticipantProperty(id, 'local');
-  const videoState = useParticipantProperty(id, 'tracks.video.state');
-  const audioState = useParticipantProperty(id, 'tracks.audio.state');
+  const tracks = useParticipantProperty(id, 'tracks');
+
+  const videoState = tracks?.video?.state;
+  const audioState = tracks?.audio?.state;
 
   const activeSpeakerId = useDailyActiveSpeaker();
   const isActiveSpeaker = id === activeSpeakerId;
-
   return (
     <>
       {children({

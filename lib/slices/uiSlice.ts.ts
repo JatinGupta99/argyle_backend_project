@@ -19,7 +19,7 @@ export enum chatTabsFinal {
 export enum RoleView {
   Speaker = 'Speaker',
   Attendee = 'Attendee',
-  Organiser = 'Organiser',
+  Moderator = 'Moderator',
 }
 
 export interface UIState {

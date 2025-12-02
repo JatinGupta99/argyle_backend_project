@@ -6,7 +6,7 @@ import { Header } from '@/components/stage/layout/Header';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab,RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 import { StageProviders } from '@/components/providers/StageProvider';
 
 type Props = {
@@ -17,7 +17,13 @@ type Props = {
   children: React.ReactNode;
 };
 
-export function EventStageLayout({ role, chatType, chatTabs, title, children }: Props) {
+export function EventStageLayout({
+  role,
+  chatType,
+  chatTabs,
+  title,
+  children,
+}: Props) {
   const event = useEventContext();
   const eventId = event._id as string;
   const userId = UserID;

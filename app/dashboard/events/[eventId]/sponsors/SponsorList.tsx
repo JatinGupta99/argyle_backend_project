@@ -7,7 +7,6 @@ import { useSponsors } from '@/hooks/useSponsors';
 export default function SponsorList({ eventId }: { eventId: string }) {
   const router = useRouter();
   const { sponsors, loading, error } = useSponsors(eventId);
-
   if (loading) return <p className="text-center mt-10">Loading sponsors...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
@@ -31,10 +30,7 @@ export default function SponsorList({ eventId }: { eventId: string }) {
             }
             className="transition-all hover:shadow-md hover:scale-[1.02]"
           >
-            <SponsorCard
-              imageSrc={sponsor.logoKey}
-              name={sponsor.name}
-            />
+            <SponsorCard imageSrc={sponsor.logoKey} name={sponsor.name} />
           </button>
         ))}
       </div>

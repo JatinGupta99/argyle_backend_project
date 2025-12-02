@@ -14,12 +14,14 @@ export function useDailyActiveSpeaker() {
       let maxLevel = 0;
       let activeId: string | null = null;
 
-      Object.entries(participantsAudio).forEach(([id, level]: [string, any]) => {
-        if (level > maxLevel) {
-          maxLevel = level;
-          activeId = id;
+      Object.entries(participantsAudio).forEach(
+        ([id, level]: [string, any]) => {
+          if (level > maxLevel) {
+            maxLevel = level;
+            activeId = id;
+          }
         }
-      });
+      );
 
       if (activeId) setActiveSpeakerId(activeId);
     };

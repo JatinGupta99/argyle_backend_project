@@ -1,77 +1,47 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
-import { Event } from '@/lib/types/components';
-import { UserID } from '@/lib/constants/api';
 
-let dailySingleton: DailyCall | null = null;
+import { useEffect, useState } from 'react';
+import DailyIframe, { type DailyCall } from '@daily-co/daily-js';
 
-export function useDailyRoomConnector(event: Event) {
-  const roomUrl = event?.dailyRoomDetails?.dailyRoomUrl;
-  const userId = UserID;
+interface UseDailyRoomOptions {
+  roomUrl: string;
+}
 
+export function useDailyRoom({ roomUrl }: UseDailyRoomOptions) {
   const [callObject, setCallObject] = useState<DailyCall | null>(null);
-  const [status, setStatus] = useState<'idle' | 'joining' | 'ready' | 'error'>('idle');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    if (!roomUrl) return;
 
-    if (!dailySingleton) {
-      dailySingleton = DailyIframe.createCallObject({
-        audioSource: false,      
-        videoSource: false,   
-        subscribeToTracksAutomatically: true,
-        customLayout: true,
-      });
+  useEffect(() => {
+    if (!roomUrl) {
+      setError('Missing room URL');
+      setLoading(false);
+      return;
     }
 
-    setCallObject(dailySingleton);
+    const call = DailyIframe.createCallObject();
+    setCallObject(call);
 
+    async function joinRoom() {
+      try {
+        setLoading(true);
+        await call.join({ url: roomUrl });
+        setLoading(false);
+      } catch (err: any) {
+        console.error('Error joining Daily room:', err);
+        setError(err?.message || 'Failed to join Daily room');
+        setLoading(false);
+      }
+    }
+
+    joinRoom();
+
+    // Cleanup when component unmounts
     return () => {
-      // Leave safely on unmount
-      dailySingleton?.leave().catch(() => {});
+      call.leave().catch(() => {});
+      call.destroy();
     };
   }, [roomUrl]);
 
-  const bindEvents = useCallback((co: DailyCall) => {
-    const handleJoined = () => setStatus('ready');
-    const handleError = (err: any) => {
-      console.error('[Daily] Error:', err?.message || err);
-      setError(err?.message || 'Unexpected Daily error occurred');
-      setStatus('error');
-    };
-
-    co.on('joined-meeting', handleJoined);
-    co.on('error', handleError);
-
-    return () => {
-      co.off('joined-meeting', handleJoined);
-      co.off('error', handleError);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!callObject || !roomUrl || !userId) return;
-
-    setStatus('joining');
-    const cleanup = bindEvents(callObject);
-
-    callObject
-      .join({
-        url: roomUrl,
-        userName: userId,
-        startAudioOff: true,
-        startVideoOff: true,
-        userData: { role: 'attendee' },
-      })
-      .catch((err) => {
-        console.error('[Daily] join() failed:', err);
-        setError(err?.message || 'Failed to join Daily room');
-        setStatus('error');
-      });
-
-    return cleanup;
-  }, [callObject, roomUrl, userId, bindEvents]);
-
-  return { callObject, loading: status === 'joining', isRoomReady: status === 'ready', error };
+  return { callObject, loading, error };
 }

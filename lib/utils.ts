@@ -11,3 +11,7 @@ export function computeGrid(count: number) {
   const rows = Math.ceil(count / cols);
   return { cols, rows };
 }
+
+export function log(step: string, info?: any) {
+  console.log(`[DailyBase] ${step}`, info ?? '');
+}

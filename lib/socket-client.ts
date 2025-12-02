@@ -15,11 +15,9 @@ export function initializeSocket(): Socket {
     reconnectionAttempts: 5,
   });
 
-  socket.on('connect', () => {
-  });
+  socket.on('connect', () => {});
 
-  socket.on('disconnect', () => {
-  });
+  socket.on('disconnect', () => {});
 
   socket.on('connect_error', (error) => {
     console.error('[Socket] Connection error:', error);

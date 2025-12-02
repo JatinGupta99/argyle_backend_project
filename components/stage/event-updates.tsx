@@ -14,12 +14,13 @@ export function EventUpdates({
   eventId: string;
   currentUserId?: string;
 }) {
-
   const { posts, isLoading, likePost, unlikePost, addComment } =
     useEventPosts(eventId);
 
   const [expandedComments, setExpandedComments] = useState<string | null>(null);
-  const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
+  const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
+    {}
+  );
   const [loadingLikes, setLoadingLikes] = useState<Record<string, boolean>>({});
   const [submittingComments, setSubmittingComments] = useState<
     Record<string, boolean>

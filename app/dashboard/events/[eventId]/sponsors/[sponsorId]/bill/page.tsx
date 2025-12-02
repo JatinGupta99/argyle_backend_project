@@ -52,12 +52,13 @@ export default function SponsorBoothBillPage() {
     <ReduxProvider>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
-          <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] border-r">
+          <aside className="w-[27%] bg-[#FAFAFA] border-r">
             <ChatPanel
+              youtubeUrl={sponsor.youtubeUrl}
               title3={ChatTab.Chat}
-              role={RoleView.Attendee}
               eventId={eventId}
               currentUserId={UserID}
+              role={RoleView.Attendee}
               type={ChatSessionType.LIVE}
               tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
             />

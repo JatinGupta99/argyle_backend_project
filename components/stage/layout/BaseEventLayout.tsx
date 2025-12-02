@@ -24,7 +24,7 @@ export function BaseEventLayout({
   const userId = UserID;
 
   const attendeeTabs = [ChatCategoryType.CHAT, ChatCategoryType.QA];
-  const speakerTabs   = [ChatCategoryType.EVERYONE, ChatCategoryType.BACKSTAGE];
+  const speakerTabs = [ChatCategoryType.EVERYONE, ChatCategoryType.BACKSTAGE];
 
   const chatTabs = role === RoleView.Attendee ? attendeeTabs : speakerTabs;
 
@@ -32,7 +32,6 @@ export function BaseEventLayout({
     <ReduxProvider>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
-
           {/* Left Chat Sidebar */}
           <aside className="w-[27%] border-r border-gray-200 bg-[#FAFAFA]">
             <ChatPanel
@@ -50,7 +49,6 @@ export function BaseEventLayout({
             <Header title={title} />
             {children}
           </main>
-
         </div>
       </SidebarProvider>
     </ReduxProvider>

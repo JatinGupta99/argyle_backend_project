@@ -10,7 +10,6 @@ import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
 import SponsorList from './SponsorList';
 
 export default function SponsorListWrapper({ eventId }: { eventId: string }) {
-
   if (!eventId) {
     return (
       <div className="flex h-screen items-center justify-center text-red-500">
@@ -23,7 +22,6 @@ export default function SponsorListWrapper({ eventId }: { eventId: string }) {
     <ReduxProvider>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
-
           {/* LEFT CHAT PANEL */}
           <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] border-r">
             <ChatPanel
@@ -44,7 +42,6 @@ export default function SponsorListWrapper({ eventId }: { eventId: string }) {
               <SponsorList eventId={eventId} />
             </div>
           </main>
-
         </div>
       </SidebarProvider>
     </ReduxProvider>

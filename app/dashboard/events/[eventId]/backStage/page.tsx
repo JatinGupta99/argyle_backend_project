@@ -6,7 +6,6 @@ import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { RoleView } from '@/lib/slices/uiSlice.ts';
 
-
 export default function BackstagePage() {
   const event = useEventContext();
   const eventStartTime = event.schedule.startTime as Date;

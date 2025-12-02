@@ -16,9 +16,7 @@ interface DashboardLayoutProps {
   currentUserId?: string;
 }
 
-export default function DashboardLayout({
-  children,
-}: DashboardLayoutProps) {
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen w-screen">
       <AppSidebar />
