@@ -19,6 +19,7 @@ import { API_ROUTES } from '@/lib/api-routes';
 
 export function ChatPanel({
   youtubeUrl: youtubeProp,
+  imageUrl: imageProp,
   title3 = ChatTab.Everyone,
   eventId,
   currentUserId,
@@ -39,29 +40,30 @@ export function ChatPanel({
     activeCategory
   );
 
-  const [videoUrl, setVideoUrl] = useState<string | null>(youtubeProp ?? null); // internal state
+  const [videoUrl, setVideoUrl] = useState<string | null>(youtubeProp ?? null);
+  const [imageUrl] = useState<string | null>(imageProp ?? null);
+
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
-  const [isSending, setIsSending] = useState(false);
+
   const handleSendMessage = useCallback(
     async (text: string) => {
       if (!text.trim() || !currentUserId) return;
 
-      setIsSending(true);
       try {
         await createMessage(text, currentUserId);
         await refetch();
-      } finally {
-        setIsSending(false);
+      } catch (err) {
+        console.error('Error sending message:', err);
       }
     },
     [createMessage, currentUserId, refetch]
   );
+
   const sponsorMatch = useMemo(() => {
     if (!pathname) return null;
     const match = pathname.match(/^\/sponsors\/([^/]+)\/(bill|meet)(\/.*)?$/);
-    if (!match) return null;
-    return { sponsorId: match[1] };
+    return match ? { sponsorId: match[1] } : null;
   }, [pathname]);
 
   useEffect(() => {
@@ -70,17 +72,20 @@ export function ChatPanel({
     const fetchSponsorVideo = async () => {
       setIsLoadingVideo(true);
       setVideoError(null);
+
       try {
         const res = await fetch(
-          API_ROUTES.sponsor.fetchById(eventId,sponsorMatch.sponsorId)
+          API_ROUTES.sponsor.fetchById(eventId, sponsorMatch.sponsorId)
         );
+
         if (!res.ok) throw new Error('Failed to fetch sponsor video');
 
         const data = await res.json();
         const youtube = data.youtubeUrl ?? data.sponsor?.youtubeUrl ?? null;
 
-        if (youtube && youtube.trim()) setVideoUrl(youtube.trim());
-        else {
+        if (youtube?.trim()) {
+          setVideoUrl(youtube.trim());
+        } else {
           setVideoUrl(null);
           setVideoError('Sponsor video not available');
         }
@@ -97,20 +102,24 @@ export function ChatPanel({
   }, [youtubeProp, eventId, sponsorMatch]);
 
   const topContent = useMemo(() => {
-    return videoUrl ? (
-      <YouTubeEmbed
-        url={videoUrl}
-        title="Sponsor Video"
-        className="shadow-md border border-gray-200 mr-2"
-      />
-    ) : (
+    if (videoUrl) {
+      return (
+        <YouTubeEmbed
+          url={videoUrl}
+          title="Sponsor Video"
+          className="shadow-md border border-gray-200 mr-2"
+        />
+      );
+    }
+
+    return (
       <SessionCard
-        imageSrc="/images/event_image.png"
+        imageSrc={imageUrl||undefined}
         title="Redefining Traditional Leader"
         className="mb-0"
       />
     );
-  }, [videoUrl]);
+  }, [videoUrl, imageUrl]);
 
   return (
     <div className="flex flex-col h-full bg-blue-50 border-gray-200 text-gray-900 w-full">
@@ -124,13 +133,11 @@ export function ChatPanel({
           <ArrowLeftFromLine size={20} />
         </button>
       </header>
-
       <ChatTabs
         tabs={tabs}
         activeTab={activeCategory}
         onChangeTab={setActiveCategory}
       />
-
       <div className="pt-2 pb-4 pl-2 w-full">
         {isLoadingVideo ? (
           <div className="text-center text-gray-500">Loading video...</div>
@@ -140,8 +147,6 @@ export function ChatPanel({
           topContent
         )}
       </div>
-
-      {/* Divider */}
       <div className="px-3 py-2">
         <div className="flex items-center gap-2">
           <div className="h-px flex-1 bg-blue-600" />
@@ -149,11 +154,9 @@ export function ChatPanel({
           <div className="h-px flex-1 bg-blue-600" />
         </div>
       </div>
-
       <div className="flex-1 overflow-y-auto">
         <ChatMessages messages={messages ?? []} isLoading={isLoading} />
       </div>
-
       <ChatInputSection
         onSend={handleSendMessage}
         disabled={isLoading || isLoadingVideo}

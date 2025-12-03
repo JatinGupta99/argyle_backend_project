@@ -1,7 +1,7 @@
 'use client';
 
 interface SessionCardProps {
-  imageSrc: string;
+  imageSrc?: string;
   title: string;
   className?: string;
 }

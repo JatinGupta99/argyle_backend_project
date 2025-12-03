@@ -14,6 +14,7 @@ export interface ChatPanelProps {
   title3?: string;
   eventId: string;
   youtubeUrl?: string;
+  imageUrl?: string;
   currentUserId?: string;
   role: RoleView;
   type: ChatSessionType;
