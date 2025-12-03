@@ -3,6 +3,7 @@ export const API_ROUTES = {
     base: 'comments',
     byMessage: (messageId: string) => `comments/message/${messageId}`,
   },
+
   events: {
     posts: (eventId: string) => `/events/${eventId}/posts`,
   },
@@ -24,6 +25,8 @@ export const API_ROUTES = {
       `/events/${eventId}/sponsors/${sponsorId}`,
     uploadUrl: (eventId: string, sponsorId: string) =>
       `/events/${eventId}/sponsors/${sponsorId}/upload-url`,
+      sendLead: (eventId: string, sponsorId: string) =>
+  `/events/${eventId}/sponsors/${sponsorId}/send-lead-email`,
   },
   event: {
     fetchById: (eventId: string) => `events/${eventId}`,

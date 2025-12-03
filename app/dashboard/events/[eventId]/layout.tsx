@@ -24,7 +24,7 @@ export default function EventLayout({ children }: EventLayoutProps) {
   }
 
   if (!event) {
-    console.error('❌ Failed to load event:', error);
+    console.error('Failed to load event:', error);
     return (
       <div className="flex items-center justify-center h-screen text-gray-500">
         Failed to load event details.

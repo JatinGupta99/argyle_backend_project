@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import DailyRoom from '@/components/daily/DailyRoom';
+import { useEventContext } from '@/components/providers/EventContextProvider';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ROLEBASED } from '@/hooks/useDailyBase';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { RoleView } from '@/lib/slices/uiSlice.ts';
-import { useEventContext } from '@/components/providers/EventContextProvider';
+import { useEffect, useState } from 'react';
 
 export default function AttendeeViewProfilePage() {
   const event = useEventContext();

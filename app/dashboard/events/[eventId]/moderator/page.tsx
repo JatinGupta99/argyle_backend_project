@@ -1,16 +1,15 @@
 'use client';
 
-import React from 'react';
-import { useParams } from 'next/navigation';
-import { DailyProvider, useLocalParticipant } from '@daily-co/daily-react';
-import { useEventRole } from '@/hooks/useEventRole';
 import { ModeratorControls } from '@/components/moderator/ModeratorControls';
+import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerVideoPreview } from '@/components/speaker/SpeakerVideoPreview';
-import { Loader2, AlertCircle, Users, Clock } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
+import { ROLEBASED } from '@/hooks/useDailyBase';
+import { useEventRole } from '@/hooks/useEventRole';
 import { Event } from '@/lib/types/components';
-import { useEventContext } from '@/components/providers/EventContextProvider';
+import { DailyProvider, useLocalParticipant } from '@daily-co/daily-react';
+import { AlertCircle, Clock, Loader2, Users } from 'lucide-react';
 
 const FullScreenState = ({
   loading,
@@ -47,7 +46,7 @@ function ModeratorViewContent({ event }: { event: Event }) {
     toggleMic,
     toggleCam,
     toggleScreenShare,
-  } = useEventRole(event, 'moderator');
+  } = useEventRole(event, ROLEBASED.MODERATOR);
 
   const localParticipant = useLocalParticipant();
 

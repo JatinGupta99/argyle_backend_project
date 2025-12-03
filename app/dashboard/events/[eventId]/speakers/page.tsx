@@ -8,7 +8,6 @@ import { RoleView } from '@/lib/slices/uiSlice.ts';
 
 export default function SpeakerPage() {
   const event = useEventContext();
-  const eventId = event._id as string;
 
   return (
     <EventStageLayout
@@ -18,7 +17,7 @@ export default function SpeakerPage() {
       title={'Argyle'}
     >
       <div className="flex-1 overflow-hidden -mt-4">
-        <SpeakerStage eventId={eventId} />
+        <SpeakerStage eventId={event._id} />
       </div>
     </EventStageLayout>
   );
