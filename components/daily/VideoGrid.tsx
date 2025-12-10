@@ -1,6 +1,4 @@
 'use client';
-
-import { ROLEBASED } from '@/hooks/useDailyBase';
 import { useParticipants } from '@/hooks/useParticipants';
 import { computeGrid } from '@/lib/utils';
 import { DailyCall } from '@daily-co/daily-js';
@@ -9,10 +7,9 @@ import { VideoTile } from './VideoTile';
 
 interface VideoGridProps {
   callObject: DailyCall;
-  role?: ROLEBASED;
 }
 
-export function VideoGrid({ callObject, role }: VideoGridProps) {
+export function VideoGrid({ callObject }: VideoGridProps) {
   const participantIds = useParticipants();
 
   const filteredIds = participantIds.filter(
@@ -40,8 +37,6 @@ export function VideoGrid({ callObject, role }: VideoGridProps) {
         <div className="absolute inset-0 flex items-center justify-center text-black text-lg font-semibold">
           Speakers are live, but their cameras are off.
         </div>
-
-        {/* Still render the grid underneath (optional) */}
         <div
           className="grid gap-2 h-full w-full opacity-20"
           style={{

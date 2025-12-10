@@ -1,7 +1,7 @@
 'use client';
 
 import DailyRoom from '@/components/daily/DailyRoom';
-import { ROLEBASED } from '@/hooks/useDailyBase';
+import { ROLEBASED } from '@/lib/types/daily';
 import type { RootState } from '@/lib/store';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -22,7 +22,7 @@ export function VideoPanel({
     <div className="flex flex-col h-full bg-background mt-2">
       <div className="relative flex-none w-full max-w-[600px] aspect-[16/12.5] bg-gray-900 rounded-2xl shadow-lg mx-auto">
         {isLive && roomUrl ? (
-          <DailyRoom role={ROLEBASED.MODERATOR || ROLEBASED.SPEAKER} />
+          <DailyRoom role={role} />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
             <h3 className="text-white text-lg font-semibold">Event Not Live</h3>

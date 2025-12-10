@@ -6,11 +6,13 @@ export const API_ROUTES = {
 
   events: {
     posts: (eventId: string) => `/events/${eventId}/posts`,
+   
   },
   posts: {
     like: (postId: string) => `/posts/${postId}/like`,
     unlike: (postId: string) => `/posts/${postId}/unlike`,
     comment: (postId: string) => `/posts/${postId}/comment`,
+    postsById: (postId:string) => `/posts/${postId}`,
   },
   chat: {
     history: (eventId: string, query?: Record<string, string>) => {

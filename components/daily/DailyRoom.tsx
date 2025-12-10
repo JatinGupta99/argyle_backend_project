@@ -1,28 +1,67 @@
 'use client';
 
 import { useCountdown } from '@/hooks/useCountdown';
-import { ROLEBASED, useDailyBase } from '@/hooks/useDailyBase';
-import { DailyAudio, DailyProvider } from '@daily-co/daily-react';
-import { useEffect, useState } from 'react';
-import { VideoGrid } from './VideoGrid';
+import { DailyTokenPayload } from '@/lib/types/daily';
+import DailyIframe from '@daily-co/daily-js';
+import { jwtDecode } from 'jwt-decode';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface DailyRoomProps {
-  role: ROLEBASED;
+  token: string;
   startTime: Date;
   roomUrl: string;
   eventIsLive: boolean;
 }
 
-function DailyRoom({ role, startTime, roomUrl, eventIsLive }: DailyRoomProps) {
+function DailyRoom({ token, startTime, roomUrl, eventIsLive }: DailyRoomProps) {
   const { hours, minutes, seconds } = useCountdown(startTime);
   const [userClickedJoin, setUserClickedJoin] = useState(false);
+  const iframeRef = useRef<HTMLDivElement>(null);
+  const callFrameRef = useRef<any>(null);
 
-  const { callObject, ready, error } = useDailyBase(
-    roomUrl,
-    `Attendee_${Math.floor(Math.random() * 1000)}`,
-    role,
-    eventIsLive && userClickedJoin
-  );
+  const decoded = useMemo(() => {
+    try {
+      return jwtDecode<DailyTokenPayload>(token);
+    } catch {
+      return {};
+    }
+  }, [token]);
+
+  const detectedRole = decoded?.r ?? 'attendee';
+  useEffect(() => {
+    if (!eventIsLive || !userClickedJoin || !iframeRef.current) return;
+
+    if (!callFrameRef.current) {
+      callFrameRef.current = DailyIframe.createFrame(iframeRef.current, {
+        iframeStyle: {
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          border: '0',
+          borderRadius: '12px',
+        },
+        showLeaveButton: true,
+        showFullscreenButton: true,
+      });
+
+      callFrameRef.current
+        .join({ url: roomUrl, token })
+        .then(() => {
+          console.log(' Joined Daily room as', detectedRole);
+        })
+        .catch((error: any) => {
+          console.error(' Failed to join Daily room:', error);
+        });
+    }
+
+    return () => {
+      if (callFrameRef.current) {
+        callFrameRef.current.leave();
+        callFrameRef.current.destroy();
+        callFrameRef.current = null;
+      }
+    };
+  }, [eventIsLive, userClickedJoin, roomUrl, token, detectedRole]);
 
   if (!eventIsLive) {
     return (
@@ -36,7 +75,7 @@ function DailyRoom({ role, startTime, roomUrl, eventIsLive }: DailyRoomProps) {
         {seconds <= 0 && !userClickedJoin && (
           <button
             onClick={() => setUserClickedJoin(true)}
-            className="mt-4 px-6 py-3 bg-green-500 rounded-lg text-white font-semibold"
+            className="mt-4 px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg text-white font-semibold transition-colors"
           >
             Join Event
           </button>
@@ -45,29 +84,32 @@ function DailyRoom({ role, startTime, roomUrl, eventIsLive }: DailyRoomProps) {
     );
   }
 
-  if (eventIsLive && !userClickedJoin) {
+  if (!userClickedJoin) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4">
-        <p className="text-lg">Event is live!</p>
+        <div className="text-center">
+          <div className="inline-block px-3 py-1 bg-red-600 rounded-full text-xs font-bold mb-3 animate-pulse">
+            🔴 LIVE
+          </div>
+          <p className="text-xl font-semibold">Event is Live!</p>
+          <p className="text-gray-400 mt-2">
+            Joining as: <span className="text-green-400 capitalize">{detectedRole}</span>
+          </p>
+        </div>
         <button
           onClick={() => setUserClickedJoin(true)}
-          className="px-6 py-3 bg-green-500 rounded-lg text-white font-semibold"
+          className="px-8 py-4 bg-green-500 hover:bg-green-600 rounded-lg text-white font-semibold transition-colors shadow-lg"
         >
-          Join Event
+          Join Event Now
         </button>
       </div>
     );
   }
 
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (!callObject) return <div>Initializing call…</div>;
-  if (!ready) return <div>Joining meeting…</div>;
-
   return (
-    <DailyProvider callObject={callObject}>
-      <DailyAudio autoSubscribeActiveSpeaker maxSpeakers={12} />
-      <VideoGrid callObject={callObject} role={role} />
-    </DailyProvider>
+    <div className="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden">
+      <div ref={iframeRef} className="w-full h-full" />
+    </div>
   );
 }
 

@@ -7,6 +7,7 @@ import { EventHeader } from '@/components/stage/event-headers';
 import { EventUpdates } from '@/components/stage/event-updates';
 import { Header } from '@/components/stage/layout/Header';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { ROLEBASED } from '@/hooks/useDailyBase';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
@@ -14,6 +15,7 @@ export default function Page() {
   const event = useEventContext();
   const eventId = event._id as string;
   const userId = UserID;
+  const role=ROLEBASED.ATTENDEE
 
   return (
     <ReduxProvider>
@@ -35,7 +37,7 @@ export default function Page() {
               title={event.title}
               imageSrc={event.eventLogoUrl ?? '/images/virtual_event.webp'}
             />
-            <EventUpdates eventId={eventId} currentUserId={userId} />
+            <EventUpdates eventId={eventId} currentUserId={userId} role={role} />
           </main>
         </div>
       </SidebarProvider>
