@@ -18,6 +18,7 @@ export interface DailyTokenPayload {
     r?: string;        // role field from Daily token
     u?: string;        // user display name
     user_id?: string;  // user identifier
+    is_owner?: boolean;  // user identifier
 }
 
 /**

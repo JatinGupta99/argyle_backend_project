@@ -26,8 +26,8 @@ function DailyRoom({ token, startTime, roomUrl, eventIsLive }: DailyRoomProps) {
       return {};
     }
   }, [token]);
-
-  const detectedRole = decoded?.r ?? 'attendee';
+  console.log('Decoded Daily token:', decoded);
+  const detectedRole = decoded?.u ?? 'attendee';
   useEffect(() => {
     if (!eventIsLive || !userClickedJoin || !iframeRef.current) return;
 
