@@ -1,9 +1,9 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import { EventContextProvider } from '@/components/providers/EventContextProvider';
 import { useEvent } from '@/hooks/useEvents';
+import { Loader2 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 
 interface EventLayoutProps {
   children: React.ReactNode;
@@ -14,7 +14,7 @@ export default function EventLayout({ children }: EventLayoutProps) {
   const eventId = params?.eventId as string;
 
   const { event, isLoading, error } = useEvent(eventId);
-
+  console.log(event, 'event');
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">

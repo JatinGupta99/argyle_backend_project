@@ -5,7 +5,7 @@ import { Header } from '@/components/stage/layout/Header';
 import SponsorDetails from '@/components/stage/sponsor-details/SponsorDetails';
 import { EventId, UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { Sponsor } from '@/lib/sponsor';
 
 export default function SponsorBooth({

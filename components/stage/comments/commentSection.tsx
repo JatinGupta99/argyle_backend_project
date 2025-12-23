@@ -24,7 +24,7 @@ export default function CommentSection({
 
     setIsSubmitting(true);
     try {
-      await createComment(currentUserId, newComment);
+      await createComment(newComment);
       setNewComment('');
     } catch (error) {
       console.error('Failed to add comment:', error);

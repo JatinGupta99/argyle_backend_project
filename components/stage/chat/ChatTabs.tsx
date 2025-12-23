@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
-import { ChatTab, selectChatTab, setChatTab } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, selectChatTab, setChatTab } from '@/lib/slices/uiSlice';
 import { ChatCategoryType } from '@/lib/constants/chat';
 
 interface ChatTabsProps {
@@ -48,11 +48,10 @@ export function ChatTabs({ tabs, activeTab, onChangeTab }: ChatTabsProps) {
               dispatch(setChatTab(tab as unknown as ChatTab));
               onChangeTab(tab);
             }}
-            className={`h-8 text-xs rounded-md font-medium flex-1 transition-colors ${
-              isActive
+            className={`h-8 text-xs rounded-md font-medium flex-1 transition-colors ${isActive
                 ? 'bg-[#1C96D3] text-white'
                 : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
-            }`}
+              }`}
           >
             {getTabLabel(tab)}
           </Button>

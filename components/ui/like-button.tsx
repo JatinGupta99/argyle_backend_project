@@ -26,8 +26,10 @@ export default function LikeButton({
   const isLiked = likes.includes(currentUserId);
 
   const handleClick = async () => {
-    await toggleLike(currentUserId);
-    onLikeChange?.(likes);
+    const updatedLikes = await toggleLike(currentUserId);
+    if (updatedLikes) {
+      onLikeChange?.(updatedLikes);
+    }
   };
 
   return (

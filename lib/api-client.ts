@@ -15,8 +15,8 @@ export const apiClient = {
       );
     }
     const text = await response.text();
-    const data = text ? JSON.parse(text) : null;
-    return data ? data : null;
+    const result = text ? JSON.parse(text) : null;
+    return result?.data !== undefined ? result.data : result;
   },
 
   async post(endpoint: string, data: any) {
@@ -35,7 +35,7 @@ export const apiClient = {
 
     const text = await response.text();
     const result = text ? JSON.parse(text) : null;
-    return result ? result.data : null;
+    return result?.data !== undefined ? result.data : result;
   },
 
   async put(endpoint: string, data: any) {
@@ -53,7 +53,27 @@ export const apiClient = {
     }
 
     const text = await response.text();
-    return text ? JSON.parse(text) : null;
+    const result = text ? JSON.parse(text) : null;
+    return result?.data !== undefined ? result.data : result;
+  },
+
+  async patch(endpoint: string, data: any) {
+    const response = await fetch(buildUrl(endpoint), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `PATCH ${endpoint} failed: ${response.status} - ${errorText}`
+      );
+    }
+
+    const text = await response.text();
+    const result = text ? JSON.parse(text) : null;
+    return result?.data !== undefined ? result.data : result;
   },
 
   async delete(endpoint: string) {
@@ -69,6 +89,7 @@ export const apiClient = {
     }
 
     const text = await response.text();
-    return text ? JSON.parse(text) : null;
+    const result = text ? JSON.parse(text) : null;
+    return result?.data !== undefined ? result.data : result;
   },
 };

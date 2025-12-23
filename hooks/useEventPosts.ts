@@ -14,41 +14,46 @@ export function useEventPosts(eventId: string) {
     [eventId]
   );
 
-  const createPost = async (content: string, userId?: string) => {
-    const payload = userId ? { content, userId } : { content };
-    const newPost = await apiClient.post(API_ROUTES.events.posts(eventId), payload);
+  const createPost = async (content: string) => {
+    const newPost = await apiClient.post(API_ROUTES.events.posts(eventId), { content });
     await refetch();
     return newPost;
   };
 
   const updatePost = async (postId: string, content: string) => {
-    const updated = await apiClient.put(API_ROUTES.posts.postsById(postId), { content });
+    const updated = await apiClient.patch(API_ROUTES.events.postById(eventId, postId), {
+      content,
+    });
     await refetch();
     return updated;
   };
 
   // Delete a post
   const deletePost = async (postId: string) => {
-    const deleted = await apiClient.delete(API_ROUTES.posts.postsById(postId));
+    const deleted = await apiClient.delete(
+      API_ROUTES.events.postById(eventId, postId)
+    );
     await refetch();
     return deleted;
   };
 
   // Like a post
-  const likePost = async (postId: string, userId: string) => {
-    await apiClient.post(API_ROUTES.posts.like(postId), { userId });
+  const likePost = async (postId: string) => {
+    await apiClient.post(API_ROUTES.events.like(eventId, postId), {});
     await refetch();
   };
 
   // Unlike a post
-  const unlikePost = async (postId: string, userId: string) => {
-    await apiClient.delete(API_ROUTES.posts.unlike(postId));
+  const unlikePost = async (postId: string) => {
+    await apiClient.delete(API_ROUTES.events.unlike(eventId, postId));
     await refetch();
   };
 
   // Add a comment to a post
-  const addComment = async (postId: string, userId: string, content: string) => {
-    await apiClient.post(API_ROUTES.posts.comment(postId), { content, userId });
+  const addComment = async (postId: string, content: string) => {
+    await apiClient.post(API_ROUTES.events.comment(eventId, postId), {
+      content,
+    });
     await refetch();
   };
 
