@@ -8,7 +8,7 @@ export function EventHeader({
   imageSrc: string;
 }) {
   return (
-    <div className="flex flex-col bg-gray-50 h-full">
+    <div className="flex flex-col bg-gray-50">
       <div className="relative w-[800px] h-56 sm:h-44 mx-auto mt-8 mb-2 pl-6 pr-12 sm:pl-8 sm:pr-14">
         <div className="relative w-full h-full rounded-xl overflow-hidden shadow-md">
           <Image

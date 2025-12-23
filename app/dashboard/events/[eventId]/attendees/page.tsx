@@ -1,98 +1,58 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
-
 import DailyRoom from '@/components/daily/DailyRoom';
+import { DailyRoomAttendee } from '@/components/daily/DailyRoomAttendee';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
+import { ROLEBASED } from '@/hooks/useDailyBase';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { DailyJoinResponse } from '@/lib/types/daily';
-import { RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
+import { useEffect, useState } from 'react';
 
-/* -------------------------------------------------------------------------- */
-/*                                Component                                   */
-/* -------------------------------------------------------------------------- */
+export default function AttendeeViewProfilePage() {
+  const event = useEventContext();
+  const { schedule, dailyRoomDetails } = event;
 
-export default function AttendeeViewProfilePage({ inviteId }: { inviteId: string }) {
-  const { schedule } = useEventContext();
+  const targetDate = new Date(schedule.startTime);
 
-  const targetDate = useMemo(() => new Date(schedule.startTime), [schedule.startTime]);
-
-  const [eventIsLive, setEventIsLive] = useState(() => Date.now() >= +targetDate);
-  const [token, setToken] = useState<string | null>(null);
-  const [roomUrl, setRoomUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  /* ---------------------------- Live Timer -------------------------------- */
+  const [eventIsLive, setEventIsLive] = useState<boolean>(
+    new Date() >= targetDate
+  );
   useEffect(() => {
     if (eventIsLive) return;
 
     const interval = setInterval(() => {
-      if (Date.now() >= +targetDate) {
+      if (new Date() >= targetDate) {
         setEventIsLive(true);
         clearInterval(interval);
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [eventIsLive, targetDate]);
+  }, [targetDate, eventIsLive]);
 
-  /* -------------------------- Token Fetching ------------------------------ */
-  useEffect(() => {
-    if (!inviteId) return;
+  const chatType = eventIsLive
+    ? ChatSessionType.LIVE
+    : ChatSessionType.PRE_LIVE;
 
-    const controller = new AbortController();
-
-    (async () => {
-      try {
-        const res = await axios.get<{ data: DailyJoinResponse }>(
-          `${process.env.NEXT_PUBLIC_API_URL}/invite/join/${inviteId}`,
-        );
-
-        const { token, roomUrl } = res.data.data;
-
-        setToken(token);
-        setRoomUrl(roomUrl);
-      } catch (err: any) {
-        if (axios.isCancel(err)) return;
-
-        console.error('[AttendeePage] Token fetch failed:', err);
-        setError('Unable to join the event. Please check your invite.');
-      }
-    })();
-
-    return () => controller.abort();
-  }, [inviteId]);
-
-  /* ------------------------------ Errors -------------------------------- */
-  if (error) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-900">
-        <div className="max-w-md rounded-lg bg-gray-800 p-8 text-center shadow-xl">
-          <div className="mb-4 text-5xl text-red-500">⛔</div>
-          <h2 className="mb-3 text-2xl font-bold text-white">Access Denied</h2>
-          <p className="text-gray-300">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  /* ------------------------------ Render -------------------------------- */
   return (
-    <EventStageLayout
-      role={RoleView.Attendee}
-      chatType={ChatSessionType.LIVE}
-      chatTabs={[ChatCategoryType.EVERYONE]}
-    >
-      <div className="flex flex-1 flex-col h-full overflow-hidden">
-        <DailyRoom
-          token={token}
-          roomUrl={roomUrl}
-          startTime={targetDate}
-          eventIsLive={eventIsLive}
-        />
-      </div>
-    </EventStageLayout>
+    <div className="bg-sky-50">
+      <EventStageLayout
+        role={RoleView.Attendee}
+        chatType={chatType}
+        chatTabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
+      >
+        <div className="flex-1 flex h-full items-center justify-center">
+          <DailyRoomAttendee
+            role={ROLEBASED.ATTENDEE}
+            startTime={targetDate}
+            roomUrl={dailyRoomDetails.dailyRoomUrl}
+            eventIsLive={eventIsLive}
+            eventId={event._id}
+          />
+        </div>
+
+      </EventStageLayout>
+    </div>
   );
 }

@@ -11,6 +11,7 @@ interface VideoGridProps {
 
 export function VideoGrid({ callObject }: VideoGridProps) {
   const participantIds = useParticipants();
+console.log('Participants:', participantIds);
 
   const filteredIds = participantIds.filter(
     (id) => !!callObject.participants()?.[id]

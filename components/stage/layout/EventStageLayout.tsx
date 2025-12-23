@@ -6,7 +6,7 @@ import { Header } from '@/components/stage/layout/Header';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { StageProviders } from '@/components/providers/StageProvider';
 
 type Props = {

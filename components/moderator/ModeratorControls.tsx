@@ -65,6 +65,7 @@ export function ModeratorControls({
         onToggleMic={onToggleMic}
         onToggleCam={onToggleCam}
         onToggleScreenShare={onToggleScreenShare}
+        role="moderator"
       />
     </div>
   );

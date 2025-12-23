@@ -17,7 +17,7 @@ import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 
 export default function SponsorBoothMeet() {
   const { eventId, sponsorId } = useParams() as { eventId: string; sponsorId: string };
@@ -169,9 +169,8 @@ export default function SponsorBoothMeet() {
                     <div key={field} className="space-y-1">
                       <Label
                         htmlFor={field}
-                        className={`capitalize text-xs font-medium ${
-                          errors[field] ? 'text-red-600' : 'text-gray-700'
-                        }`}
+                        className={`capitalize text-xs font-medium ${errors[field] ? 'text-red-600' : 'text-gray-700'
+                          }`}
                       >
                         {field}
                       </Label>
@@ -181,9 +180,8 @@ export default function SponsorBoothMeet() {
                         value={(formData as any)[field]}
                         onChange={handleInputChange}
                         placeholder={`Enter your ${field}`}
-                        className={`mt-1 ${
-                          errors[field] ? 'border-red-600 focus-visible:ring-red-600' : 'border-gray-300'
-                        }`}
+                        className={`mt-1 ${errors[field] ? 'border-red-600 focus-visible:ring-red-600' : 'border-gray-300'
+                          }`}
                       />
                       {errors[field] && <p className="text-red-600 text-xs">{errors[field]}</p>}
                     </div>

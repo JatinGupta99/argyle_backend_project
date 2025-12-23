@@ -3,13 +3,13 @@
 import { createContext, useContext, useMemo } from 'react';
 import type { Event } from '@/lib/types/components';
 
-const EventContext = createContext<{ event: Event } | undefined>(undefined);
+const EventContext = createContext<{ event: Partial<Event> } | undefined>(undefined);
 
 export function EventContextProvider({
   event,
   children,
 }: {
-  event: Event;
+  event: Partial<Event>;
   children: React.ReactNode;
 }) {
   const normalizedEvent = useMemo(() => {

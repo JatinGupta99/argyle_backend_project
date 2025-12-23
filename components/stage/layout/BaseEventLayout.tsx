@@ -6,7 +6,7 @@ import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 
 interface BaseEventLayoutProps {
   children: React.ReactNode;

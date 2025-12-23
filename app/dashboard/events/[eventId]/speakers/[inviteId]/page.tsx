@@ -1,21 +1,21 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { useParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
+import DailyRoom from '@/components/daily/DailyRoom';
+import { useEventContext } from '@/components/providers/EventContextProvider';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { useEventContext } from '@/components/providers/EventContextProvider';
-import DailyRoom from '@/components/daily/DailyRoom';
 
+import { RoleView } from '@/lib/slices/uiSlice';
 import {
-  ROLEBASED,
-  DailyTokenPayload,
   DailyJoinResponse,
+  DailyTokenPayload,
+  ROLEBASED,
 } from '@/lib/types/daily';
-import { RoleView } from '@/lib/slices/uiSlice.ts';
 
 /* -------------------------------------------------------------------------- */
 /*                                Component                                   */
@@ -28,11 +28,11 @@ export default function SpeakerPage() {
 
   /* ------------------------------- Event --------------------------------- */
 
-  const { schedule } = useEventContext();
+  const event = useEventContext();
 
   const targetDate = useMemo(
-    () => new Date(schedule.startTime),
-    [schedule.startTime]
+    () => new Date(event?.schedule?.startTime ?? Date.now()),
+    [event?.schedule?.startTime]
   );
 
   /* ------------------------------- State --------------------------------- */
@@ -90,7 +90,8 @@ export default function SpeakerPage() {
         setRoomUrl(roomUrl);
         setRole(extractedRole);
       } catch (err: any) {
-        if (axios.isCancel(err)) return;
+        // If the request was cancelled, ignore.
+        if ((err as any)?.code === 'ERR_CANCELED') return;
 
         console.error('[SpeakerPage] Token fetch failed:', err);
         setError('Unable to verify speaker access.');

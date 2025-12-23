@@ -24,11 +24,19 @@ const FullScreenState = ({
     {loading && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
     {loading && <p className="text-muted-foreground">{message}</p>}
     {errorMessage && (
-      <Alert variant="destructive" className="max-w-md">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>{errorMessage}</AlertDescription>
-      </Alert>
+      <div className="flex flex-col items-center gap-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-md text-sm transition-colors"
+        >
+          Reload Page
+        </button>
+      </div>
     )}
   </div>
 );

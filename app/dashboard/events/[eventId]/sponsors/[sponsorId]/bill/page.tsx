@@ -8,12 +8,12 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { useDetailedSponsor } from '@/hooks/useDetailedSponsor';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { useParams } from 'next/navigation';
 
 export default function SponsorBoothBillPage() {
-  const params=useParams();
-  const sponsorId=params.sponsorId as string;
+  const params = useParams();
+  const sponsorId = params.sponsorId as string;
   const event = useEventContext();
   const { sponsor, loading, error } = useDetailedSponsor(event._id, sponsorId);
 

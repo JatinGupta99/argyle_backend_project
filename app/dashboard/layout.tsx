@@ -1,7 +1,7 @@
 'use client';
 
 import { AppSidebar } from '@/components/stage/sidebar/AppSidebar';
-import { RoleView } from '@/lib/slices/uiSlice.ts';
+import { RoleView } from '@/lib/slices/uiSlice';
 import React from 'react';
 
 interface DashboardLayoutProps {

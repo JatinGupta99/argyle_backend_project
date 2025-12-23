@@ -1,27 +1,30 @@
 'use client';
 
 import { useCountdown } from '@/hooks/useCountdown';
+import { ROLEBASED } from '@/lib/types/daily';
 import { DailyTokenPayload } from '@/lib/types/daily';
 import DailyIframe from '@daily-co/daily-js';
 import { jwtDecode } from 'jwt-decode';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface DailyRoomProps {
-  token: string;
+  token?: string;
   startTime: Date;
-  roomUrl: string;
+  roomUrl?: string;
   eventIsLive: boolean;
+  role?: ROLEBASED;
 }
 
-function DailyRoom({ token, startTime, roomUrl, eventIsLive }: DailyRoomProps) {
+function DailyRoom({ token, startTime, roomUrl, eventIsLive, role }: DailyRoomProps) {
   const { hours, minutes, seconds } = useCountdown(startTime);
   const [userClickedJoin, setUserClickedJoin] = useState(false);
   const iframeRef = useRef<HTMLDivElement>(null);
   const callFrameRef = useRef<any>(null);
 
   const decoded = useMemo(() => {
+    if (!token) return {};
     try {
-      return jwtDecode<DailyTokenPayload>(token);
+      return jwtDecode<DailyTokenPayload>(token as string);
     } catch {
       return {};
     }
@@ -53,7 +56,6 @@ function DailyRoom({ token, startTime, roomUrl, eventIsLive }: DailyRoomProps) {
           console.error(' Failed to join Daily room:', error);
         });
     }
-
     return () => {
       if (callFrameRef.current) {
         callFrameRef.current.leave();
@@ -88,9 +90,9 @@ function DailyRoom({ token, startTime, roomUrl, eventIsLive }: DailyRoomProps) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4">
         <div className="text-center">
-          <div className="inline-block px-3 py-1 bg-red-600 rounded-full text-xs font-bold mb-3 animate-pulse">
+          {/* <div className="inline-block px-3 py-1 bg-red-600 rounded-full text-xs font-bold mb-3 animate-pulse">
             🔴 LIVE
-          </div>
+          </div> */}
           <p className="text-xl font-semibold">Event is Live!</p>
           <p className="text-gray-400 mt-2">
             Joining as: <span className="text-green-400 capitalize">{detectedRole}</span>

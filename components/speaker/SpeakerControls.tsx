@@ -29,6 +29,7 @@ export function SpeakerControls({
         onToggleMic={onToggleMic}
         onToggleCam={onToggleCam}
         onToggleScreenShare={onToggleScreenShare}
+        role="speaker"
       />
     </div>
   );

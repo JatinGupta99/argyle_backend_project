@@ -7,7 +7,7 @@ import { Header } from '@/components/stage/layout/Header';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice.ts';
+import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import SponsorList from './SponsorList';
 
 interface SponsorListWrapperProps {

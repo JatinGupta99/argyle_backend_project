@@ -11,12 +11,12 @@ import { SessionCard } from '@/components/stage/session-card';
 
 import { useMessages } from '@/hooks/useMessages';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab } from '@/lib/slices/uiSlice.ts';
 import { ChatPanelProps } from '@/lib/types/components';
 
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { API_ROUTES } from '@/lib/api-routes';
 import { ArrowLeftFromLine } from 'lucide-react';
+import { ChatTab } from '@/lib/slices/uiSlice';
 
 export function ChatPanel({
   youtubeUrl: youtubeProp,
@@ -29,7 +29,7 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const event=useEventContext()
+  const event = useEventContext()
   const [activeCategory, setActiveCategory] = useState<ChatCategoryType>(
     tabs[0] ?? ChatCategoryType.EVERYONE
   );
@@ -39,7 +39,7 @@ export function ChatPanel({
     eventId,
     activeCategory
   );
-  const imageProp=event.eventLogoUrl;
+  const imageProp = event.eventLogoUrl;
   const [videoUrl, setVideoUrl] = useState<string | null>(youtubeProp ?? null);
   const [imageUrl] = useState<string | null>(imageProp ?? null);
 
@@ -111,10 +111,10 @@ export function ChatPanel({
         />
       );
     }
-    console.log(imageUrl,'acnlkcsnlkcs')
+    console.log(imageUrl, 'acnlkcsnlkcs')
     return (
       <SessionCard
-        imageSrc={imageUrl||undefined}
+        imageSrc={imageUrl || undefined}
         title="Redefining Traditional Leader"
         className="mb-0"
       />

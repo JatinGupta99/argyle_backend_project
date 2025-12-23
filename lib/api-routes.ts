@@ -6,13 +6,10 @@ export const API_ROUTES = {
 
   events: {
     posts: (eventId: string) => `/events/${eventId}/posts`,
-   
-  },
-  posts: {
-    like: (postId: string) => `/posts/${postId}/like`,
-    unlike: (postId: string) => `/posts/${postId}/unlike`,
-    comment: (postId: string) => `/posts/${postId}/comment`,
-    postsById: (postId:string) => `/posts/${postId}`,
+    postById: (eventId: string, postId: string) => `/events/${eventId}/posts/${postId}`,
+    like: (eventId: string, postId: string) => `/events/${eventId}/posts/${postId}/like`,
+    unlike: (eventId: string, postId: string) => `/events/${eventId}/posts/${postId}/unlike`,
+    comment: (eventId: string, postId: string) => `/events/${eventId}/posts/${postId}/comment`,
   },
   chat: {
     history: (eventId: string, query?: Record<string, string>) => {
@@ -27,8 +24,8 @@ export const API_ROUTES = {
       `/events/${eventId}/sponsors/${sponsorId}`,
     uploadUrl: (eventId: string, sponsorId: string) =>
       `/events/${eventId}/sponsors/${sponsorId}/upload-url`,
-      sendLead: (eventId: string, sponsorId: string) =>
-  `/events/${eventId}/sponsors/${sponsorId}/send-lead-email`,
+    sendLead: (eventId: string, sponsorId: string) =>
+      `/events/${eventId}/sponsors/${sponsorId}/send-lead-email`,
   },
   event: {
     fetchById: (eventId: string) => `events/${eventId}`,
