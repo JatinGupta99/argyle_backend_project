@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Send } from 'lucide-react';
 import { useComments } from '@/hooks/useComments';
+import { Send } from 'lucide-react';
+import { useState } from 'react';
 import LikeButton from '../../ui/like-button';
 
 interface CommentSectionProps {
@@ -15,6 +15,7 @@ export default function CommentSection({
   currentUserId,
 }: CommentSectionProps) {
   const { comments, isLoading, createComment } = useComments(messageId);
+  const items = comments ?? [];
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,10 +39,10 @@ export default function CommentSection({
       <div className="space-y-2 max-h-48 overflow-y-auto">
         {isLoading ? (
           <p className="text-sm text-muted">Loading comments...</p>
-        ) : comments.length === 0 ? (
+        ) : items.length === 0 ? (
           <p className="text-sm text-muted">No comments yet</p>
         ) : (
-          comments.map((comment) => (
+          items.map((comment) => (
             <div key={comment._id} className="bg-gray-50 rounded p-2 text-sm">
               <div className="flex items-center justify-between">
                 <p className="font-semibold text-foreground">

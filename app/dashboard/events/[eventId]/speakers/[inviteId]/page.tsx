@@ -90,7 +90,8 @@ export default function SpeakerPage() {
         setRoomUrl(roomUrl);
         setRole(extractedRole);
       } catch (err: any) {
-        if (axios.isCancel(err)) return;
+        // If the request was cancelled, ignore.
+  if ((err as any)?.code === 'ERR_CANCELED') return;
 
         console.error('[SpeakerPage] Token fetch failed:', err);
         setError('Unable to verify speaker access.');

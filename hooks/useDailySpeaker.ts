@@ -11,12 +11,17 @@ interface UseDailySpeakerProps {
 }
 
 export function useDailySpeaker({ roomUrl, eventId }: UseDailySpeakerProps) {
+  /*
+   * Updated to match new useDailyBase signature:
+   * (roomUrl, enable, userName, token)
+   */
   const {
     callObject,
-    loading,
     ready,
     error: baseError,
-  } = useDailyBase(roomUrl, UserID, ROLEBASED.SPEAKER);
+  } = useDailyBase(roomUrl, true, 'Speaker', UserID);
+
+  const loading = !ready;
   const [isLive, setIsLive] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
   const [isCamOn, setIsCamOn] = useState(false);
@@ -103,7 +108,7 @@ export function useDailySpeaker({ roomUrl, eventId }: UseDailySpeakerProps) {
   useEffect(() => {
     return () => {
       if (callObject && isScreenSharing)
-        callObject.stopScreenShare().catch(() => {});
+        callObject.stopScreenShare();
     };
   }, [callObject, isScreenSharing]);
 

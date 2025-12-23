@@ -4,7 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useDailySpeaker } from '@/hooks/useDailySpeaker';
 import { DailyProvider, useLocalParticipant } from '@daily-co/daily-react';
-import { Loader2, Radio } from 'lucide-react';
+import { Loader2, Radio, AlertCircle } from 'lucide-react';
 import { SpeakerControls } from './SpeakerControls';
 import { SpeakerVideoPreview } from './SpeakerVideoPreview';
 
@@ -109,11 +109,23 @@ export function SpeakerViewContent({
 
   if (error) {
     return (
-      <div className="p-6">
-        <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+      <div className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center gap-4">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+          <AlertCircle className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Connection Error</h3>
+          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+            {error}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => window.location.reload()}
+          className="mt-2"
+        >
+          Retry Connection
+        </Button>
       </div>
     );
   }
