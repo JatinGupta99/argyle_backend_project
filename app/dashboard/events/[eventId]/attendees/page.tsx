@@ -4,7 +4,6 @@ import DailyRoom from '@/components/daily/DailyRoom';
 import { DailyRoomAttendee } from '@/components/daily/DailyRoomAttendee';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
-import { ROLEBASED } from '@/hooks/useDailyBase';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { useEffect, useState } from 'react';
@@ -44,11 +43,11 @@ export default function AttendeeViewProfilePage() {
       >
         <div className="flex-1 flex h-full items-center justify-center">
           <DailyRoomAttendee
-            role={ROLEBASED.ATTENDEE}
+            role={RoleView.Attendee}
             startTime={targetDate}
-            roomUrl={dailyRoomDetails.dailyRoomUrl}
+            roomUrl={dailyRoomDetails?.dailyRoomUrl || ''}
             eventIsLive={eventIsLive}
-            eventId={event._id}
+            eventId={event._id || ''}
           />
         </div>
 

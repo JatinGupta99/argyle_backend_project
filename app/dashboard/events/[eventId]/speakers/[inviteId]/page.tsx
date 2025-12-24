@@ -5,11 +5,11 @@ import { jwtDecode } from 'jwt-decode';
 import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import DailyRoom from '@/components/daily/DailyRoom';
+import { ROLES } from '@/app/auth/roles';
 import { useEventContext } from '@/components/providers/EventContextProvider';
+import { SpeakerViewContent } from '@/components/speaker/SpeakerViewContent';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-
 import { RoleView } from '@/lib/slices/uiSlice';
 import {
   DailyJoinResponse,
@@ -40,7 +40,7 @@ export default function SpeakerPage() {
   const [eventIsLive, setEventIsLive] = useState(() => Date.now() >= +targetDate);
   const [token, setToken] = useState<string | null>(null);
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
-  const [role, setRole] = useState<ROLEBASED | null>(null);
+  const [localRole, setLocalRole] = useState<ROLEBASED | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   /* --------------------------- Prevent Re-fetch --------------------------- */
@@ -76,7 +76,6 @@ export default function SpeakerPage() {
         const res = await axios.get<{ data: DailyJoinResponse }>(
           `${process.env.NEXT_PUBLIC_API_URL}/invite/join/${inviteId}`,
         );
-
         const { token, roomUrl } = res.data.data;
 
         const decoded = jwtDecode<DailyTokenPayload>(token);
@@ -88,7 +87,7 @@ export default function SpeakerPage() {
 
         setToken(token);
         setRoomUrl(roomUrl);
-        setRole(extractedRole);
+        setLocalRole(extractedRole);
       } catch (err: any) {
         // If the request was cancelled, ignore.
         if ((err as any)?.code === 'ERR_CANCELED') return;
@@ -119,7 +118,7 @@ export default function SpeakerPage() {
 
   /* ----------------------------- Loading -------------------------------- */
 
-  if (!token || !roomUrl || !role) {
+  if (!token || !roomUrl || !localRole) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-900">
         <div className="text-lg text-white">
@@ -128,8 +127,6 @@ export default function SpeakerPage() {
       </div>
     );
   }
-
-  /* ------------------------------ Render -------------------------------- */
 
   return (
     <EventStageLayout
@@ -142,11 +139,11 @@ export default function SpeakerPage() {
       title="Argyle"
     >
       <div className="flex-1 -mt-4 overflow-hidden">
-        <DailyRoom
+        <SpeakerViewContent
           token={token}
           roomUrl={roomUrl}
-          startTime={targetDate}
-          eventIsLive={eventIsLive}
+          eventId={event._id!}
+          role={localRole === ROLEBASED.MODERATOR ? ROLES.MODERATOR : ROLES.SPEAKER}
         />
       </div>
     </EventStageLayout>

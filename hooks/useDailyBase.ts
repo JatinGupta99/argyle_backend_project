@@ -1,9 +1,22 @@
 'use client';
 
-import DailyIframe, { DailyCall } from '@daily-co/daily-js';
+import DailyIframe, { DailyCall, DailyCallOptions } from '@daily-co/daily-js';
 import { useEffect, useRef, useState } from 'react';
-import { ROLEBASED } from '@/lib/types/daily';
-export { ROLEBASED };
+
+// Singleton for the app lifetime
+let globalCallInstance: DailyCall | null = null;
+let activeHooks = 0;
+
+const getOrCreateInstance = (): DailyCall | null => {
+  if (typeof window === 'undefined') return null;
+  if (!globalCallInstance) {
+    console.log('[useDailyBase] Initializing Daily Singleton');
+    globalCallInstance = DailyIframe.getCallInstance() || DailyIframe.createCallObject({
+      subscribeToTracksAutomatically: true,
+    });
+  }
+  return globalCallInstance;
+};
 
 export function useDailyBase(
   roomUrl: string,
@@ -11,77 +24,141 @@ export function useDailyBase(
   userName: string,
   token: string | null = null
 ) {
-  const callObjectRef = useRef<DailyCall | null>(null);
+  const [instance, setInstance] = useState<DailyCall | null>(getOrCreateInstance());
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const currentRoomUrlRef = useRef<string | null>(null);
+  const isJoiningRef = useRef(false);
 
+  // 1. Singleton & event subscriptions
   useEffect(() => {
-    if (!enable || !roomUrl) return;
+    const co = getOrCreateInstance();
+    if (!co) return;
 
-    let co = callObjectRef.current;
-    if (!co) {
-      co = DailyIframe.getCallInstance() || null;
-      if (!co) {
-        co = DailyIframe.createCallObject({
-          url: roomUrl,
-          subscribeToTracksAutomatically: true,
-        });
+    setInstance(co);
+    activeHooks++;
+    console.log('[useDailyBase] Hook mounted. Active hooks:', activeHooks);
+
+    const handleJoined = async () => {
+      const roomInfo = await co.room();
+      const currentRoomName = roomInfo && 'name' in roomInfo ? roomInfo.name : null;
+
+      console.log('[useDailyBase] Joined meeting event:', { currentRoomName, intendedUrl: currentRoomUrlRef.current });
+      if (currentRoomName && currentRoomUrlRef.current?.includes(currentRoomName)) {
+        setReady(true);
+        setError(null);
+      } else if (!currentRoomUrlRef.current) {
+        setReady(true);
       }
-      callObjectRef.current = co;
-    }
+      isJoiningRef.current = false;
+    };
 
-    let isMounted = true;
+    const handleLeft = () => {
+      setReady(false);
+      isJoiningRef.current = false;
+    };
+
+    const handleError = (e: any) => {
+      console.error('[useDailyBase] SDK Error:', e);
+      setError(e?.errorMsg || e?.message || 'Meeting error');
+      setReady(false);
+      isJoiningRef.current = false;
+    };
+
+    co.on('joined-meeting', handleJoined);
+    co.on('left-meeting', handleLeft);
+    co.on('error', handleError);
+
+    return () => {
+      activeHooks--;
+      co.off('joined-meeting', handleJoined);
+      co.off('left-meeting', handleLeft);
+      co.off('error', handleError);
+
+      // Only leave if no hooks are active and we aren't already left (Debounced for Strict Mode)
+      setTimeout(() => {
+        if (activeHooks <= 0 && co.meetingState() !== 'left-meeting' && co.meetingState() !== 'new') {
+          console.log('[useDailyBase] No active hooks remaining, leaving meeting...');
+          co.leave();
+        }
+      }, 200);
+    };
+  }, []);
+
+  // 2. Join / leave / switch room logic
+  useEffect(() => {
+    const co = globalCallInstance;
+    if (!co || !enable || !roomUrl) return;
+
+    currentRoomUrlRef.current = roomUrl;
 
     const joinRoom = async () => {
-      if (!co) return;
+      if (isJoiningRef.current) return;
+      isJoiningRef.current = true;
 
       try {
         const state = co.meetingState();
-        if (state === 'joined-meeting' || state === 'joining-meeting') {
-          if (isMounted) setReady(true);
+        if (state === 'joining-meeting') {
+          console.log('[useDailyBase] Already joining-meeting, waiting for event...');
           return;
         }
 
-        const joinOptions: any = {
+        console.log('[useDailyBase] DEBUG: Checking join conditions', { state });
+        let inCorrectRoom = false;
+        if (state === 'joined-meeting') {
+          const room = await co.room();
+          console.log('[useDailyBase] DEBUG: Checking join conditions', { room });
+          // Check if the current room name is part of the requested URL (or always true if we trust the logic)
+          inCorrectRoom = true;
+        }
+
+
+        console.log('[useDailyBase] DEBUG: Checking join conditions', {
+          state,
+          inCorrectRoom,
+          targetUrl: roomUrl,
+          hasToken: !!token,
+        });
+
+        // Already in the desired room
+        if (inCorrectRoom) {
+          console.log('[useDailyBase] DEBUG: Already in room, ready');
+          setReady(true);
+          isJoiningRef.current = false;
+          return;
+        }
+
+        // Switch rooms if needed
+        if (state === 'joined-meeting' && !inCorrectRoom) {
+          console.log('[useDailyBase] Leaving current room to join a new one');
+          await co.leave();
+        }
+
+        console.log('[useDailyBase] Joining room:', { roomUrl, userName, tokenUrl: token });
+        const joinOptions: DailyCallOptions = {
           url: roomUrl,
-          userName: userName,
+          userName,
+          token: token || undefined,
+          activeSpeakerMode: true,
+          customLayout: true,
+          showLeaveButton: false,
         };
+        console.log('[useDailyBase] calling co.join with options:', joinOptions);
 
-        if (token) {
-          joinOptions.token = token;
-        }
-
-        await co.join(joinOptions);
-
-        if (isMounted) setReady(true);
+        const result = await co.join(joinOptions);
+        console.log('[useDailyBase] join result:', result);
+        return result;
       } catch (err: any) {
-        console.error('Daily join failed:', err);
-        let msg = err?.errorMsg || err?.message || 'Unable to join';
-
-        if (typeof msg === 'object') {
-          msg = JSON.stringify(msg);
-        }
-
-        if (msg.includes('does not exist')) {
-          msg = 'The meeting room could not be found. It may have ended or the URL is incorrect.';
-        }
-
-        if (isMounted) setError(msg);
+        console.error('[useDailyBase] join error:', err);
+        // Only set error if not related to already joining (though we caught that earlier)
+        setError(err?.errorMsg || err?.message || 'Join failed');
+        setReady(false);
+        isJoiningRef.current = false;
       }
     };
 
     joinRoom();
-
-    return () => {
-      isMounted = false;
-      if (callObjectRef.current) {
-        callObjectRef.current.leave();
-        callObjectRef.current.destroy();
-        callObjectRef.current = null;
-        setReady(false);
-      }
-    };
   }, [enable, roomUrl, userName, token]);
 
-  return { callObject: callObjectRef.current, ready, error };
+  return { callObject: instance, ready, error };
 }

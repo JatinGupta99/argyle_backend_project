@@ -3,7 +3,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Video, VideoOff, MonitorUp } from 'lucide-react';
-import { canSendMedia, normalizeRole } from '@/app/auth/access';
+import { Role } from '@/app/auth/roles';
+import { canSendMedia } from '@/app/auth/access';
 
 interface MediaControlsProps {
   isMicOn: boolean;
@@ -12,7 +13,7 @@ interface MediaControlsProps {
   onToggleMic: () => void;
   onToggleCam: () => void;
   onToggleScreenShare: () => void;
-  role?: string;
+  role?: Role;
 }
 
 export function MediaControls({
@@ -24,10 +25,9 @@ export function MediaControls({
   onToggleScreenShare,
   role,
 }: MediaControlsProps) {
-  // Determine permission allowlists. If no role provided we assume allowed (caller controls visibility).
-  const audioAllowed = role ? canSendMedia(normalizeRole(role), 'audio') : true;
-  const videoAllowed = role ? canSendMedia(normalizeRole(role), 'video') : true;
-  const screenAllowed = role ? canSendMedia(normalizeRole(role), 'screenVideo') : true;
+  const audioAllowed = role ? canSendMedia(role, 'audio') : true;
+  const videoAllowed = role ? canSendMedia(role, 'video') : true;
+  const screenAllowed = role ? canSendMedia(role, 'screenVideo') : true;
 
   return (
     <div className="flex items-center gap-2">
@@ -63,10 +63,9 @@ export function MediaControls({
         variant={isScreenSharing ? 'secondary' : 'outline'}
         size="icon"
         onClick={onToggleScreenShare}
-        className={`rounded-full h-12 w-12 ${
-          isScreenSharing &&
+        className={`rounded-full h-12 w-12 ${isScreenSharing &&
           'bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200'
-        }`}
+          }`}
         title={screenAllowed ? (isScreenSharing ? 'Stop Sharing' : 'Share Screen') : 'Screen share not allowed for your role'}
         aria-label={screenAllowed ? (isScreenSharing ? 'Stop Sharing' : 'Share Screen') : 'Screen share not allowed for your role'}
         disabled={!screenAllowed}

@@ -21,10 +21,6 @@ export const canSendMedia = (
   return canSend.includes(media);
 };
 
-/**
- * Normalizes a role string (eg. 'moderator'|'Moderator') to the canonical Role type.
- * Falls back to ATTENDEE when unknown.
- */
 export const normalizeRole = (r?: string | Role): Role => {
   if (!r) return ROLES.ATTENDEE;
 

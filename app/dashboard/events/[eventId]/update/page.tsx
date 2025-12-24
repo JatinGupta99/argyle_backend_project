@@ -7,10 +7,10 @@ import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { EventHeader } from '@/components/stage/event-headers';
 import { EventUpdates } from '@/components/stage/event-updates';
 import { Header } from '@/components/stage/layout/Header';
-import { ROLEBASED } from '@/hooks/useDailyBase';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
+import { ROLEBASED } from '@/lib/types/daily';
 import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -21,7 +21,6 @@ function EventPageContent() {
   const eventId = event._id as string;
   const currentUserId = userId || UserID;
 
-  // Initialize with Attendee role if not set
   useEffect(() => {
     if (!role) {
       setRole(ROLES.MODERATOR, UserID);

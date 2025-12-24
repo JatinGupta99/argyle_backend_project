@@ -3,6 +3,8 @@
 import React from 'react';
 import { MediaControls } from '@/components/shared/MediaControls';
 
+import { Role } from '@/app/auth/roles';
+
 interface SpeakerControlsProps {
   isMicOn: boolean;
   isCamOn: boolean;
@@ -10,6 +12,7 @@ interface SpeakerControlsProps {
   onToggleMic: () => void;
   onToggleCam: () => void;
   onToggleScreenShare: () => void;
+  role: Role;
 }
 
 export function SpeakerControls({
@@ -19,6 +22,7 @@ export function SpeakerControls({
   onToggleMic,
   onToggleCam,
   onToggleScreenShare,
+  role,
 }: SpeakerControlsProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t flex items-center justify-center gap-4 px-4 z-50">
@@ -29,7 +33,7 @@ export function SpeakerControls({
         onToggleMic={onToggleMic}
         onToggleCam={onToggleCam}
         onToggleScreenShare={onToggleScreenShare}
-        role="speaker"
+        role={role}
       />
     </div>
   );
