@@ -16,7 +16,7 @@ interface SponsorListWrapperProps {
 
 export default function SponsorListWrapper({ event }: SponsorListWrapperProps) {
   if (!event?._id) return <div className="text-red-500">Invalid Event</div>;
-  console.log(event, 'event')
+
   return (
     <ReduxProvider>
       <EventContextProvider event={event}>

@@ -11,12 +11,15 @@ import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { ROLEBASED } from '@/lib/types/daily';
+import { getEventDownloadUrl } from '@/lib/event';
 import { Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function EventPageContent() {
   const event = useEventContext();
   const { role, userId, setRole } = useAuth();
+
+  const [imageSignedUrl, setImageSignedUrl] = useState<string | null>(null);
 
   const eventId = event._id as string;
   const currentUserId = userId || UserID;
@@ -26,6 +29,20 @@ function EventPageContent() {
       setRole(ROLES.MODERATOR, UserID);
     }
   }, [role, setRole]);
+
+  useEffect(() => {
+    async function fetchImage() {
+      if (eventId) {
+        try {
+          const url = await getEventDownloadUrl(eventId);
+          if (url) setImageSignedUrl(url);
+        } catch (err) {
+          console.error('Failed to fetch event image:', err);
+        }
+      }
+    }
+    fetchImage();
+  }, [eventId]);
 
   if (!role) {
     return (
@@ -66,7 +83,7 @@ function EventPageContent() {
         <Header title={event.title || ''} />
         <EventHeader
           title={event.title || ''}
-          imageSrc={event.eventLogoUrl ?? '/images/virtual_event.webp'}
+          imageSrc={imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp'}
         />
         <EventUpdates
           eventId={eventId}
