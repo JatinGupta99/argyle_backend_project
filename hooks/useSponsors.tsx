@@ -15,6 +15,7 @@ export const useSponsors = (eventId: string) => {
       try {
         setLoading(true);
         const list = await getSponsors(eventId);
+        console.log(list, 'lascnclsakn')
         setSponsors(Array.isArray(list) ? list : []);
       } catch (err: any) {
         setError(err?.message || 'Failed to load sponsors.');

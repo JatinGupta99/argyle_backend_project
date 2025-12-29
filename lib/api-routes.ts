@@ -26,8 +26,11 @@ export const API_ROUTES = {
       `/events/${eventId}/sponsors/${sponsorId}/upload-url`,
     sendLead: (eventId: string, sponsorId: string) =>
       `/events/${eventId}/sponsors/${sponsorId}/send-lead-email`,
+    getSponsorImageReadUrl: (eventId: string, sponsorId: string) =>
+      `/events/${eventId}/sponsors/${sponsorId}/image-url`,
   },
   event: {
     fetchById: (eventId: string) => `events/${eventId}`,
+    getEventImageUrl: (eventId: string) => `events/${eventId}/image-url`,
   },
 };

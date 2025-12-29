@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getSponsorDownloadUrl } from '@/lib/sponsor';
 
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
@@ -12,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 
-import { useDetailedSponsor } from '@/hooks/useDetailedSponsor';
+import { useDetailSponsor } from '@/hooks/useDetailSponsor';
 import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
 import { UserID } from '@/lib/constants/api';
@@ -23,7 +24,7 @@ export default function SponsorBoothMeet() {
   const { eventId, sponsorId } = useParams() as { eventId: string; sponsorId: string };
 
   const ready = Boolean(eventId && sponsorId);
-  const { sponsor, loading, error } = useDetailedSponsor(
+  const { sponsor, loading, error } = useDetailSponsor(
     ready ? eventId : '',
     ready ? sponsorId : ''
   );
@@ -39,6 +40,24 @@ export default function SponsorBoothMeet() {
     isResearching: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [signedLogoUrl, setSignedLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      if (sponsor && eventId && sponsor.logoKey) {
+        try {
+          const url = await getSponsorDownloadUrl(eventId, sponsor._id);
+          if (url) {
+            setSignedLogoUrl(url);
+          }
+        } catch (error) {
+          console.error(`Failed to fetch image for sponsor ${sponsor._id}`, error);
+        }
+      }
+    };
+    fetchImage();
+  }, [sponsor, eventId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -113,6 +132,8 @@ export default function SponsorBoothMeet() {
   if (!sponsor)
     return <div className="flex h-screen items-center justify-center">No sponsor data found.</div>;
 
+
+
   return (
     <div className="flex h-screen bg-background">
       <aside className="w-[27%] bg-[#FAFAFA] border-r">
@@ -137,7 +158,7 @@ export default function SponsorBoothMeet() {
               <div className="space-y-6">
                 <div className="flex justify-center">
                   <Image
-                    src={sponsor.logoKey}
+                    src={signedLogoUrl || sponsor.logoKey}
                     alt={`${sponsor.name} logo`}
                     width={180}
                     height={80}

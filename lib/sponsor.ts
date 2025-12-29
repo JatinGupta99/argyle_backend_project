@@ -11,6 +11,10 @@ export interface Sponsor {
   twitterUrl?: string;
   instagramUrl?: string;
   linkedInUrl?: string;
+  youtubeUrl?: string;
+  facebookUrl?: string;
+  meetingLink?: string;
+  calendlyLink?: string;
 }
 export interface SocialLink {
   platform: string;
@@ -25,16 +29,35 @@ interface DocumentLink {
 }
 
 export async function getSponsors(eventId: string): Promise<Sponsor[]> {
-  const response = await apiClient.get(API_ROUTES.sponsor.fetchALL(eventId));
-  return response?.data ?? [];
+  const result = await apiClient.get(API_ROUTES.sponsor.fetchALL(eventId));
+  console.log(result, 'result')
+  return result;
 }
 
 export async function getDetailedSponsors(
   eventId: string,
   sponsorId: string
-): Promise<{ statusCode: string; message: string; data: Sponsor[] }> {
+): Promise<Sponsor> {
   const response = await apiClient.get(
     API_ROUTES.sponsor.fetchById(eventId, sponsorId)
   );
-  return response?.data ?? [];
+  return (response as unknown as Sponsor) ?? null;
+}
+
+export async function getSponsorDownloadUrl(
+  eventId: string,
+  sponsorId: string
+): Promise<string> {
+  const response = await apiClient.get(
+    API_ROUTES.sponsor.getSponsorImageReadUrl(eventId, sponsorId)
+  );
+
+  // Safely extract the URL whether validation returns a string or an object with data/url property
+  if (typeof response === 'string') return response;
+  if (typeof response === 'object' && response !== null) {
+    if ('data' in response) return (response as any).data;
+    if ('url' in response) return (response as any).url;
+  }
+
+  return response as unknown as string;
 }

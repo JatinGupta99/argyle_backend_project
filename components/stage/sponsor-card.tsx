@@ -12,15 +12,15 @@ export function SponsorCard({ imageSrc, name, onClick }: SponsorCardProps) {
   return (
     <div
       onClick={onClick}
-      className="flex flex-col items-center m-3 cursor-pointer transition-transform hover:scale-[1.02] rounded-lg"
+      className="flex flex-col items-center m-3 cursor-pointer transition-transform hover:scale-[1.02] rounded-lg w-full"
     >
-      <div className="w-[280px] h-[180px] rounded-[8px] bg-white shadow p-4 flex flex-col items-center justify-center">
+      <div className="w-full h-[300px] rounded-[12px] bg-white shadow-md p-6 flex flex-col items-center justify-center border border-gray-100">
         <Image
           src={imageSrc || '/images/placeholder.png'}
           alt={name}
-          width={260}
-          height={100}
-          className=""
+          width={400}
+          height={200}
+          className="object-contain max-h-full"
         />
       </div>
       <div className="mt-3 text-center text-base font-semibold text-gray-800">

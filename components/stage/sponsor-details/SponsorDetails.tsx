@@ -11,9 +11,10 @@ import {
   Instagram,
   Linkedin,
 } from 'lucide-react';
+import { getSponsorDownloadUrl } from '@/lib/sponsor';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface SponsorDetailsProps {
   sponsor?: Sponsor;
@@ -33,6 +34,25 @@ export default function SponsorDetails({
       console.warn('Missing event or sponsor ID.');
     }
   };
+
+  const [signedLogoUrl, setSignedLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      if (sponsor && eventId && sponsor.logoKey) {
+        try {
+          const url = await getSponsorDownloadUrl(eventId, sponsor._id);
+          if (url) {
+            setSignedLogoUrl(url);
+          }
+        } catch (error) {
+          console.error(`Failed to fetch image for sponsor ${sponsor._id}`, error);
+        }
+      }
+    };
+    fetchImage();
+  }, [sponsor, eventId]);
+
   if (!sponsor) {
     return (
       <div className="flex h-full items-center justify-center text-gray-500">
@@ -134,7 +154,7 @@ export default function SponsorDetails({
           {logoKey && (
             <div className="flex justify-end items-start shrink-0 self-start">
               <Image
-                src={logoKey}
+                src={signedLogoUrl || logoKey}
                 alt={name}
                 width={160}
                 height={80}

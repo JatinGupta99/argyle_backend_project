@@ -15,8 +15,9 @@ import { ChatPanelProps } from '@/lib/types/components';
 
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { API_ROUTES } from '@/lib/api-routes';
-import { ArrowLeftFromLine } from 'lucide-react';
+import { getEventDownloadUrl } from '@/lib/event';
 import { ChatTab } from '@/lib/slices/uiSlice';
+import { ArrowLeftFromLine } from 'lucide-react';
 
 export function ChatPanel({
   youtubeUrl: youtubeProp,
@@ -41,7 +42,7 @@ export function ChatPanel({
   );
   const imageProp = event.eventLogoUrl;
   const [videoUrl, setVideoUrl] = useState<string | null>(youtubeProp ?? null);
-  const [imageUrl] = useState<string | null>(imageProp ?? null);
+  const [imageSignedUrl, setImageSignedUrl] = useState<string | null>(null);
 
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
@@ -98,7 +99,23 @@ export function ChatPanel({
       }
     };
 
-    fetchSponsorVideo();
+    const fetchEventImage = async () => {
+      if (!sponsorMatch && eventId) {
+        try {
+          const url = await getEventDownloadUrl(eventId);
+          console.log(url, 'imageSignedUrlURL')
+          if (url) setImageSignedUrl(url);
+        } catch (error) {
+          console.error('Failed to fetch event image', error);
+        }
+      }
+    }
+
+    if (sponsorMatch) {
+      fetchSponsorVideo();
+    } else {
+      fetchEventImage();
+    }
   }, [youtubeProp, eventId, sponsorMatch]);
 
   const topContent = useMemo(() => {
@@ -111,15 +128,15 @@ export function ChatPanel({
         />
       );
     }
-    console.log(imageUrl, 'acnlkcsnlkcs')
+    console.log(imageSignedUrl, 'imageSignedUrl')
     return (
       <SessionCard
-        imageSrc={imageUrl || undefined}
+        imageSrc={imageSignedUrl || imageProp || undefined}
         title="Redefining Traditional Leader"
         className="mb-0"
       />
     );
-  }, [videoUrl, imageUrl]);
+  }, [videoUrl, imageSignedUrl, imageProp]);
 
   return (
     <div className="flex flex-col h-full bg-blue-50 border-gray-200 text-gray-900 w-full">
