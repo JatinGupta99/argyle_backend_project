@@ -12,6 +12,9 @@ import { SpeakerPreviewWrapper } from './SpeakerPreviewWrapper';
 import { ParticipantTile } from './ParticipantTile';
 import { Role, ROLES } from '@/app/auth/roles';
 import { normalizeRole } from '@/app/auth/access';
+import { RoleGuard } from '@/components/auth/RoleGuard';
+import Link from 'next/link';
+import { Shield, ExternalLink } from 'lucide-react';
 
 interface SpeakerViewContentProps {
   eventId: string;
@@ -33,6 +36,7 @@ function SpeakerInterface({
   toggleCam,
   toggleScreenShare,
   role,
+  eventId,
 }: {
   isLive: boolean;
   isMicOn: boolean;
@@ -44,6 +48,7 @@ function SpeakerInterface({
   toggleCam: () => void;
   toggleScreenShare: () => void;
   role: Role;
+  eventId: string;
 }) {
   const localParticipant = useLocalParticipant();
   const participantIds = useParticipantIds();
@@ -61,7 +66,7 @@ function SpeakerInterface({
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-background">
+    <div className="flex flex-col h-full bg-background">
       {/* Header / Status Bar */}
       <div className="flex items-center justify-between px-6 py-4 border-b bg-card h-16 flex-none">
         <div className="flex items-center gap-3">
@@ -89,6 +94,18 @@ function SpeakerInterface({
 
       {/* Main Content Area */}
       <div className="flex-1 bg-slate-50 dark:bg-slate-950 overflow-hidden relative">
+        <RoleGuard permission="event:manage">
+          <div className="absolute top-6 right-6 z-50">
+            <Link
+              href={`/dashboard/events/${eventId}/moderator`}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900/80 hover:bg-slate-900 border border-slate-700 text-white rounded-lg transition-all shadow-xl backdrop-blur-sm group"
+            >
+              <Shield className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-semibold tracking-tight">Access Moderator Console</span>
+              <ExternalLink className="w-3 h-3 text-slate-500" />
+            </Link>
+          </div>
+        </RoleGuard>
 
         {/* MODE: SCREEN SHARE */}
         {layoutMode === 'screen-share' && screenId && (
@@ -237,19 +254,18 @@ export function SpeakerViewContent({
     );
   }
 
-  // LOBBY VIEW
   if (!hasJoined) {
-    if (!callObject) return <div className="flex items-center justify-center h-[calc(100vh-4rem)]"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+    if (!callObject) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin" /></div>;
 
     return (
       <DailyProvider callObject={callObject}>
-        <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-950 items-center justify-center gap-8 p-6">
+        <div className="flex flex-col h-full bg-slate-950 items-center justify-center gap-8 p-6">
           <div className="w-full max-w-2xl bg-slate-900 rounded-2xl border border-slate-800 p-8 shadow-2xl">
             <h2 className="text-2xl font-bold text-white mb-6 text-center">Ready to join?</h2>
 
             <div className="aspect-video bg-black rounded-lg overflow-hidden mb-6 relative">
               {/* Re-using SpeakerVideoPreview for consistency, assuming context provides local participant pre-join */}
-              <SpeakerPreviewWrapper role={role} isCamOn={isCamOn} />
+              <SpeakerPreviewWrapper role={role} isCamOn={isCamOn} isMicOn={isMicOn} />
             </div>
 
             <div className="flex justify-center gap-4 mb-8">
@@ -286,7 +302,7 @@ export function SpeakerViewContent({
   console.log('[useDailyBase] isScreenSharing:', isScreenSharing);
   if (!callObject || !ready) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] bg-slate-900 text-white gap-4">
+      <div className="flex flex-col items-center justify-center h-full bg-slate-900 text-white gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
         <p className="text-lg font-medium animate-pulse">Joining meeting...</p>
       </div>
@@ -307,6 +323,7 @@ export function SpeakerViewContent({
         toggleCam={toggleCam}
         toggleScreenShare={toggleScreenShare}
         role={role}
+        eventId={eventId}
       />
     </DailyProvider>
   );

@@ -1,10 +1,10 @@
 'use client';
 
 import { useCountdown } from '@/hooks/useCountdown';
-import { ROLEBASED } from '@/lib/types/daily';
 import { DailyTokenPayload } from '@/lib/types/daily';
 import DailyIframe from '@daily-co/daily-js';
-import { jwtDecode } from 'jwt-decode';
+import { getTokenPayload } from '@/lib/utils/jwt-utils';
+import { Role } from '@/app/auth/roles';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface DailyRoomProps {
@@ -12,7 +12,7 @@ interface DailyRoomProps {
   startTime: Date;
   roomUrl?: string;
   eventIsLive: boolean;
-  role?: ROLEBASED;
+  role?: Role;
 }
 
 function DailyRoom({ token, startTime, roomUrl, eventIsLive, role }: DailyRoomProps) {
@@ -22,12 +22,8 @@ function DailyRoom({ token, startTime, roomUrl, eventIsLive, role }: DailyRoomPr
   const callFrameRef = useRef<any>(null);
 
   const decoded = useMemo(() => {
-    if (!token) return {};
-    try {
-      return jwtDecode<DailyTokenPayload>(token as string);
-    } catch {
-      return {};
-    }
+    if (!token) return null;
+    return getTokenPayload<DailyTokenPayload>(token);
   }, [token]);
   console.log('Decoded Daily token:', decoded);
   const detectedRole = decoded?.u ?? 'attendee';

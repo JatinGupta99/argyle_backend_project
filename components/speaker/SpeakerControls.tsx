@@ -25,7 +25,7 @@ export function SpeakerControls({
   role,
 }: SpeakerControlsProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t flex items-center justify-center gap-4 px-4 z-50">
+    <div className="w-full h-20 bg-background border-t flex items-center justify-center gap-4 px-4 z-50">
       <MediaControls
         isMicOn={isMicOn}
         isCamOn={isCamOn}

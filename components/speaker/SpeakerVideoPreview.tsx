@@ -3,7 +3,7 @@
 import React from 'react';
 import { DailyVideo } from '@daily-co/daily-react';
 import { DailyParticipant } from '@daily-co/daily-js';
-import { User } from 'lucide-react';
+import { User, Mic, MicOff } from 'lucide-react';
 
 import { Role, ROLES } from '@/app/auth/roles';
 
@@ -11,6 +11,7 @@ interface SpeakerVideoPreviewProps {
   localParticipant: DailyParticipant | null;
   isLive: boolean;
   isCamOn: boolean;
+  isMicOn?: boolean;
   role?: Role;
 }
 
@@ -18,6 +19,7 @@ export function SpeakerVideoPreview({
   localParticipant,
   isLive,
   isCamOn,
+  isMicOn = false,
   role = ROLES.SPEAKER,
 }: SpeakerVideoPreviewProps) {
   if (!localParticipant) return null;
@@ -40,17 +42,27 @@ export function SpeakerVideoPreview({
         </div>
       )}
 
+      {/* Mic Status - Top Right */}
+      <div className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase shadow-lg backdrop-blur-md border ${isMicOn
+          ? 'bg-emerald-500/90 text-white border-emerald-400'
+          : 'bg-rose-500/90 text-white border-rose-400'
+        }`}>
+        {isMicOn ? (
+          <><Mic className="w-3 h-3" /> MIC ON</>
+        ) : (
+          <><MicOff className="w-3 h-3" /> MIC OFF</>
+        )}
+      </div>
+
       {isLive && (
-        <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-          LIVE
+        <div className="absolute bottom-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest animate-pulse shadow-lg border border-red-500 uppercase">
+          LIVE STREAMING
         </div>
       )}
 
-      {!isLive && (
-        <div className="absolute top-4 left-4 bg-yellow-500/90 text-black px-3 py-1 rounded-full text-sm font-bold">
-          {role === ROLES.MODERATOR ? 'MODERATOR PREVIEW' : 'SPEAKER PREVIEW'}
-        </div>
-      )}
+      <div className="absolute top-4 left-4 bg-yellow-500/90 text-black px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase shadow-sm">
+        {role} PREVIEW
+      </div>
     </div>
   );
 }

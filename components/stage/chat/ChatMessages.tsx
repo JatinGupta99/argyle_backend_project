@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useRef } from 'react';
 import { Message } from '@/lib/types/api';
 import userImage from '@/public/professional-man-in-red-shirt.jpg';
+import { RoleView } from '@/lib/slices/uiSlice';
 
 interface ChatMessagesProps {
   messages: Message[];
@@ -29,14 +30,16 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
     }
   }, [sorted]);
 
-  const getInitials = (name: string) =>
-    name
+  const getInitials = (name: string) => {
+    if (!name) return 'U';
+    return name
       ?.split(' ')
       .filter(Boolean)
       .map((n) => n[0])
       .join('')
       .slice(0, 2)
       .toUpperCase();
+  };
 
   if (isLoading) {
     return (
@@ -47,31 +50,49 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
   }
 
   return (
-    <ul className="space-y-5 pb-4 px-4 bg-blue-50 h-full w-full">
-      {sorted.map((m, index) => (
-        <li key={m._id ?? `msg-${index}`} className="flex gap-3">
-          <Avatar className="h-12 w-12 flex-shrink-0">
-            <AvatarImage src={userImage.src} alt="User" />
-            <AvatarFallback className="text-xs text-gray-900">
-              {getInitials('User')}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-baseline gap-2">
-              <span className="text-sm font-medium text-gray-900">User</span>
-              <span className="text-xs text-gray-500">
-                {new Date(m.createdAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </span>
+    <ul className="space-y-6 px-4 pb-4">
+      {sorted.map((m, index) => {
+        const userData = (m as any).userId || (m as any).user;
+        const displayName = userData?.name || userData?.username || 'Anonymous';
+        const displayPicture = userData?.pictureUrl || userData?.avatar || '';
+        const userRole = userData?.role || 'Attendee';
+        const isOrganizer = userRole === RoleView.Moderator;
+        const initials = getInitials(displayName);
+
+        return (
+          <li key={m._id ?? `msg-${index}`} className="flex gap-4 animate-in fade-in slide-in-from-left-2 duration-300">
+            <Avatar className="h-10 w-10 flex-shrink-0 shadow-sm ring-2 ring-white border border-slate-100">
+              <AvatarImage src={displayPicture} alt={displayName} className="object-cover" />
+              <AvatarFallback className="text-[14px] font-black bg-[#1a9ad6] text-white">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0 pt-0.5">
+              <div className="flex flex-col mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[17px] font-black text-slate-900 tracking-tight truncate max-w-[180px] sm:max-w-none">
+                    {displayName}
+                  </span>
+                  <span className="text-[12px] text-slate-400 font-bold shrink-0 uppercase">
+                    {new Date(m.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+                {isOrganizer && (
+                  <span className="text-[13px] font-bold text-orange-500 mt-[-2px]">
+                    (Organizer)
+                  </span>
+                )}
+              </div>
+              <p className="text-[16px] text-slate-700 leading-relaxed break-words font-medium">
+                {m.content}
+              </p>
             </div>
-            <p className="text-sm text-gray-800 leading-relaxed break-words">
-              {m.content}
-            </p>
-          </div>
-        </li>
-      ))}
+          </li>
+        );
+      })}
       <div ref={endRef} />
     </ul>
   );

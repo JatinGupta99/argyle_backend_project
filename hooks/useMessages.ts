@@ -28,7 +28,7 @@ export function useMessages(
     [eventId, sessionType, category, JSON.stringify(query)]
   );
 
-  const messages = result?.data ?? [];
+  const messages = (Array.isArray(result) ? result : (result as any)?.data) ?? [];
 
   const createMessage = async (content: string, userId?: string) => {
     const payload = {

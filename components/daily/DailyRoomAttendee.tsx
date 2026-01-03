@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { DailyAudio, DailyProvider } from '@daily-co/daily-react';
-import { useDailyBase, ROLEBASED } from '@/hooks/useDailyBase';
+import { useDailyBase } from '@/hooks/useDailyBase';
+import { Role } from '@/app/auth/roles';
 import { useCountdown } from '@/hooks/useCountdown';
 import { VideoGrid } from './VideoGrid';
 import { fetchMeetingToken } from '@/lib/api/daily';
 
 export interface DailyRoomProps {
-  role: ROLEBASED;
+  role: Role;
   startTime: Date;
   roomUrl: string;
   eventIsLive: boolean;

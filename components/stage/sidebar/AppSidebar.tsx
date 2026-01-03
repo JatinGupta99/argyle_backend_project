@@ -21,6 +21,13 @@ export function AppSidebar() {
   const params = useParams();
   const pathname = usePathname();
   const eventId = params?.eventId as string;
+  const inviteId = params?.inviteId as string;
+
+  // Professional dynamic routing:
+  // If we have an inviteId (Speakers/Moderators), redirect to the specific stage
+  const stagePath = inviteId
+    ? `/dashboard/events/${eventId}/speakers/${inviteId}`
+    : `/dashboard/events/${eventId}/attendees`;
 
   const lobbySubItems = [
     { label: 'Updates', path: `/dashboard/events/${eventId}/update` },
@@ -29,55 +36,56 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar className="w-60">
+    <Sidebar className="w-64 border-r border-slate-100 bg-white">
       {/* Header */}
-      <SidebarHeader className="h-16 flex items-center px-3 relative bg-transparent">
+      <SidebarHeader className="h-20 flex items-center px-6 bg-white border-none">
         <Image
           src="/argyle-logo.png"
           alt="Argyle"
           width={130}
           height={40}
-          className="object-contain w-24 h-auto mt-2"
+          className="object-contain w-32 h-auto"
         />
       </SidebarHeader>
 
       {/* Sidebar content */}
-      <SidebarContent className="p-0">
-        <SidebarMenu>
+      <SidebarContent className="p-0 bg-white">
+        <SidebarMenu className="px-3 gap-1">
           {/* Lobby dropdown */}
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => setOpenLobby((prev) => !prev)}
               className={cn(
-                'items-center gap-2 px-2 py-1.5 rounded-md font-bold transition-colors',
-                'hover:bg-sky-100 hover:text-gray-900'
+                'flex items-center gap-3 px-6 py-3 rounded-none font-bold transition-all duration-300 group relative w-full',
+                'text-sky-600 hover:bg-sky-50/50'
               )}
             >
-              <span>Lobby</span>
+              <span className="text-[17px]">Lobby</span>
               <ChevronDown
                 className={cn(
-                  'transition-transform ml-auto mr-0',
+                  'transition-transform ml-auto text-sky-400 group-hover:text-sky-600',
                   openLobby ? 'rotate-180' : 'rotate-0'
                 )}
+                size={20}
               />
             </SidebarMenuButton>
 
             <div
               className={cn(
-                'overflow-hidden transition-all duration-300 ease-in-out',
-                openLobby ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                'overflow-hidden transition-all duration-500 ease-in-out',
+                openLobby ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
               )}
             >
-              <ul className="mt-1 ml-3 space-y-0.5">
+              <ul className="space-y-0">
                 {lobbySubItems.map((sub) => (
                   <li key={sub.label}>
                     <Link
                       href={sub.path}
                       className={cn(
-                        'block w-full text-left px-2 py-1 text-sm font-bold rounded-md transition-colors',
+                        'block w-full text-left px-10 py-3 text-[16px] font-bold transition-all relative',
                         pathname === sub.path
-                          ? 'bg-sky-100 text-gray-900'
-                          : 'text-gray-700 hover:text-gray-900 hover:bg-sky-100'
+                          ? 'bg-sky-50 text-sky-600'
+                          : 'text-slate-800 hover:text-sky-600 hover:bg-sky-50/30'
                       )}
                     >
                       {sub.label}
@@ -91,16 +99,15 @@ export function AppSidebar() {
           {/* Stage */}
           <SidebarMenuItem>
             <Link
-              href={`/dashboard/events/${eventId}/backStage`}
+              href={stagePath}
               className={cn(
-                'flex items-center gap-2 px-2 py-1.5 rounded-md font-bold transition-colors',
-                pathname === `/dashboard/events/${eventId}/backStage`
-                  ? 'bg-sky-100 text-gray-900'
-                  : 'hover:bg-sky-100 hover:text-gray-900'
+                'flex items-center gap-3 px-6 py-4 rounded-none font-bold transition-all w-full',
+                pathname === stagePath
+                  ? 'bg-sky-50 text-sky-600'
+                  : 'text-slate-900 hover:bg-sky-50/30 hover:text-sky-600'
               )}
             >
-              <span>Stage</span>
-              <span className="ml-auto w-5" />
+              <span className="text-[17px]">Stage</span>
             </Link>
           </SidebarMenuItem>
 
@@ -109,21 +116,20 @@ export function AppSidebar() {
             <Link
               href={`/dashboard/events/${eventId}/sponsors`}
               className={cn(
-                'flex items-center gap-2 px-2 py-1.5 rounded-md font-bold transition-colors',
+                'flex items-center gap-3 px-6 py-4 rounded-none font-bold transition-all w-full',
                 pathname === `/dashboard/events/${eventId}/sponsors`
-                  ? 'bg-sky-100 text-gray-900'
-                  : 'hover:bg-sky-100 hover:text-gray-900'
+                  ? 'bg-sky-50 text-sky-600'
+                  : 'text-slate-900 hover:bg-sky-50/30 hover:text-sky-600'
               )}
             >
-              <span>Sponsor</span>
-              <span className="ml-auto w-5" />
+              <span className="text-[17px]">Sponsor</span>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="items-center text-xs text-muted-foreground px-2 py-1">
+      <SidebarFooter className="items-center text-[10px] text-slate-300 px-6 py-6 font-bold uppercase tracking-widest bg-white border-none">
         © {new Date().getFullYear()} Argyle
       </SidebarFooter>
     </Sidebar>

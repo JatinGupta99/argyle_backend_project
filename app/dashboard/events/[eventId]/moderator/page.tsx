@@ -5,12 +5,16 @@ import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerVideoPreview } from '@/components/speaker/SpeakerVideoPreview';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-import { ROLEBASED } from '@/hooks/useDailyBase';
+import { ROLES } from '@/app/auth/roles';
 import { useEventRole } from '@/hooks/useEventRole';
 import { Event } from '@/lib/types/components';
 import { DailyProvider, useLocalParticipant } from '@daily-co/daily-react';
 import { AlertCircle, Clock, Loader2, Users } from 'lucide-react';
+import { PageGuard } from '@/components/auth/PageGuard';
 
+/**
+ * FullScreenState - Shared UI for loading/error states
+ */
 const FullScreenState = ({
   loading,
   message,
@@ -20,9 +24,9 @@ const FullScreenState = ({
   message?: string;
   errorMessage?: string;
 }) => (
-  <div className="flex flex-col items-center justify-center h-screen bg-background gap-4 p-4">
+  <div className="flex flex-col items-center justify-center h-full bg-background gap-4 p-4 text-center">
     {loading && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
-    {loading && <p className="text-muted-foreground">{message}</p>}
+    {loading && <p className="text-muted-foreground font-medium">{message}</p>}
     {errorMessage && (
       <div className="flex flex-col items-center gap-4">
         <Alert variant="destructive" className="max-w-md">
@@ -32,7 +36,7 @@ const FullScreenState = ({
         </Alert>
         <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-md text-sm transition-colors"
+          className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium"
         >
           Reload Page
         </button>
@@ -41,6 +45,9 @@ const FullScreenState = ({
   </div>
 );
 
+/**
+ * ModeratorViewContent - Main rendering logic for the moderator panel
+ */
 function ModeratorViewContent({ event }: { event: Event }) {
   const {
     callObject,
@@ -54,40 +61,42 @@ function ModeratorViewContent({ event }: { event: Event }) {
     toggleMic,
     toggleCam,
     toggleScreenShare,
-  } = useEventRole(event, ROLEBASED.MODERATOR);
+  } = useEventRole(event, ROLES.MODERATOR);
 
   const localParticipant = useLocalParticipant();
 
   if (error) return <FullScreenState errorMessage={error} />;
-  if (!callObject)
+
+  if (!callObject) {
     return (
       <FullScreenState
         loading
         message="Initializing Moderator Control Panel..."
       />
     );
+  }
 
   return (
     <DailyProvider callObject={callObject}>
-      <div className="flex flex-col h-screen bg-slate-950 text-white">
+      <div className="flex flex-col h-full bg-slate-950 text-white overflow-hidden">
         {/* Header */}
-        <header className="h-16 border-b border-slate-800 flex items-center px-6 justify-between bg-slate-900">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-              Moderator Control Panel
+        <header className="h-16 border-b border-slate-800 flex items-center px-6 justify-between bg-slate-900 shadow-sm z-10">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+              Moderator Console
             </h1>
-            <span className="text-slate-500">|</span>
-            <span className="text-sm text-slate-400">
-              Event ID: {event._id}
+            <span className="text-slate-600">/</span>
+            <span className="text-xs text-slate-500 font-mono tracking-wider">
+              ID: {event._id}
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${isLive ? 'border-red-500/30 bg-red-500/10' : 'border-slate-700 bg-slate-800/50'}`}>
               <div
-                className={`h-3 w-3 rounded-full ${isLive ? 'bg-red-500 animate-pulse' : 'bg-slate-600'}`}
+                className={`h-2 w-2 rounded-full ${isLive ? 'bg-red-500 animate-pulse' : 'bg-slate-500'}`}
               />
               <span
-                className={`text-sm font-medium ${isLive ? 'text-red-500' : 'text-slate-500'}`}
+                className={`text-[10px] font-bold tracking-widest ${isLive ? 'text-red-500' : 'text-slate-400'}`}
               >
                 {isLive ? 'BROADCASTING' : 'STANDBY'}
               </span>
@@ -95,134 +104,134 @@ function ModeratorViewContent({ event }: { event: Event }) {
           </div>
         </header>
 
-        {/* Main Content */}
+        {/* Main Workspace */}
         <main className="flex-1 p-6 flex gap-6 overflow-hidden">
-          {/* Video Preview */}
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="w-full max-w-4xl aspect-video relative">
+          {/* Active Preview Area */}
+          <div className="flex-1 flex flex-col items-center justify-center min-w-0">
+            <div className="w-full max-w-4xl aspect-video relative shadow-2xl rounded-xl overflow-hidden ring-1 ring-slate-800">
               <SpeakerVideoPreview
                 localParticipant={localParticipant}
                 isLive={isLive}
                 isCamOn={isCamOn}
-                role="moderator"
+                isMicOn={isMicOn}
+                role={ROLES.MODERATOR}
               />
             </div>
 
-            <div className="mt-6 text-center max-w-lg">
+            <div className="mt-8 text-center max-w-lg">
               {!isLive ? (
-                <div className="space-y-3 text-slate-400 text-sm">
-                  <p>
-                    You are in <strong>Standby Mode</strong>. Set up your camera
-                    and microphone, then click{' '}
-                    <strong className="text-green-400">Go Live</strong> when
-                    ready to broadcast.
+                <div className="space-y-4 text-slate-400">
+                  <p className="text-sm leading-relaxed">
+                    You are currently in <span className="text-white font-semibold">Standby Mode</span>. <br />
+                    Verify your stage presence below, then click{' '}
+                    <span className="text-blue-400 font-bold">Go Live</span> to begin the stream.
                   </p>
-                  <div className="flex items-center justify-center gap-6 text-xs text-slate-500">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-3 w-3" /> Attendees waiting
+                  <div className="flex items-center justify-center gap-8 py-3 px-6 bg-slate-900/50 rounded-xl border border-slate-800/50">
+                    <div className="flex items-center gap-2 text-xs">
+                      <Users className="h-3 w-3 text-slate-500" />
+                      <span>Attendees Waiting</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> Event not started
+                    <div className="flex items-center gap-2 text-xs">
+                      <Clock className="h-3 w-3 text-slate-500" />
+                      <span>{event.status === 'LIVE' ? 'Stream Ready' : 'Pre-event'}</span>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-2 text-sm">
-                  <p className="text-red-400 font-semibold animate-pulse">
-                    🔴 BROADCASTING LIVE
-                  </p>
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-600 rounded-lg text-xs font-black text-white shadow-lg shadow-red-900/40">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                    TRANSMITTING LIVE
+                  </div>
                   <p className="text-slate-400 text-xs">
-                    All attendees can see and hear you. Click{' '}
-                    <strong>Stop Live</strong> to end the broadcast.
+                    Your broadcast is visible to all attendees. <br />
+                    Click <strong>Stop Live</strong> in the console below to end.
                   </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Sidebar */}
-          <aside className="w-72 space-y-4">
-            <Card className="bg-slate-900 border-slate-800">
-              <CardContent className="p-4">
-                <h3 className="text-sm font-semibold text-slate-300 mb-3">
-                  Event Status
+          {/* Right Sidebar */}
+          <aside className="w-80 flex flex-col gap-4 overflow-y-auto">
+            <Card className="bg-slate-900 border-slate-800 shadow-xl overflow-hidden">
+              <div className="h-1 bg-blue-500/50" />
+              <CardContent className="p-5">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
+                  Hardware Status
                 </h3>
-                {[
-                  [
-                    'Broadcast State',
-                    isLive ? 'Live' : 'Offline',
-                    isLive ? 'text-red-400' : 'text-slate-400',
-                  ],
-                  [
-                    'Microphone',
-                    isMicOn ? 'On' : 'Off',
-                    isMicOn ? 'text-green-400' : 'text-slate-400',
-                  ],
-                  [
-                    'Camera',
-                    isCamOn ? 'On' : 'Off',
-                    isCamOn ? 'text-green-400' : 'text-slate-400',
-                  ],
-                  [
-                    'Screen Share',
-                    isScreenSharing ? 'Active' : 'Inactive',
-                    isScreenSharing ? 'text-blue-400' : 'text-slate-400',
-                  ],
-                ].map(([label, value, color]) => (
-                  <div
-                    key={label as string}
-                    className="flex justify-between items-center text-xs"
-                  >
-                    <span className="text-slate-500">{label}</span>
-                    <span className={`font-medium ${color}`}>{value}</span>
-                  </div>
-                ))}
+                <div className="space-y-3">
+                  {[
+                    { label: 'Broadcast Status', value: isLive ? 'Streaming' : 'Stationary', color: isLive ? 'text-red-400' : 'text-slate-500' },
+                    { label: 'Microphone', value: isMicOn ? 'Active' : 'Muted', color: isMicOn ? 'text-emerald-400' : 'text-slate-500' },
+                    { label: 'Camera', value: isCamOn ? 'Enabled' : 'Disabled', color: isCamOn ? 'text-emerald-400' : 'text-slate-500' },
+                    { label: 'Screen Mirror', value: isScreenSharing ? 'Active' : 'Inactive', color: isScreenSharing ? 'text-blue-400' : 'text-slate-500' },
+                  ].map((item) => (
+                    <div key={item.label} className="flex justify-between items-center group">
+                      <span className="text-[11px] text-slate-400 group-hover:text-slate-300 transition-colors">{item.label}</span>
+                      <span className={`text-[11px] font-bold ${item.color}`}>{item.value}</span>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-900 border-slate-800">
-              <CardContent className="p-4">
-                <h3 className="text-sm font-semibold text-slate-300 mb-3">
-                  Moderator Guide
+            <Card className="bg-slate-900/50 border-slate-800/80 shadow-md">
+              <CardContent className="p-5">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
+                  Stream Protocol
                 </h3>
-                {[
-                  'Test your audio and video before going live',
-                  'Click "Go Live" to start broadcasting',
-                  'Speakers can only control their own media',
-                  'Only you can stop the broadcast',
-                ].map((item) => (
-                  <div key={item} className="flex gap-2 text-xs text-slate-400">
-                    <span className="text-green-400">•</span>
-                    <span>{item}</span>
-                  </div>
-                ))}
+                <div className="space-y-3">
+                  {[
+                    'Verify bandwidth before going live',
+                    'Start broadcast 2m before scheduled time',
+                    'Acknowledge chat questions in post-show',
+                    'Ensure "Stop Live" is clicked when finished',
+                  ].map((guide, idx) => (
+                    <div key={idx} className="flex gap-3 text-[11px] leading-relaxed text-slate-400">
+                      <span className="text-blue-500/50 font-mono">{idx + 1}.</span>
+                      <span>{guide}</span>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </aside>
         </main>
 
-        {/* Controls */}
-        <ModeratorControls
-          isLive={isLive}
-          isMicOn={isMicOn}
-          isCamOn={isCamOn}
-          isScreenSharing={isScreenSharing}
-          onToggleLive={toggleLive!}
-          onToggleMic={toggleMic}
-          onToggleCam={toggleCam}
-          onToggleScreenShare={toggleScreenShare}
-          isLoading={isLoading}
-        />
+        {/* Console Controls */}
+        <footer className="relative z-20">
+          <ModeratorControls
+            isLive={isLive}
+            isMicOn={isMicOn}
+            isCamOn={isCamOn}
+            isScreenSharing={isScreenSharing}
+            onToggleLive={toggleLive!}
+            onToggleMic={toggleMic}
+            onToggleCam={toggleCam}
+            onToggleScreenShare={toggleScreenShare}
+            isLoading={isLoading}
+          />
+        </footer>
       </div>
     </DailyProvider>
   );
 }
 
+/**
+ * ModeratorPage Root Component
+ * Enforces authentication and authorization guards at the route level.
+ */
 export default function ModeratorPage() {
   const event = useEventContext();
 
-  if (!event)
-    return <FullScreenState errorMessage="Could not find the event." />;
+  if (!event) {
+    return <FullScreenState errorMessage="Critical Error: Event context could not be established." />;
+  }
 
-  return <ModeratorViewContent event={event} />;
+  return (
+    <PageGuard permission="event:manage">
+      <ModeratorViewContent event={event as Event} />
+    </PageGuard>
+  );
 }

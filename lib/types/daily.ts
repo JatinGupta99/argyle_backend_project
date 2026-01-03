@@ -2,14 +2,7 @@
  * Daily.co related types and enums
  */
 
-/**
- * Role-based access control for Daily.co rooms
- */
-export enum ROLEBASED {
-    ATTENDEE = 'attendee',
-    SPEAKER = 'speaker',
-    MODERATOR = 'moderator',
-}
+
 
 /**
  * Payload decoded from Daily.co JWT token
@@ -18,7 +11,21 @@ export interface DailyTokenPayload {
     r?: string;        // role field from Daily token
     u?: string;        // user display name
     user_id?: string;  // user identifier
-    is_owner?: boolean;  // user identifier
+    is_owner?: boolean;  // owner/moderator flag
+}
+
+/**
+ * Payload decoded from invite JWT token
+ */
+export interface InviteTokenPayload {
+    inviteId?: string;
+    eventId?: string;
+    email?: string;
+    name?: string;
+    role?: string;      // "Moderator", "Speaker", "Attendee"
+    is_owner?: boolean; // alternative owner flag
+    iat?: number;       // issued at
+    exp?: number;       // expiration
 }
 
 /**

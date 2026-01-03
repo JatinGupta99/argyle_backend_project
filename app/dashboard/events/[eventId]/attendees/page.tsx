@@ -1,11 +1,11 @@
 'use client';
 
-import DailyRoom from '@/components/daily/DailyRoom';
+import { CountdownDisplay } from '@/components/shared/CountdownDisplay';
 import { DailyRoomAttendee } from '@/components/daily/DailyRoomAttendee';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
+import { RoleView } from '@/lib/slices/uiSlice';
 import { useEffect, useState } from 'react';
 
 export default function AttendeeViewProfilePage() {
@@ -21,7 +21,8 @@ export default function AttendeeViewProfilePage() {
     if (eventIsLive) return;
 
     const interval = setInterval(() => {
-      if (new Date() >= targetDate) {
+      const now = new Date();
+      if (now >= targetDate) {
         setEventIsLive(true);
         clearInterval(interval);
       }
@@ -35,22 +36,34 @@ export default function AttendeeViewProfilePage() {
     : ChatSessionType.PRE_LIVE;
 
   return (
-    <div className="bg-sky-50">
+    <div className="h-full w-full">
       <EventStageLayout
         role={RoleView.Attendee}
         chatType={chatType}
         chatTabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
       >
-        <div className="flex-1 flex h-full items-center justify-center">
-          <DailyRoomAttendee
-            role={RoleView.Attendee}
-            startTime={targetDate}
-            roomUrl={dailyRoomDetails?.dailyRoomUrl || ''}
-            eventIsLive={eventIsLive}
-            eventId={event._id || ''}
-          />
+        <div className="flex-1 h-full relative">
+          {!eventIsLive ? (
+            <div className="absolute inset-0 bg-black">
+              <CountdownDisplay
+                startTime={targetDate}
+                eventTitle={event.title || 'Live Event'}
+                logoUrl={event.eventLogoUrl}
+                onTimerComplete={() => setEventIsLive(true)}
+              />
+            </div>
+          ) : (
+            <div className="flex-1 flex h-full items-center justify-center p-4">
+              <DailyRoomAttendee
+                role={RoleView.Attendee}
+                startTime={targetDate}
+                roomUrl={dailyRoomDetails?.dailyRoomUrl || ''}
+                eventIsLive={eventIsLive}
+                eventId={event._id || ''}
+              />
+            </div>
+          )}
         </div>
-
       </EventStageLayout>
     </div>
   );

@@ -4,6 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Radio } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ROLES } from '@/app/auth/roles';
 import { MediaControls } from '@/components/shared/MediaControls';
 
 interface ModeratorControlsProps {
@@ -30,7 +31,7 @@ export function ModeratorControls({
   isLoading = false,
 }: ModeratorControlsProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t flex items-center justify-center gap-6 px-4 z-50">
+    <div className="w-full h-20 bg-background border-t flex items-center justify-center gap-6 px-4 z-50">
       {/* Go Live / Stop Live Button */}
       <Button
         variant={isLive ? 'destructive' : 'default'}
@@ -65,7 +66,7 @@ export function ModeratorControls({
         onToggleMic={onToggleMic}
         onToggleCam={onToggleCam}
         onToggleScreenShare={onToggleScreenShare}
-        role="moderator"
+        role={ROLES.MODERATOR}
       />
     </div>
   );

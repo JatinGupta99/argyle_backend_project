@@ -146,48 +146,68 @@ export function ChatPanel({
     );
   }, [videoUrl, imageSignedUrl, imageProp, event?.title]);
 
+  const activeLabel = useMemo(() => {
+    switch (activeCategory) {
+      case ChatCategoryType.EVERYONE: return 'Everyone';
+      case ChatCategoryType.QA: return 'Q&A';
+      case ChatCategoryType.CHAT: return 'Chat';
+      case ChatCategoryType.BACKSTAGE: return 'Backstage';
+      default: return 'Chat';
+    }
+  }, [activeCategory]);
+
   return (
-    <div className="flex flex-col h-full bg-blue-50 border-gray-200 text-gray-900 w-full overflow-hidden">
-      <header className="bg-blue-50 px-4 h-14 flex items-center justify-between border-b border-blue-100">
-        <h2 className="text-lg font-bold text-gray-900">{title3}</h2>
+    <div className="flex flex-col h-full bg-blue-50/50 border-gray-200 text-gray-900 w-full overflow-x-hidden touch-pan-y select-none sm:select-text">
+      <header className="bg-blue-50/20 px-6 h-16 flex items-center justify-between border-b border-blue-100/50 flex-none z-10">
+        <h2 className="text-[22px] font-black text-slate-900 tracking-tight">{activeLabel}</h2>
         <button
           onClick={() => router.back()}
           aria-label="Go back"
-          className="p-1 hover:bg-gray-200 rounded transition-colors"
+          className="p-1.5 hover:bg-white/50 rounded-xl transition-all text-[#1da1f2]"
         >
-          <ArrowLeftFromLine size={20} />
+          <div className="relative">
+            <ArrowLeftFromLine size={24} className="stroke-[3px]" />
+            <div className="absolute inset-0 bg-sky-500/10 blur-md rounded-full -z-10" />
+          </div>
         </button>
       </header>
 
-      {!videoUrl}
+      <div className="flex-none">
+        <ChatTabs
+          tabs={tabs}
+          activeTab={activeCategory}
+          onChangeTab={setActiveCategory}
+        />
+      </div>
 
-      <ChatTabs
-        tabs={tabs}
-        activeTab={activeCategory}
-        onChangeTab={setActiveCategory}
-      />
+      <div className="flex-none">
+        {isLoadingVideo ? (
+          <div className="pt-4 text-center text-gray-500 italic">Loading content...</div>
+        ) : videoError ? (
+          <div className="pt-4 text-center text-red-500 text-sm px-4">{videoError}</div>
+        ) : (
+          topContent
+        )}
+      </div>
 
-      {isLoadingVideo ? (
-        <div className="pt-4 text-center text-gray-500 italic">Loading content...</div>
-      ) : videoError ? (
-        <div className="pt-4 text-center text-red-500 text-sm px-4">{videoError}</div>
-      ) : (
-        topContent
-      )}
-      <div className="px-3 py-2">
-        <div className="flex items-center gap-2">
-          <div className="h-px flex-1 bg-blue-600" />
-          <span className="text-xs text-blue-600 font-semibold">Today</span>
-          <div className="h-px flex-1 bg-blue-600" />
+      <div className="px-6 py-4 flex-none">
+        <div className="flex items-center gap-4">
+          <div className="h-[2px] flex-1 bg-sky-200/50" />
+          <span className="text-[14px] text-sky-500 font-bold">Today</span>
+          <div className="h-[2px] flex-1 bg-sky-200/50" />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto">
-        <ChatMessages messages={messages ?? []} isLoading={isLoading} />
+
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+        <ChatMessages key={activeCategory} messages={messages ?? []} isLoading={isLoading} />
       </div>
-      <ChatInputSection
-        onSend={handleSendMessage}
-        disabled={isLoading || isLoadingVideo}
-      />
+
+      <div className="flex-none">
+        <ChatInputSection
+          onSend={handleSendMessage}
+          disabled={isLoading || isLoadingVideo}
+        />
+      </div>
     </div>
   );
 }

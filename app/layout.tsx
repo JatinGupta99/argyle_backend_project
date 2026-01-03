@@ -11,6 +11,8 @@ export const metadata = {
   generator: 'v0.app',
 };
 
+import { AuthProvider } from '@/app/auth/auth-context';
+
 export default function RootLayout({
   children,
 }: {
@@ -20,7 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-background`}>
         <ReduxProvider>
-          <SidebarProvider>{children}</SidebarProvider>
+          <AuthProvider>
+            <SidebarProvider>{children}</SidebarProvider>
+          </AuthProvider>
         </ReduxProvider>
       </body>
     </html>

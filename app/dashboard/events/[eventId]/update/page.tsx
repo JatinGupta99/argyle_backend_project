@@ -1,16 +1,17 @@
 'use client';
 
 import { AuthProvider, useAuth } from '@/app/auth/auth-context';
-import { ROLES } from '@/app/auth/roles';
+import { Role, ROLES } from '@/app/auth/roles';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
+import { useSearchParams } from 'next/navigation';
+import { extractRoleFromInviteToken } from '@/lib/utils/jwt-utils';
 import { EventHeader } from '@/components/stage/event-headers';
 import { EventUpdates } from '@/components/stage/event-updates';
 import { Header } from '@/components/stage/layout/Header';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
-import { ROLEBASED } from '@/lib/types/daily';
 import { getEventDownloadUrl } from '@/lib/event';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -18,6 +19,8 @@ import { useEffect, useState } from 'react';
 function EventPageContent() {
   const event = useEventContext();
   const { role, userId, setRole } = useAuth();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
 
   const [imageSignedUrl, setImageSignedUrl] = useState<string | null>(null);
 
@@ -25,10 +28,13 @@ function EventPageContent() {
   const currentUserId = userId || UserID;
 
   useEffect(() => {
-    if (!role) {
-      setRole(ROLES.MODERATOR, UserID);
-    }
-  }, [role, setRole]);
+    if (role) return;
+
+    // Use centralized utility to extract role from token
+    const determinedRole = token ? extractRoleFromInviteToken(token) : ROLES.ATTENDEE;
+
+    setRole(determinedRole, UserID);
+  }, [token, role, setRole]);
 
   useEffect(() => {
     async function fetchImage() {
@@ -53,23 +59,10 @@ function EventPageContent() {
   }
 
   return (
-    <div className="flex h-screen w-screen bg-background overflow-hidden relative">
-      <div className="absolute top-2 right-4 z-50 flex gap-2 bg-white/80 p-1 rounded-md border shadow-sm">
-        <button
-          onClick={() => setRole(ROLES.ATTENDEE, UserID)}
-          className={`px-3 py-1 text-xs rounded ${role === ROLES.ATTENDEE ? 'bg-primary text-white' : 'hover:bg-gray-100'}`}
-        >
-          Attendee View
-        </button>
-        <button
-          onClick={() => setRole(ROLES.MODERATOR, UserID)}
-          className={`px-3 py-1 text-xs rounded ${role === ROLES.MODERATOR ? 'bg-primary text-white' : 'hover:bg-gray-100'}`}
-        >
-          Moderator View
-        </button>
-      </div>
+    <div className="flex h-full w-full bg-background overflow-hidden relative">
 
-      <aside className="w-[310px] border-r border-gray-200 bg-white">
+
+      <aside className="w-[310px] border-r border-gray-200 bg-white flex-shrink-0">
         <ChatPanel
           title3={ChatTab.Argyle}
           role={role === ROLES.MODERATOR ? RoleView.Moderator : RoleView.Attendee}
@@ -79,26 +72,23 @@ function EventPageContent() {
           tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
         />
       </aside>
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden relative">
         <Header title={event.title || ''} />
-        <EventHeader
-          title={event.title || ''}
-          imageSrc={imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp'}
-        />
-        <EventUpdates
-          eventId={eventId}
-          currentUserId={currentUserId}
-          role={role === ROLES.MODERATOR ? ROLEBASED.MODERATOR : ROLEBASED.ATTENDEE}
-        />
+        <div className="flex-1 overflow-y-auto">
+          <EventHeader
+            title={event.title || ''}
+            imageSrc={imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp'}
+          />
+          <EventUpdates
+            eventId={eventId}
+            currentUserId={currentUserId}
+          />
+        </div>
       </main>
     </div>
   );
 }
 
 export default function Page() {
-  return (
-    <AuthProvider>
-      <EventPageContent />
-    </AuthProvider>
-  );
+  return <EventPageContent />;
 }

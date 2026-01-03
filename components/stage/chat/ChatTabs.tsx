@@ -37,7 +37,7 @@ export function ChatTabs({ tabs, activeTab, onChangeTab }: ChatTabsProps) {
   };
 
   return (
-    <div className="flex gap-2 px-3 py-2 items-center bg-[#E8F4FB]">
+    <div className="flex gap-4 px-4 py-4 items-center bg-blue-50/50 border-b border-blue-100 overflow-x-auto no-scrollbar scroll-smooth">
       {validTabs.map((tab) => {
         const isActive = chatTab === tab || activeTab === tab;
 
@@ -48,12 +48,12 @@ export function ChatTabs({ tabs, activeTab, onChangeTab }: ChatTabsProps) {
               dispatch(setChatTab(tab as unknown as ChatTab));
               onChangeTab(tab);
             }}
-            className={`h-8 text-xs rounded-md font-medium flex-1 transition-colors ${isActive
-                ? 'bg-[#1C96D3] text-white'
-                : 'bg-[#D1DEE5] text-gray-900 hover:bg-[#c3d5df]'
+            className={`h-11 flex-1 min-w-[120px] text-[15px] rounded-xl font-bold px-6 shrink-0 transition-all ${isActive
+              ? 'bg-[#1da1f2] text-white shadow-lg shadow-sky-500/20 hover:bg-[#1a91da]'
+              : 'bg-[#e1e8ed] text-[#657786] hover:bg-[#d1d9df]'
               }`}
           >
-            {getTabLabel(tab)}
+            <span className="whitespace-nowrap">{getTabLabel(tab)}</span>
           </Button>
         );
       })}

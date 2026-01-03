@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Event } from '@/lib/types/components';
-import { ROLEBASED, useDailyBase } from './useDailyBase';
+import { Role, ROLES } from '@/app/auth/roles';
+import { useDailyBase } from './useDailyBase';
 import { useDailyMediaControls } from './useDailyMediaControls';
 import { useLiveState } from './useLiveState';
 import { fetchMeetingToken } from '@/lib/api/daily';
 
-export function useEventRole(event: Event, role: ROLEBASED) {
+export function useEventRole(event: Event, role: Role) {
   const eventId = event?._id;
   const roomUrl = event?.dailyRoomDetails?.dailyRoomUrl;
   const displayName = event?.title || 'Guest';
@@ -16,7 +17,7 @@ export function useEventRole(event: Event, role: ROLEBASED) {
 
   useEffect(() => {
     // Only moderators need to fetch a token this way (Speakers use useDailySpeaker)
-    if (role === ROLEBASED.MODERATOR && eventId) {
+    if (role === ROLES.MODERATOR && eventId) {
       fetchMeetingToken(eventId).then(setToken);
     }
   }, [eventId, role]);
@@ -24,7 +25,7 @@ export function useEventRole(event: Event, role: ROLEBASED) {
   // (roomUrl, enable, userName, token)
   const base = useDailyBase(roomUrl, true, displayName, token);
   const media =
-    role === ROLEBASED.ATTENDEE
+    role === ROLES.ATTENDEE
       ? {
         isMicOn: false,
         isCamOn: false,
@@ -35,7 +36,7 @@ export function useEventRole(event: Event, role: ROLEBASED) {
       }
       : useDailyMediaControls(base.callObject);
   const live =
-    role === ROLEBASED.MODERATOR
+    role === ROLES.MODERATOR
       ? useLiveState(base.callObject, eventId)
       : { isLive: false, toggleLive: undefined, isLoading: false };
   return {

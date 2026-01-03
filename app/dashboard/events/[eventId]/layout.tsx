@@ -34,7 +34,7 @@ export default function EventLayout({ children }: EventLayoutProps) {
 
   return (
     <EventContextProvider event={event}>
-      <div>{children}</div>
+      <div className="h-full">{children}</div>
     </EventContextProvider>
   );
 }
