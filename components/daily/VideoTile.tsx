@@ -10,7 +10,7 @@ interface VideoTileProps {
   isLocal: boolean;
   micOn: boolean;
   isActiveSpeaker: boolean;
-  hasVideo?: boolean; // optional
+  hasVideo?: boolean;
 }
 
 export const VideoTile = React.memo(function VideoTile({

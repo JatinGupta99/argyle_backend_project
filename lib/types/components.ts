@@ -28,8 +28,8 @@ export interface DailyRoomDetails {
 }
 
 export interface EventSchedule {
-  startTime: Date; // ISO 8601 Date string, e.g., "2025-11-11T08:41:00.000Z"
-  endTime: Date; // ISO 8601 Date string
+  startTime: Date;
+  endTime: Date;
   _id: string;
 }
 
@@ -44,36 +44,29 @@ export interface EventAnalytics {
   joinedUsers: string[];
 }
 
-// --- Main Event Interface ---
-
 export interface Event {
   _id: string;
   title: string;
   eventDetails: string;
   eventLogoUrl: string;
-  EventDate: string; // YYYY-MM-DD format
+  EventDate: string;
   schedule: EventSchedule;
   privacy: 'public' | 'private' | string;
   status: 'UPCOMING' | 'LIVE' | 'COMPLETED' | string;
-  host: string; // User ID
-  agendas: any[]; // Consider defining a specific Agenda interface later
-  sponsors: any[]; // Consider defining a specific Sponsor interface later
-  attendees: any[]; // Consider defining a specific Attendee interface later
+  host: string;
+  agendas: any[];
+  sponsors: any[];
+  attendees: any[];
   analytics: EventAnalytics;
-  invitedUsers: any[]; // Consider defining a specific InvitedUser interface later
-  createdBy: string; // User ID
-  updatedBy: string | null; // User ID or null
+  invitedUsers: any[];
+  createdBy: string;
+  updatedBy: string | null;
   dailyRoomDetails: DailyRoomDetails;
-  createdAt: string; // ISO 8601 Date string
-  updatedAt: string; // ISO 8601 Date string
+  createdAt: string;
+  updatedAt: string;
   __v: number;
 }
 
-// --- API Response Wrapper ---
-
-/**
- * Interface representing the full response object from the API.
- */
 export interface EventApiResponse {
   statusCode: number;
   data: Event;

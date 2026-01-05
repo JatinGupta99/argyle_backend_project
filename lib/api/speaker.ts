@@ -6,7 +6,7 @@ export async function toggleLiveState(
 ): Promise<boolean> {
   try {
     const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+      process.env.NEXT_PUBLIC_API_URL || 'http:
     const res = await fetch(`${apiUrl}/events/${eventId}/live`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

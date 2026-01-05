@@ -28,13 +28,13 @@ export function ParticipantTile({ sessionId, className, isLocal }: ParticipantTi
                 fit="cover"
             />
 
-            {/* Mic Status Indicator (Top Right) */}
+            {}
             <div className={`absolute top-2 right-2 p-1.5 rounded-full bg-black/60 backdrop-blur-sm text-white transition-colors
         ${isMicOff ? 'text-red-400' : 'text-green-400'}`}>
                 {isMicOff ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
             </div>
 
-            {/* Name Label & Speaking Indicator */}
+            {}
             <div className={`absolute bottom-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded font-medium transition-all ${isSpeaking ? 'bg-primary/80' : ''}`}>
                 <span>{isLocal ? 'You' : 'Speaker'}</span>
                 {isSpeaking && (

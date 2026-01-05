@@ -6,9 +6,6 @@ export const ROLES = {
 
 export type Role = typeof ROLES[keyof typeof ROLES];
 
-/**
- * Granular permissions for professional RBAC
- */
 export type Permission =
   | 'event:view'
   | 'event:edit'
@@ -19,10 +16,6 @@ export type Permission =
   | 'chat:backstage'
   | 'broadcast:start';
 
-/**
- * Role to Permission mapping
- * Single source of truth for capabilities
- */
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   [ROLES.MODERATOR]: [
     'event:view',

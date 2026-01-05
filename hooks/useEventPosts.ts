@@ -26,30 +26,22 @@ export function useEventPosts(eventId: string) {
     });
     await refetch();
     return updated;
-  };
-
-  // Delete a post
+  };
   const deletePost = async (postId: string) => {
     const deleted = await apiClient.delete(
       API_ROUTES.events.postById(eventId, postId)
     );
     await refetch();
     return deleted;
-  };
-
-  // Like a post
+  };
   const likePost = async (postId: string) => {
     await apiClient.post(API_ROUTES.events.like(eventId, postId), {});
     await refetch();
-  };
-
-  // Unlike a post
+  };
   const unlikePost = async (postId: string) => {
     await apiClient.delete(API_ROUTES.events.unlike(eventId, postId));
     await refetch();
-  };
-
-  // Add a comment to a post
+  };
   const addComment = async (postId: string, content: string) => {
     await apiClient.post(API_ROUTES.events.comment(eventId, postId), {
       content,

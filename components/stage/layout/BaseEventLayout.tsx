@@ -32,7 +32,7 @@ export function BaseEventLayout({
     <ReduxProvider>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
-          {/* Left Chat Sidebar */}
+          {}
           <aside className="w-[27%] border-r border-gray-200 bg-[#FAFAFA]">
             <ChatPanel
               title3={ChatTab.Chat}
@@ -44,7 +44,7 @@ export function BaseEventLayout({
             />
           </aside>
 
-          {/* Main Content */}
+          {}
           <main className="flex flex-col flex-1 overflow-hidden">
             <Header title={title} />
             {children}

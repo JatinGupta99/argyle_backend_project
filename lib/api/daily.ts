@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export interface DailyTokenResponse {
     token: string;
-    roomUrl: string; // Sometimes returned
+    roomUrl: string;
 }
 
 export const fetchMeetingToken = async (eventId: string): Promise<string | null> => {

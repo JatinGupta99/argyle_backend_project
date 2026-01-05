@@ -21,7 +21,7 @@ export function EventHeader({
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
 
-          {/* Subtle Overlay for Title */}
+          {}
           <div className="absolute inset-x-0 bottom-0 p-8 md:p-12 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
             <h1 className="text-white text-3xl md:text-5xl font-black tracking-tight drop-shadow-2xl max-w-2xl">
               {title}

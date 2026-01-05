@@ -13,17 +13,9 @@ import { RoleView } from '@/lib/slices/uiSlice';
 import { DailyJoinResponse } from '@/lib/types/daily';
 import { determineRoleWithFallback } from '@/lib/utils/jwt-utils';
 
-/* -------------------------------------------------------------------------- */
-/*                                Component                                   */
-/* -------------------------------------------------------------------------- */
-
 import { useAuth } from '@/app/auth/auth-context';
 import { PageGuard } from '@/components/auth/PageGuard';
 import { Loader2, ShieldAlert } from 'lucide-react';
-
-/* -------------------------------------------------------------------------- */
-/*                                Component                                   */
-/* -------------------------------------------------------------------------- */
 
 import { CountdownDisplay } from '@/components/shared/CountdownDisplay';
 
@@ -62,8 +54,6 @@ export default function SpeakerPage() {
     return () => clearInterval(interval);
   }, [targetDate, eventIsLive]);
 
-  /* -------------------------- Token Fetching ------------------------------ */
-
   useEffect(() => {
     if (!inviteId) return;
 
@@ -79,9 +69,7 @@ export default function SpeakerPage() {
 
         setToken(dailyToken);
         setRoomUrl(url);
-        setLocalRole(extractedRole);
-
-        // Centralize session in AuthContext
+        setLocalRole(extractedRole);
         setRole(extractedRole, 'speaker-session');
 
       } catch (err: any) {
@@ -94,8 +82,6 @@ export default function SpeakerPage() {
 
     fetchToken();
   }, [inviteId, urlToken, setRole]);
-
-  /* ----------------------------- Render Helpers --------------------------- */
 
   if (error) {
     return (

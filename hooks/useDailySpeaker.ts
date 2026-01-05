@@ -17,11 +17,6 @@ interface UseDailySpeakerProps {
   initialIsLive?: boolean;
 }
 
-/**
- * useDailySpeaker - Professional high-privilege role controller
- * 
- * Consolidates hardware, live-state, and foundation logic for Speakers and Moderators.
- */
 export function useDailySpeaker({
   roomUrl,
   eventId,
@@ -30,22 +25,14 @@ export function useDailySpeaker({
   token,
   enableJoin = true
 }: UseDailySpeakerProps) {
-  const role = normalizeRole(initialRole);
-
-  // 1. Core Connection
+  const role = normalizeRole(initialRole);
   const {
     callObject,
     ready,
     error: baseError,
-  } = useDailyBase(roomUrl, enableJoin, userName, token || null);
-
-  // 2. Hardware Controls (Synced Source of Truth)
-  const media = useDailyMediaControls(callObject);
-
-  // 3. Live State Management (Moderator only)
-  const { isLive, isLoading, toggleLive } = useLiveState(callObject, eventId);
-
-  // 4. Local state for non-base errors
+  } = useDailyBase(roomUrl, enableJoin, userName, token || null);
+  const media = useDailyMediaControls(callObject);
+  const { isLive, isLoading, toggleLive } = useLiveState(callObject, eventId);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

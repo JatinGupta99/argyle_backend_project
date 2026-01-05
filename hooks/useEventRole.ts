@@ -15,14 +15,11 @@ export function useEventRole(event: Event, role: Role) {
 
   const [token, setToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Only moderators need to fetch a token this way (Speakers use useDailySpeaker)
+  useEffect(() => {
     if (role === ROLES.MODERATOR && eventId) {
       fetchMeetingToken(eventId).then(setToken);
     }
-  }, [eventId, role]);
-
-  // (roomUrl, enable, userName, token)
+  }, [eventId, role]);
   const base = useDailyBase(roomUrl, true, displayName, token);
   const media =
     role === ROLES.ATTENDEE

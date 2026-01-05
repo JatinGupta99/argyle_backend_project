@@ -24,14 +24,14 @@ export function YouTubeEmbed({ url, title, className }: YouTubeEmbedProps) {
 
   return (
     <div className="w-full flex justify-center">
-      {/* Centered fixed-width player */}
+      {}
       <div
         className={`relative w-full max-w-3xl overflow-hidden rounded-xl ${className}`}
-        style={{ paddingTop: '56.25%' }} // 16:9 aspect ratio
+        style={{ paddingTop: '56.25%' }}
       >
         <iframe
           className="absolute inset-0 h-full w-full rounded-xl"
-          src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+          src={`https:
           title={title || 'YouTube video'}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           referrerPolicy="strict-origin-when-cross-origin"

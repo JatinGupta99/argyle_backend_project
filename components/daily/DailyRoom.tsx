@@ -86,9 +86,7 @@ function DailyRoom({ token, startTime, roomUrl, eventIsLive, role }: DailyRoomPr
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4">
         <div className="text-center">
-          {/* <div className="inline-block px-3 py-1 bg-red-600 rounded-full text-xs font-bold mb-3 animate-pulse">
-            🔴 LIVE
-          </div> */}
+          {}
           <p className="text-xl font-semibold">Event is Live!</p>
           <p className="text-gray-400 mt-2">
             Joining as: <span className="text-green-400 capitalize">{detectedRole}</span>

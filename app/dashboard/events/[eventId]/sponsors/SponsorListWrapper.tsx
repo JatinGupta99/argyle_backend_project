@@ -11,7 +11,7 @@ import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import SponsorList from './SponsorList';
 
 interface SponsorListWrapperProps {
-  event: any; // Ideally typed Event
+  event: any;
 }
 
 export default function SponsorListWrapper({ event }: SponsorListWrapperProps) {

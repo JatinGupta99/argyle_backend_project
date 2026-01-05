@@ -42,7 +42,7 @@ export function SpeakerVideoPreview({
         </div>
       )}
 
-      {/* Mic Status - Top Right */}
+      {}
       <div className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase shadow-lg backdrop-blur-md border ${isMicOn
           ? 'bg-emerald-500/90 text-white border-emerald-400'
           : 'bg-rose-500/90 text-white border-rose-400'

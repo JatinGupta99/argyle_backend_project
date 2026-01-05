@@ -108,8 +108,7 @@ export function ChatPanel({
       }
     };
 
-    if (youtubeProp) {
-      // Use video from prop
+    if (youtubeProp) {
       return;
     }
 

@@ -30,7 +30,7 @@ export default function MessageItem({
 
   return (
     <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">
@@ -48,10 +48,10 @@ export default function MessageItem({
         <MoreVertical size={16} className="text-muted cursor-pointer" />
       </div>
 
-      {/* Content */}
+      {}
       <p className="text-foreground">{message.content}</p>
 
-      {/* Actions */}
+      {}
       <div className="flex items-center gap-4 pt-2">
         <LikeButton
           targetId={message._id}
@@ -72,7 +72,7 @@ export default function MessageItem({
         </button>
       </div>
 
-      {/* Comments Section */}
+      {}
       {showComments && (
         <CommentSection messageId={message._id} currentUserId={currentUserId} />
       )}

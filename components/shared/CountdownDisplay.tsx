@@ -63,12 +63,12 @@ export function CountdownDisplay({
 
     return (
         <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-[#000000]">
-            {/* Background Pattern - Subtle dark pattern */}
+            {}
             <div className="absolute inset-0 z-0 opacity-10">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1e293b_1px,transparent_1px)] [background-size:32px_32px]" />
             </div>
 
-            {/* Content */}
+            {}
             <div className="relative z-10 flex flex-col items-center text-center px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -76,7 +76,7 @@ export function CountdownDisplay({
                     transition={{ duration: 0.6 }}
                     className="mb-10 relative"
                 >
-                    {/* Watermark Logo */}
+                    {}
                     <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none select-none">
                         <span className="text-[120px] font-black tracking-tighter text-slate-400/20">argle.</span>
                     </div>
@@ -86,7 +86,7 @@ export function CountdownDisplay({
                     </h2>
                 </motion.div>
 
-                {/* Countdown Boxes */}
+                {}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}

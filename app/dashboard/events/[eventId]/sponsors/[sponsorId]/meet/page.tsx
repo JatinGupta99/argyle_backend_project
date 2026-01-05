@@ -132,8 +132,6 @@ export default function SponsorBoothMeet() {
   if (!sponsor)
     return <div className="flex h-screen items-center justify-center">No sponsor data found.</div>;
 
-
-
   return (
     <div className="flex h-screen bg-background">
       <aside className="w-[27%] bg-[#FAFAFA] border-r">

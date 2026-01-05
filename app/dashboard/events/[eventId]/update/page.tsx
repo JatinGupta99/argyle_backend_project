@@ -28,9 +28,7 @@ function EventPageContent() {
   const currentUserId = userId || UserID;
 
   useEffect(() => {
-    if (role) return;
-
-    // Use centralized utility to extract role from token
+    if (role) return;
     const determinedRole = token ? extractRoleFromInviteToken(token) : ROLES.ATTENDEE;
 
     setRole(determinedRole, UserID);
@@ -60,7 +58,6 @@ function EventPageContent() {
 
   return (
     <div className="flex h-full w-full bg-background overflow-hidden relative">
-
 
       <aside className="w-[310px] border-r border-gray-200 bg-white flex-shrink-0">
         <ChatPanel

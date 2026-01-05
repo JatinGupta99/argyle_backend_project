@@ -21,10 +21,7 @@ export function AppSidebar() {
   const params = useParams();
   const pathname = usePathname();
   const eventId = params?.eventId as string;
-  const inviteId = params?.inviteId as string;
-
-  // Professional dynamic routing:
-  // If we have an inviteId (Speakers/Moderators), redirect to the specific stage
+  const inviteId = params?.inviteId as string;
   const stagePath = inviteId
     ? `/dashboard/events/${eventId}/speakers/${inviteId}`
     : `/dashboard/events/${eventId}/attendees`;
@@ -37,7 +34,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="w-64 border-r border-slate-100 bg-white">
-      {/* Header */}
+      {}
       <SidebarHeader className="h-20 flex items-center px-6 bg-white border-none">
         <Image
           src="/argyle-logo.png"
@@ -48,10 +45,10 @@ export function AppSidebar() {
         />
       </SidebarHeader>
 
-      {/* Sidebar content */}
+      {}
       <SidebarContent className="p-0 bg-white">
         <SidebarMenu className="px-3 gap-1">
-          {/* Lobby dropdown */}
+          {}
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => setOpenLobby((prev) => !prev)}
@@ -96,7 +93,7 @@ export function AppSidebar() {
             </div>
           </SidebarMenuItem>
 
-          {/* Stage */}
+          {}
           <SidebarMenuItem>
             <Link
               href={stagePath}
@@ -111,7 +108,7 @@ export function AppSidebar() {
             </Link>
           </SidebarMenuItem>
 
-          {/* Sponsor */}
+          {}
           <SidebarMenuItem>
             <Link
               href={`/dashboard/events/${eventId}/sponsors`}
@@ -128,7 +125,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
 
-      {/* Footer */}
+      {}
       <SidebarFooter className="items-center text-[10px] text-slate-300 px-6 py-6 font-bold uppercase tracking-widest bg-white border-none">
         © {new Date().getFullYear()} Argyle
       </SidebarFooter>

@@ -40,14 +40,14 @@ export default function Tiles() {
 
   return (
     <div className="relative h-full w-full bg-black">
-      {/* Page indicator */}
+      {}
       {totalPages > 1 && (
         <div className="absolute top-2 right-2 z-10 px-2 py-1 bg-black/50 text-white text-xs rounded">
           Page {page + 1} / {totalPages}
         </div>
       )}
 
-      {/* Video grid */}
+      {}
       <div className="absolute inset-0 p-4 grid grid-cols-3 grid-rows-2 gap-4">
         {visibleIds.map((id) => (
           <div
@@ -61,7 +61,7 @@ export default function Tiles() {
           </div>
         ))}
 
-        {/* Empty slots to keep grid consistent */}
+        {}
         {Array.from({ length: VIDEOS_PER_PAGE - visibleIds.length }).map(
           (_, idx) => (
             <div key={`empty-${idx}`} className="rounded-md bg-gray-800/30" />

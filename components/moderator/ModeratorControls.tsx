@@ -32,7 +32,7 @@ export function ModeratorControls({
 }: ModeratorControlsProps) {
   return (
     <div className="w-full h-20 bg-background border-t flex items-center justify-center gap-6 px-4 z-50">
-      {/* Go Live / Stop Live Button */}
+      {}
       <Button
         variant={isLive ? 'destructive' : 'default'}
         size="lg"
@@ -58,7 +58,7 @@ export function ModeratorControls({
 
       <div className="w-px h-8 bg-border" />
 
-      {/* Media Controls */}
+      {}
       <MediaControls
         isMicOn={isMicOn}
         isCamOn={isCamOn}

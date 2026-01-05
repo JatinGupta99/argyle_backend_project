@@ -12,7 +12,7 @@ import { StageProviders } from '@/components/providers/StageProvider';
 import { useAuth } from '@/app/auth/auth-context';
 
 type Props = {
-  role?: RoleView; // Keep for legacy compatibility during transition
+  role?: RoleView;
   chatType: ChatSessionType;
   chatTabs: ChatCategoryType[];
   title?: ChatTab | string;
@@ -29,15 +29,13 @@ export function EventStageLayout({
   const event = useEventContext();
   const { can, role: userRole } = useAuth();
   const eventId = event._id as string;
-  const userId = UserID;
-
-  // Professional filtering: Only show tabs user has permission for
+  const userId = UserID;
   const authorizedTabs = useMemo(() => {
     return chatTabs.filter(tab => {
       if (tab === ChatCategoryType.BACKSTAGE) {
         return can('chat:backstage');
       }
-      return true; // Everyone and Q&A are public
+      return true;
     });
   }, [chatTabs, can]);
 

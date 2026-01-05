@@ -146,7 +146,7 @@ export function MessageCard(props: MessageCardProps) {
         </button>
       </div>
 
-      {/* Inline Comment Input */}
+      {}
       <div className="mt-5">
         <SocialInput
           value={commentText}
@@ -160,7 +160,7 @@ export function MessageCard(props: MessageCardProps) {
         />
       </div>
 
-      {/* Expanded Comments List */}
+      {}
       {isExpanded && post.comments.length > 0 && (
         <div className="mt-6 space-y-4 pt-4 border-t border-slate-50 animate-in slide-in-from-top-4 duration-500">
           {post.comments.map((comment) => (

@@ -16,8 +16,6 @@ interface DashboardLayoutProps {
   currentUserId?: string;
 }
 
-
-
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen w-screen bg-white overflow-hidden">

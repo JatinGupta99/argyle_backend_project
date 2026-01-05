@@ -50,9 +50,7 @@ export async function getSponsorDownloadUrl(
 ): Promise<string> {
   const response = await apiClient.get(
     API_ROUTES.sponsor.getSponsorImageReadUrl(eventId, sponsorId)
-  );
-
-  // Safely extract the URL whether validation returns a string or an object with data/url property
+  );
   if (typeof response === 'string') return response;
   if (typeof response === 'object' && response !== null) {
     if ('data' in response) return (response as any).data;

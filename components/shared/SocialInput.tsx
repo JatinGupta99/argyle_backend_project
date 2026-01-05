@@ -37,9 +37,7 @@ export function SocialInput({
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const triggerRef = useRef<HTMLDivElement>(null);
     const pickerRef = useRef<HTMLDivElement>(null);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-    // Auto-resize logic
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
     useEffect(() => {
         const textarea = textareaRef.current;
         if (textarea) {
@@ -47,9 +45,7 @@ export function SocialInput({
             const newHeight = Math.min(textarea.scrollHeight, maxHeight);
             textarea.style.height = `${newHeight}px`;
         }
-    }, [value, maxHeight]);
-
-    // Click outside listener
+    }, [value, maxHeight]);
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (
@@ -79,7 +75,7 @@ export function SocialInput({
 
     return (
         <div className={`relative ${className}`}>
-            {/* Emoji Picker - Positioned responsibly */}
+            {}
             <div
                 ref={pickerRef}
                 className={`absolute z-[100] transition-all duration-300 transform shadow-2xl rounded-2xl overflow-hidden border border-slate-100 ${isBroadcast ? 'top-full left-0 mt-2 origin-top-left' : 'bottom-full right-0 mb-2 origin-bottom-right'

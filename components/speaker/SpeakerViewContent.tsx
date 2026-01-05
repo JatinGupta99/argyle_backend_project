@@ -55,9 +55,7 @@ function SpeakerInterface({
 
   const { screens } = useScreenShare();
   const hasScreenShare = screens.length > 0;
-  const screenId = hasScreenShare ? screens[0].session_id : null;
-
-  // Determine Layout Mode
+  const screenId = hasScreenShare ? screens[0].session_id : null;
   let layoutMode: 'single' | 'grid' | 'screen-share' = 'grid';
   if (hasScreenShare) {
     layoutMode = 'screen-share';
@@ -67,7 +65,7 @@ function SpeakerInterface({
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header / Status Bar */}
+      {}
       <div className="flex items-center justify-between px-6 py-4 border-b bg-card h-16 flex-none">
         <div className="flex items-center gap-3">
           <div
@@ -92,7 +90,7 @@ function SpeakerInterface({
         )}
       </div>
 
-      {/* Main Content Area */}
+      {}
       <div className="flex-1 bg-slate-50 dark:bg-slate-950 overflow-hidden relative">
         <RoleGuard permission="event:manage">
           <div className="absolute top-6 right-6 z-50">
@@ -107,10 +105,10 @@ function SpeakerInterface({
           </div>
         </RoleGuard>
 
-        {/* MODE: SCREEN SHARE */}
+        {}
         {layoutMode === 'screen-share' && screenId && (
           <div className="flex h-full p-4 gap-4">
-            {/* Main Stage: Screen Share */}
+            {}
             <div className="flex-1 bg-black rounded-lg overflow-hidden relative shadow-xl border border-slate-800">
               <DailyVideo
                 type="screenVideo"
@@ -124,7 +122,7 @@ function SpeakerInterface({
               </div>
             </div>
 
-            {/* Sidebar: Participants */}
+            {}
             <div className="w-64 flex-none flex flex-col gap-3 overflow-y-auto pr-2">
               {participantIds?.map(id => (
                 <ParticipantTile
@@ -138,7 +136,7 @@ function SpeakerInterface({
           </div>
         )}
 
-        {/* MODE: SINGLE FULL SCREEN */}
+        {}
         {layoutMode === 'single' && (
           <div className="w-full h-full p-4">
             <ParticipantTile
@@ -149,23 +147,23 @@ function SpeakerInterface({
           </div>
         )}
 
-        {/* MODE: GRID VIEW */}
+        {}
         {layoutMode === 'grid' && (
           <div className="h-full overflow-y-auto p-6 flex items-center justify-center">
             <div className={`grid gap-4 max-w-7xl mx-auto w-full transition-all duration-300
-                    ${/* 2 People: Side by side */ ''}
+                    ${ ''}
                     ${participantIds?.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-5xl' : ''}
                     
-                    ${/* 3 People: 3 side by side on desktop, pyramid on mobile */ ''}
+                    ${ ''}
                     ${participantIds?.length === 3 ? 'grid-cols-1 md:grid-cols-3' : ''}
 
-                    ${/* 4 People: 2x2 Grid */ ''}
+                    ${ ''}
                     ${participantIds?.length === 4 ? 'grid-cols-1 md:grid-cols-2 max-w-4xl' : ''}
 
-                    ${/* 5-6 People: 3 columns */ ''}
+                    ${ ''}
                     ${participantIds?.length && participantIds.length >= 5 && participantIds.length <= 6 ? 'grid-cols-2 md:grid-cols-3' : ''}
 
-                    ${/* 7+ People: 4 columns */ ''}
+                    ${ ''}
                     ${participantIds?.length && participantIds.length >= 7 ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : ''}
                 `}>
               {participantIds?.map(id => (
@@ -181,7 +179,7 @@ function SpeakerInterface({
         )}
       </div>
 
-      {/* Controls */}
+      {}
       <SpeakerControls
         isMicOn={isMicOn}
         isCamOn={isCamOn}
@@ -194,8 +192,6 @@ function SpeakerInterface({
     </div>
   );
 }
-
-
 
 export function SpeakerViewContent({
   eventId,
@@ -221,9 +217,7 @@ export function SpeakerViewContent({
     toggleMic,
     toggleCam,
     toggleScreenShare,
-  } = useDailySpeaker({ roomUrl, eventId, role, userName, token, enableJoin: hasJoined });
-
-  // Start camera/mic for lobby preview
+  } = useDailySpeaker({ roomUrl, eventId, role, userName, token, enableJoin: hasJoined });
   useEffect(() => {
     if (!hasJoined && callObject) {
       console.log('[SpeakerViewContent] Starting camera for lobby...');
@@ -264,7 +258,7 @@ export function SpeakerViewContent({
             <h2 className="text-2xl font-bold text-white mb-6 text-center">Ready to join?</h2>
 
             <div className="aspect-video bg-black rounded-lg overflow-hidden mb-6 relative">
-              {/* Re-using SpeakerVideoPreview for consistency, assuming context provides local participant pre-join */}
+              {}
               <SpeakerPreviewWrapper role={role} isCamOn={isCamOn} isMicOn={isMicOn} />
             </div>
 

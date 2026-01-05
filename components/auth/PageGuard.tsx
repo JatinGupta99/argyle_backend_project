@@ -11,21 +11,12 @@ interface PageGuardProps {
     role?: Role | Role[];
 }
 
-/**
- * PageGuard - Professional route-level protection
- * 
- * Used to wrap entire pages to prevent unauthorized access.
- * Displays a professional 'Access Denied' screen if requirements aren't met.
- */
 export function PageGuard({
     children,
     permission,
     role
 }: PageGuardProps) {
-    const { can, role: userRole } = useAuth();
-
-    // 1. Loading state (if role isn't initialized yet)
-    // Note: In a real app, you'd check a 'loading' state from your auth provider
+    const { can, role: userRole } = useAuth();
     if (!userRole) {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-slate-50 gap-4">
@@ -33,12 +24,8 @@ export function PageGuard({
                 <p className="text-slate-500 font-medium">Verifying access permissions...</p>
             </div>
         );
-    }
-
-    // 2. Permission check
-    const hasPermission = permission ? can(permission) : true;
-
-    // 3. Role check
+    }
+    const hasPermission = permission ? can(permission) : true;
     const roles = role ? (Array.isArray(role) ? role : [role]) : null;
     const hasRole = roles ? roles.includes(userRole) : true;
 

@@ -1,36 +1,23 @@
-/**
- * Daily.co related types and enums
- */
 
 
-
-/**
- * Payload decoded from Daily.co JWT token
- */
 export interface DailyTokenPayload {
-    r?: string;        // role field from Daily token
-    u?: string;        // user display name
-    user_id?: string;  // user identifier
-    is_owner?: boolean;  // owner/moderator flag
+    r?: string;
+    u?: string;
+    user_id?: string;
+    is_owner?: boolean;
 }
 
-/**
- * Payload decoded from invite JWT token
- */
 export interface InviteTokenPayload {
     inviteId?: string;
     eventId?: string;
     email?: string;
     name?: string;
-    role?: string;      // "Moderator", "Speaker", "Attendee"
-    is_owner?: boolean; // alternative owner flag
-    iat?: number;       // issued at
-    exp?: number;       // expiration
+    role?: string;
+    is_owner?: boolean;
+    iat?: number;
+    exp?: number;
 }
 
-/**
- * Response from backend when joining a Daily.co room
- */
 export interface DailyJoinResponse {
     token: string;
     roomUrl: string;

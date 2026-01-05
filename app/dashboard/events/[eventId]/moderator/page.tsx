@@ -12,9 +12,6 @@ import { DailyProvider, useLocalParticipant } from '@daily-co/daily-react';
 import { AlertCircle, Clock, Loader2, Users } from 'lucide-react';
 import { PageGuard } from '@/components/auth/PageGuard';
 
-/**
- * FullScreenState - Shared UI for loading/error states
- */
 const FullScreenState = ({
   loading,
   message,
@@ -45,9 +42,6 @@ const FullScreenState = ({
   </div>
 );
 
-/**
- * ModeratorViewContent - Main rendering logic for the moderator panel
- */
 function ModeratorViewContent({ event }: { event: Event }) {
   const {
     callObject,
@@ -79,7 +73,7 @@ function ModeratorViewContent({ event }: { event: Event }) {
   return (
     <DailyProvider callObject={callObject}>
       <div className="flex flex-col h-full bg-slate-950 text-white overflow-hidden">
-        {/* Header */}
+        {}
         <header className="h-16 border-b border-slate-800 flex items-center px-6 justify-between bg-slate-900 shadow-sm z-10">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
@@ -104,9 +98,9 @@ function ModeratorViewContent({ event }: { event: Event }) {
           </div>
         </header>
 
-        {/* Main Workspace */}
+        {}
         <main className="flex-1 p-6 flex gap-6 overflow-hidden">
-          {/* Active Preview Area */}
+          {}
           <div className="flex-1 flex flex-col items-center justify-center min-w-0">
             <div className="w-full max-w-4xl aspect-video relative shadow-2xl rounded-xl overflow-hidden ring-1 ring-slate-800">
               <SpeakerVideoPreview
@@ -152,7 +146,7 @@ function ModeratorViewContent({ event }: { event: Event }) {
             </div>
           </div>
 
-          {/* Right Sidebar */}
+          {}
           <aside className="w-80 flex flex-col gap-4 overflow-y-auto">
             <Card className="bg-slate-900 border-slate-800 shadow-xl overflow-hidden">
               <div className="h-1 bg-blue-500/50" />
@@ -199,7 +193,7 @@ function ModeratorViewContent({ event }: { event: Event }) {
           </aside>
         </main>
 
-        {/* Console Controls */}
+        {}
         <footer className="relative z-20">
           <ModeratorControls
             isLive={isLive}
@@ -218,10 +212,6 @@ function ModeratorViewContent({ event }: { event: Event }) {
   );
 }
 
-/**
- * ModeratorPage Root Component
- * Enforces authentication and authorization guards at the route level.
- */
 export default function ModeratorPage() {
   const event = useEventContext();
 

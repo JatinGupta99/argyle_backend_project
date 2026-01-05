@@ -18,22 +18,18 @@ export function VideoPanel({
 }: VideoPanelProps) {
   const dispatch = useDispatch();
   const isLive = useSelector((state: RootState) => state.ui.isLive);
-  const roomUrl = useSelector((state: RootState) => state.ui.roomUrl);
-
-  // Try to read event context (provides startTime). If not available, fall back to now.
+  const roomUrl = useSelector((state: RootState) => state.ui.roomUrl);
   let startTime = new Date();
   try {
     const ev = useEventContext();
     startTime = ev.schedule?.startTime ?? startTime;
-  } catch (e) {
-    // Not inside an EventContextProvider — that's fine, keep fallback startTime
+  } catch (e) {
   }
 
   return (
     <div className="flex flex-col h-full bg-background mt-2">
       <div className="relative flex-none w-full max-w-[600px] aspect-[16/12.5] bg-gray-900 rounded-2xl shadow-lg mx-auto">
-        {isLive && roomUrl ? (
-          // Use attendee-friendly wrapper which handles joining and countdowns.
+        {isLive && roomUrl ? (
           <DailyRoomAttendee
             role={role}
             startTime={startTime}

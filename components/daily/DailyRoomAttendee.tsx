@@ -20,14 +20,8 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
   const { hours, minutes, seconds } = useCountdown(startTime);
   const [userClickedJoin, setUserClickedJoin] = useState(false);
 
-  /* 
-   * Memoize the username so it doesn't change on every render (e.g. countdown ticks).
-   */
   const [userName] = useState(() => `Attendee_${Math.floor(Math.random() * 1000)}`);
-  /*
-   * Fetch token if we don't have one and event is live.
-   * This is required if the room is private.
-   */
+  
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,13 +30,6 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
     }
   }, [eventIsLive, token, eventId]);
 
-  /*
-   * Corrected useDailyBase call:
-   * 1. roomUrl
-   * 2. enable: userClickedJoin (only join when user clicks)
-   * 3. userName: passed explicitly
-   * 4. token: fetched token (or null)
-   */
   const { callObject, ready, error } = useDailyBase(
     roomUrl,
     userClickedJoin,
@@ -50,9 +37,7 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
     token
   );
 
-  console.log('DailyBase:', { callObject, ready, error });
-
-  // Event not started yet → show countdown
+  console.log('DailyBase:', { callObject, ready, error });
   if (!eventIsLive) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-2">
@@ -65,9 +50,7 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
       </div>
     );
   }
-  console.log(hours, minutes, seconds, userClickedJoin, 'USER CLICKED JOIN STATUS');
-
-  // Event is live but user has not clicked join → show Join button
+  console.log(hours, minutes, seconds, userClickedJoin, 'USER CLICKED JOIN STATUS');
   if (!userClickedJoin) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4">
@@ -80,9 +63,7 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
         </button>
       </div>
     );
-  }
-
-  // Error or loading states
+  }
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4 p-6 text-center">
@@ -100,9 +81,7 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
   }
 
   if (!callObject) return <div>Initializing call…</div>;
-  if (!ready) return <div>Joining meeting…</div>;
-
-  // User clicked Join → show video grid
+  if (!ready) return <div>Joining meeting…</div>;
   return (
     <DailyProvider callObject={callObject}>
       <DailyAudio autoSubscribeActiveSpeaker maxSpeakers={12} />

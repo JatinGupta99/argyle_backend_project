@@ -8,7 +8,7 @@ export function SpeakerPreviewWrapper({ role, isCamOn, isMicOn }: { role: Role, 
     return (
         <SpeakerVideoPreview
             localParticipant={localParticipant}
-            isLive={false} // Always false in lobby
+            isLive={false}
             isCamOn={isCamOn}
             isMicOn={isMicOn}
             role={role}
