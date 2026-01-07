@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http:
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 function buildUrl(endpoint: string) {
   return `${API_BASE_URL.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;

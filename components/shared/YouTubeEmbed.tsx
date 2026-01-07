@@ -24,14 +24,13 @@ export function YouTubeEmbed({ url, title, className }: YouTubeEmbedProps) {
 
   return (
     <div className="w-full flex justify-center">
-      {}
       <div
         className={`relative w-full max-w-3xl overflow-hidden rounded-xl ${className}`}
         style={{ paddingTop: '56.25%' }}
       >
         <iframe
           className="absolute inset-0 h-full w-full rounded-xl"
-          src={`https:
+          src={`https://www.youtube.com/embed/${videoId}`}
           title={title || 'YouTube video'}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           referrerPolicy="strict-origin-when-cross-origin"
