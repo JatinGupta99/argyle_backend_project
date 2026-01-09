@@ -40,10 +40,11 @@ export default function SpeakerPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const targetDate = useMemo(
-    () => new Date(event?.schedule?.startTime ?? Date.now()),
-    [event?.schedule?.startTime]
-  );
+  const targetDate = useMemo(() => {
+    const start = event?.schedule?.startTime;
+    if (!start) return new Date();
+    return start instanceof Date ? start : new Date(start);
+  }, [event?.schedule?.startTime]);
 
   const [eventIsLive, setEventIsLive] = useState<boolean>(
     new Date() >= targetDate
@@ -133,25 +134,17 @@ export default function SpeakerPage() {
         title="Speaker Live Stage"
       >
         <div className="flex-1 -mt-4 h-full relative">
-          {!eventIsLive ? (
-            <div className="absolute inset-0 bg-black">
-              <CountdownDisplay
-                startTime={targetDate}
-                eventTitle={event.title || 'Live Stage'}
-                logoUrl={event.eventLogoUrl}
-                onTimerComplete={() => setEventIsLive(true)}
-              />
-            </div>
-          ) : (
-            <div className="w-full h-full p-6">
-              <SpeakerViewContent
-                token={token}
-                roomUrl={roomUrl}
-                eventId={event!._id!}
-                role={localRole}
-              />
-            </div>
-          )}
+          {/* Speakers can always join - backstage mode with countdown shown in header */}
+          <div className="w-full h-full p-6">
+            <SpeakerViewContent
+              token={token}
+              roomUrl={roomUrl}
+              eventId={event!._id!}
+              role={localRole}
+              initialIsLive={eventIsLive}
+              startTime={targetDate}
+            />
+          </div>
         </div>
       </EventStageLayout>
     </PageGuard>

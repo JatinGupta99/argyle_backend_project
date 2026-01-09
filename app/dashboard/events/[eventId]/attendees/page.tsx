@@ -12,7 +12,9 @@ export default function AttendeeViewProfilePage() {
   const event = useEventContext();
   const { schedule, dailyRoomDetails } = event;
 
-  const targetDate = new Date(schedule.startTime);
+  const targetDate = schedule?.startTime instanceof Date
+    ? schedule.startTime
+    : new Date(schedule?.startTime || Date.now());
 
   const [eventIsLive, setEventIsLive] = useState<boolean>(
     new Date() >= targetDate

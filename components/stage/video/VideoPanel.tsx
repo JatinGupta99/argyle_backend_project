@@ -17,14 +17,17 @@ export function VideoPanel({
   role = ROLES.ATTENDEE,
 }: VideoPanelProps) {
   const dispatch = useDispatch();
-  const isLive = useSelector((state: RootState) => state.ui.isLive);
+  const reduxIsLive = useSelector((state: RootState) => state.ui.isLive);
   const roomUrl = useSelector((state: RootState) => state.ui.roomUrl);
 
-  // Try to read event context (provides startTime). If not available, fall back to now.
+  let isLive = reduxIsLive;
   let startTime = new Date();
   try {
     const ev = useEventContext();
-    startTime = ev.schedule?.startTime ?? startTime;
+    const scheduleStart = ev.schedule?.startTime;
+    if (scheduleStart) {
+      startTime = scheduleStart instanceof Date ? scheduleStart : new Date(scheduleStart);
+    }
   } catch (e) {
     // Not inside an EventContextProvider — that's fine, keep fallback startTime
   }

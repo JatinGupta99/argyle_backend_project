@@ -4,6 +4,12 @@ export const ROLES = {
   ATTENDEE: "Attendee",
 } as const;
 
+export enum ROLES_ADMIN {
+  Moderator = 'Moderator',
+  Speaker = 'Speaker',
+  Attendee = 'Attendee',
+}
+
 export type Role = typeof ROLES[keyof typeof ROLES];
 
 /**

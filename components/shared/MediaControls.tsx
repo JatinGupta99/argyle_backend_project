@@ -43,21 +43,22 @@ export function MediaControls({
         {isMicOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
       </Button>
 
-      <Button
-        variant={isCamOn ? 'outline' : 'destructive'}
-        size="icon"
-        onClick={onToggleCam}
-        className="rounded-full h-12 w-12"
-        title={videoAllowed ? (isCamOn ? 'Turn Off Camera' : 'Turn On Camera') : 'Camera not allowed for your role'}
-        aria-label={videoAllowed ? (isCamOn ? 'Turn Off Camera' : 'Turn On Camera') : 'Camera not allowed for your role'}
-        disabled={!videoAllowed}
-      >
-        {isCamOn ? (
-          <Video className="h-5 w-5" />
-        ) : (
-          <VideoOff className="h-5 w-5" />
-        )}
-      </Button>
+      {videoAllowed && (
+        <Button
+          variant={isCamOn ? 'outline' : 'destructive'}
+          size="icon"
+          onClick={onToggleCam}
+          className="rounded-full h-12 w-12"
+          title={isCamOn ? 'Turn Off Camera' : 'Turn On Camera'}
+          aria-label={isCamOn ? 'Turn Off Camera' : 'Turn On Camera'}
+        >
+          {isCamOn ? (
+            <Video className="h-5 w-5" />
+          ) : (
+            <VideoOff className="h-5 w-5" />
+          )}
+        </Button>
+      )}
 
       <Button
         variant={isScreenSharing ? 'secondary' : 'outline'}

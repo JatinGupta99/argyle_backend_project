@@ -28,7 +28,8 @@ export function useDailySpeaker({
   role: initialRole,
   userName = ROLES.SPEAKER,
   token,
-  enableJoin = true
+  enableJoin = true,
+  initialIsLive = false
 }: UseDailySpeakerProps) {
   const role = normalizeRole(initialRole);
 
@@ -43,7 +44,7 @@ export function useDailySpeaker({
   const media = useDailyMediaControls(callObject);
 
   // 3. Live State Management (Moderator only)
-  const { isLive, isLoading, toggleLive } = useLiveState(callObject, eventId);
+  const { isLive, isLoading, isRecording, toggleLive, endEvent } = useLiveState(callObject, eventId, roomUrl, initialIsLive);
 
   // 4. Local state for non-base errors
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +62,9 @@ export function useDailySpeaker({
     error,
     isLive,
     isLoading,
+    isRecording,
     ...media,
     toggleLive: role === ROLES.MODERATOR ? toggleLive : async () => { },
+    endEvent: role === ROLES.MODERATOR ? endEvent : async () => { },
   };
 }

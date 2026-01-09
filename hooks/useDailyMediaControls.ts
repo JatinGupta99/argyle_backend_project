@@ -40,6 +40,25 @@ export function useDailyMediaControls(callObject: DailyCall | null) {
     };
   }, [callObject, syncState]);
 
+  // 3. Listen for takeover messages
+  useEffect(() => {
+    if (!callObject) return;
+
+    const handleAppMessage = (event: any) => {
+      if (event.data?.type === 'SCREEN_SHARE_TAKE_OVER' && event.fromId !== callObject.participants().local?.session_id) {
+        console.log('[MediaControls] Screen share takeover received, stopping local share');
+        if (callObject.participants().local?.screen) {
+          callObject.stopScreenShare();
+        }
+      }
+    };
+
+    callObject.on('app-message', handleAppMessage);
+    return () => {
+      callObject.off('app-message', handleAppMessage);
+    };
+  }, [callObject]);
+
   // High-fidelity toggle actions
   const toggleMic = useCallback(() => {
     if (!callObject) return;
@@ -58,6 +77,8 @@ export function useDailyMediaControls(callObject: DailyCall | null) {
       if (isScreenSharing) {
         await callObject.stopScreenShare();
       } else {
+        // Broadcast takeover signal to others
+        callObject.sendAppMessage({ type: 'SCREEN_SHARE_TAKE_OVER' }, '*');
         await callObject.startScreenShare();
       }
     } catch (err) {
