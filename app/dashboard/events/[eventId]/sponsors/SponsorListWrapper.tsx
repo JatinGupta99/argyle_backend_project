@@ -34,7 +34,7 @@ export default function SponsorListWrapper({ event }: SponsorListWrapperProps) {
               />
             }
           >
-            <Header title="Sponsors" />
+            <Header title={event.title} />
             <div className="flex-1 overflow-auto">
               <SponsorList event={event} />
             </div>
