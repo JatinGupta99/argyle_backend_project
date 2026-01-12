@@ -3,7 +3,6 @@
 import { AppSidebar } from '@/components/stage/sidebar/AppSidebar';
 import { RoleView } from '@/lib/slices/uiSlice';
 import React from 'react';
-import { Bell } from 'lucide-react';
 interface DashboardLayoutProps {
   children: React.ReactNode;
   ChatTab?: {
@@ -18,13 +17,16 @@ interface DashboardLayoutProps {
 
 
 
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen w-screen bg-white overflow-hidden">
       <AppSidebar />
-      <main className="flex-grow overflow-hidden relative bg-white">
-        {children}
-      </main>
+      <div className="flex-grow flex flex-col h-full overflow-hidden relative bg-white">
+        <main className="flex-grow overflow-hidden relative">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
