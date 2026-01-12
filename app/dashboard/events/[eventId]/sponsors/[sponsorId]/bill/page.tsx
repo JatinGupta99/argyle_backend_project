@@ -3,6 +3,7 @@
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
+import { SplitLayout } from '@/components/stage/layout/SplitLayout';
 import SponsorDetails from '@/components/stage/sponsor-details/SponsorDetails';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useDetailSponsor } from '@/hooks/useDetailSponsor';
@@ -22,8 +23,8 @@ export default function SponsorBillPage() {
   console.log(sponsor, 'saclbacslknascl')
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden bg-background">
-        <aside className="w-[27%] bg-[#FAFAFA] border-r">
+      <SplitLayout
+        sidebar={
           <ChatPanel
             youtubeUrl={sponsor.youtubeUrl}
             title3={ChatTab.Chat}
@@ -33,15 +34,13 @@ export default function SponsorBillPage() {
             type={ChatSessionType.LIVE}
             tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
           />
-        </aside>
-
-        <main className="flex flex-col flex-1 overflow-hidden bg-white">
-          <Header title={sponsor.name ?? 'Sponsor'} />
-          <div className="flex-1 overflow-auto">
-            <SponsorDetails sponsor={sponsor} eventId={event?._id || ''} />
-          </div>
-        </main>
-      </div>
+        }
+      >
+        <Header title={sponsor.name ?? 'Sponsor'} />
+        <div className="flex-1 overflow-auto">
+          <SponsorDetails sponsor={sponsor} eventId={event?._id || ''} />
+        </div>
+      </SplitLayout>
     </SidebarProvider>
   );
 }

@@ -7,11 +7,14 @@ import { getSponsorDownloadUrl } from '@/lib/sponsor';
 
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
+import { SplitLayout } from '@/components/stage/layout/SplitLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
+import { PopupModal } from 'react-calendly';
+import { Calendar } from 'lucide-react';
 
 import { useDetailSponsor } from '@/hooks/useDetailSponsor';
 import { apiClient } from '@/lib/api-client';
@@ -30,6 +33,7 @@ export default function SponsorBoothMeet() {
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCalendlyOpen, setIsCalendlyOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -135,8 +139,8 @@ export default function SponsorBoothMeet() {
 
 
   return (
-    <div className="flex h-screen bg-background">
-      <aside className="w-[27%] bg-[#FAFAFA] border-r">
+    <SplitLayout
+      sidebar={
         <ChatPanel
           youtubeUrl={sponsor.youtubeUrl}
           title3={ChatTab.Chat}
@@ -146,10 +150,10 @@ export default function SponsorBoothMeet() {
           type={ChatSessionType.LIVE}
           tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
         />
-      </aside>
-
-      <main className="flex-1 flex flex-col overflow-y-auto">
-        <Header title={sponsor.name} />
+      }
+    >
+      <Header title={sponsor.name} />
+      <div className="flex-1 overflow-y-auto">
         <div className="flex flex-1 items-center justify-center px-6 py-10">
           <div className="max-w-4xl w-full bg-white border shadow-sm rounded-lg p-8 space-y-8">
             <h1 className="text-3xl font-bold text-center">Meet Our Sponsor</h1>
@@ -169,17 +173,30 @@ export default function SponsorBoothMeet() {
                 <p className="text-sm text-muted-foreground leading-relaxed">{sponsor.description}</p>
                 <section>
                   <h3 className="font-semibold mb-2">Would you like to meet?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Chat with our team via{' '}
-                    <a href={sponsor.meetingLink || '#'} className="text-primary hover:underline">
-                      live chat
-                    </a>{' '}
-                    or schedule time using{' '}
-                    <a href={sponsor.calendlyLink || '#'} className="text-primary hover:underline">
-                      Calendly
-                    </a>
-                    .
-                  </p>
+                  <div className="flex flex-col gap-3">
+                    <p className="text-sm text-muted-foreground">
+                      Chat with our team via{' '}
+                      <a href={sponsor.meetingLink || '#'} className="text-primary hover:underline">
+                        live chat
+                      </a>{' '}
+                      or schedule time directly:
+                    </p>
+                    <Button
+                      onClick={() => setIsCalendlyOpen(true)}
+                      variant="outline"
+                      className="w-full sm:w-auto gap-2 border-primary text-primary hover:bg-primary/5"
+                    >
+                      <Calendar size={16} />
+                      Schedule a Meeting
+                    </Button>
+                  </div>
+
+                  <PopupModal
+                    url={sponsor.calendlyLink || "https://calendly.com/"}
+                    onModalClose={() => setIsCalendlyOpen(false)}
+                    open={isCalendlyOpen}
+                    rootElement={document.body}
+                  />
                 </section>
               </div>
 
@@ -244,7 +261,8 @@ export default function SponsorBoothMeet() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+
+      </div>
+    </SplitLayout>
   );
 }

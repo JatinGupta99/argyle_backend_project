@@ -44,7 +44,7 @@ export function EventStageLayout({
   return (
     <StageProviders>
       <div className="flex h-screen w-screen overflow-hidden bg-background">
-        <aside className="w-[27%] flex-shrink-0 bg-[#FAFAFA] flex flex-col border-r border-gray-200 shadow-sm z-10">
+        <aside className="h-full flex-shrink-0 bg-[#FAFAFA] flex flex-col border-r border-gray-200 shadow-sm z-10 transition-all duration-300">
           <ChatPanel
             title3={title ?? ChatTab.Everyone}
             role={(userRole as unknown as RoleView) || _role}

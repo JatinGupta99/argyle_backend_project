@@ -9,6 +9,7 @@ import { extractRoleFromInviteToken } from '@/lib/utils/jwt-utils';
 import { EventHeader } from '@/components/stage/event-headers';
 import { EventUpdates } from '@/components/stage/event-updates';
 import { Header } from '@/components/stage/layout/Header';
+import { SplitLayout } from '@/components/stage/layout/SplitLayout';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
@@ -59,10 +60,8 @@ function EventPageContent() {
   }
 
   return (
-    <div className="flex h-full w-full bg-background overflow-hidden relative">
-
-
-      <aside className="w-[310px] border-r border-gray-200 bg-white flex-shrink-0">
+    <SplitLayout
+      sidebar={
         <ChatPanel
           title3={ChatTab.Argyle}
           role={role === ROLES.MODERATOR ? RoleView.Moderator : RoleView.Attendee}
@@ -71,21 +70,20 @@ function EventPageContent() {
           type={ChatSessionType.PRE_LIVE}
           tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
         />
-      </aside>
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-        <Header title={event.title || ''} />
-        <div className="flex-1 overflow-y-auto">
-          <EventHeader
-            title={event.title || ''}
-            imageSrc={imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp'}
-          />
-          <EventUpdates
-            eventId={eventId}
-            currentUserId={currentUserId}
-          />
-        </div>
-      </main>
-    </div>
+      }
+    >
+      <Header title={event.title || ''} />
+      <div className="flex-1 overflow-y-auto">
+        <EventHeader
+          title={event.title || ''}
+          imageSrc={imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp'}
+        />
+        <EventUpdates
+          eventId={eventId}
+          currentUserId={currentUserId}
+        />
+      </div>
+    </SplitLayout>
   );
 }
 

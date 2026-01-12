@@ -6,9 +6,21 @@ interface YouTubeEmbedProps {
   url: string;
   title?: string;
   className?: string;
+  autoplay?: boolean;
+  controls?: boolean;
+  muted?: boolean;
+  loop?: boolean;
 }
 
-export function YouTubeEmbed({ url, title, className }: YouTubeEmbedProps) {
+export function YouTubeEmbed({
+  url,
+  title,
+  className,
+  autoplay = false,
+  controls = true,
+  muted = false,
+  loop = false,
+}: YouTubeEmbedProps) {
   const videoId = useMemo(() => {
     if (!url) return null;
 
@@ -18,27 +30,35 @@ export function YouTubeEmbed({ url, title, className }: YouTubeEmbedProps) {
     return url.match(pattern)?.[1] ?? null;
   }, [url]);
 
+  const queryParams = useMemo(() => {
+    const params = new URLSearchParams();
+    // 0 = false, 1 = true for YouTube API
+    if (autoplay) params.append('autoplay', '1');
+    if (!controls) params.append('controls', '0');
+    if (muted) params.append('mute', '1');
+    if (loop && videoId) {
+      params.append('loop', '1');
+      params.append('playlist', videoId); // Loop requires playlist param with videoId
+    }
+    params.append('rel', '0'); // Always hide related videos
+    return params.toString();
+  }, [autoplay, controls, muted, loop, videoId]);
+
   if (!videoId) {
     return <div className="text-red-500 text-sm">⚠️ Invalid YouTube URL</div>;
   }
 
   return (
-    <div className="w-full flex justify-center">
-      {/* Centered fixed-width player */}
-      <div
-        className={`relative w-full max-w-3xl overflow-hidden rounded-xl ${className}`}
-        style={{ paddingTop: '56.25%' }} // 16:9 aspect ratio
-      >
-        <iframe
-          className="absolute inset-0 h-full w-full rounded-xl"
-          src={`https://www.youtube.com/embed/${videoId}?rel=0`}
-          title={title || 'YouTube video'}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-          loading="lazy"
-        />
-      </div>
+    <div className="w-full h-full flex justify-center items-center bg-black">
+      <iframe
+        className={`w-full h-full aspect-video ${className || ''}`}
+        src={`https://www.youtube.com/embed/${videoId}?${queryParams}`}
+        title={title || 'YouTube video'}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
+        loading="lazy"
+      />
     </div>
   );
 }

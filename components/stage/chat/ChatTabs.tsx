@@ -37,7 +37,7 @@ export function ChatTabs({ tabs, activeTab, onChangeTab }: ChatTabsProps) {
   };
 
   return (
-    <div className="flex gap-4 px-4 py-4 items-center bg-blue-50/50 border-b border-blue-100 overflow-x-auto no-scrollbar scroll-smooth">
+    <div className="flex gap-4 px-4 py-4 items-center bg-blue-50/50 overflow-x-auto no-scrollbar scroll-smooth">
       {validTabs.map((tab) => {
         const isActive = chatTab === tab || activeTab === tab;
 

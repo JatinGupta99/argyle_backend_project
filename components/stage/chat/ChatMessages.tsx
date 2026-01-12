@@ -53,14 +53,14 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
     <ul className="space-y-6 px-4 pb-4">
       {sorted.map((m, index) => {
         const userData = (m as any).userId || (m as any).user;
-        const displayName = userData?.name || userData?.username || 'Anonymous';
+        const displayName = userData?.name || userData?.username || 'Guest User';
         const displayPicture = userData?.pictureUrl || userData?.avatar || '';
         const userRole = userData?.role || 'Attendee';
         const isOrganizer = userRole === RoleView.Moderator;
         const initials = getInitials(displayName);
 
         return (
-          <li key={m._id ?? `msg-${index}`} className="flex gap-4 animate-in fade-in slide-in-from-left-2 duration-300">
+          <li key={m._id ?? `msg-${index}`} className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-300">
             <Avatar className="h-10 w-10 flex-shrink-0 shadow-sm ring-2 ring-white border border-slate-100">
               <AvatarImage src={displayPicture} alt={displayName} className="object-cover" />
               <AvatarFallback className="text-[14px] font-black bg-[#1a9ad6] text-white">
@@ -68,25 +68,25 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0 pt-0.5">
-              <div className="flex flex-col mb-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[17px] font-black text-slate-900 tracking-tight truncate max-w-[180px] sm:max-w-none">
+              <div className="flex flex-col mb-1">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[15px] font-bold text-slate-900 tracking-tight truncate max-w-[180px] sm:max-w-none">
                     {displayName}
                   </span>
-                  <span className="text-[12px] text-slate-400 font-bold shrink-0 uppercase">
+                  <span className="text-[12px] text-slate-400 font-medium shrink-0">
                     {new Date(m.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
+                      hour: 'numeric',
                       minute: '2-digit',
                     })}
                   </span>
                 </div>
                 {isOrganizer && (
-                  <span className="text-[13px] font-bold text-orange-500 mt-[-2px]">
+                  <span className="text-[12px] font-bold text-amber-500 leading-none mt-0.5">
                     (Organizer)
                   </span>
                 )}
               </div>
-              <p className="text-[16px] text-slate-700 leading-relaxed break-words font-medium">
+              <p className="text-[15px] text-slate-600 leading-relaxed break-words font-medium">
                 {m.content}
               </p>
             </div>

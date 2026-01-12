@@ -33,7 +33,7 @@ export function BaseEventLayout({
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden bg-background">
           {/* Left Chat Sidebar */}
-          <aside className="w-[27%] border-r border-gray-200 bg-[#FAFAFA]">
+          <aside className="h-full flex-shrink-0 border-r border-gray-200 bg-[#FAFAFA] transition-all duration-300">
             <ChatPanel
               title3={ChatTab.Chat}
               role={role}

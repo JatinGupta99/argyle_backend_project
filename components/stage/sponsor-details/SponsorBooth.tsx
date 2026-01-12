@@ -2,6 +2,7 @@
 
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
+import { SplitLayout } from '@/components/stage/layout/SplitLayout';
 import SponsorDetails from '@/components/stage/sponsor-details/SponsorDetails';
 import { EventId, UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
@@ -16,8 +17,8 @@ export default function SponsorBooth({
   sponsor: Sponsor;
 }) {
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background">
-      <aside className="w-[27%] bg-[#FAFAFA] border-r">
+    <SplitLayout
+      sidebar={
         <ChatPanel
           title3={ChatTab.Chat}
           role={RoleView.Attendee}
@@ -26,14 +27,12 @@ export default function SponsorBooth({
           type={ChatSessionType.LIVE}
           tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
         />
-      </aside>
-
-      <main className="flex-1 flex flex-col overflow-hidden bg-white">
-        <Header title={sponsor.name} />
-        <div className="flex-1 overflow-auto">
-          <SponsorDetails sponsor={sponsor} eventId={eventId} />
-        </div>
-      </main>
-    </div>
+      }
+    >
+      <Header title={sponsor.name} />
+      <div className="flex-1 overflow-auto">
+        <SponsorDetails sponsor={sponsor} eventId={eventId} />
+      </div>
+    </SplitLayout>
   );
 }
