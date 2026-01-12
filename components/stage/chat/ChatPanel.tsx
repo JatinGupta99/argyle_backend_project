@@ -34,7 +34,10 @@ export function ChatPanel({
   const event = useEventContext();
 
   const [activeCategory, setActiveCategory] = useState<ChatCategoryType>(
-    tabs[0] ?? ChatCategoryType.EVERYONE
+    () => {
+      if (tabs.includes(ChatCategoryType.CHAT)) return ChatCategoryType.CHAT;
+      return tabs[0] ?? ChatCategoryType.EVERYONE;
+    }
   );
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(youtubeProp ?? null);
@@ -42,7 +45,14 @@ export function ChatPanel({
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
 
-  const { messages, isLoading, createMessage, refetch } = useMessages(
+  const {
+    messages,
+    isLoading,
+    createMessage,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useMessages(
     type,
     eventId,
     activeCategory
@@ -93,10 +103,9 @@ export function ChatPanel({
   const handleSendMessage = useCallback(
     async (text: string) => {
       if (!text.trim() || !currentUserId) return;
-      await createMessage(text, currentUserId);
-      refetch();
+      await createMessage(text);
     },
-    [createMessage, currentUserId, refetch]
+    [createMessage, currentUserId]
   );
 
   const activeLabel = useMemo(() => {
@@ -139,7 +148,7 @@ export function ChatPanel({
     <div
       className={cn(
         "flex flex-col h-full bg-blue-50/50 border-gray-200 text-gray-900 overflow-hidden transition-all duration-300 ease-in-out z-20 relative",
-        isCollapsed ? "w-[60px]" : "w-full md:w-[400px]"
+        isCollapsed ? "w-[60px]" : "w-full md:w-[340px]"
       )}
     >
       {/* Header */}
@@ -206,11 +215,14 @@ export function ChatPanel({
           <div className="flex-1 h-px bg-sky-200/50" />
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-2">
+        <div className="flex-1 min-h-0 px-2">
           <ChatMessages
             key={activeCategory}
             messages={messages ?? []}
             isLoading={isLoading}
+            fetchNextPage={fetchNextPage}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
           />
         </div>
 

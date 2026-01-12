@@ -8,11 +8,8 @@ export function useEvent(eventId: string) {
     () => apiClient.get(API_ROUTES.event.fetchById(eventId)),
     [eventId]
   );
-  console.log(data, 'aclsnlsacn')
   // While loading, event must be null — not undefined
   const event: Partial<Event> | null = isLoading ? null : (data ?? null);
-
-  console.log(event, 'event');
 
   return {
     event,

@@ -61,18 +61,25 @@ export function MessageCard(props: MessageCardProps) {
   };
 
   return (
-    <div className="group bg-white rounded-3xl p-5 md:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-500 relative overflow-hidden">
-      <div className="flex justify-between items-start mb-4">
+    <div className="group bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] hover:border-sky-100 transition-all duration-300 relative overflow-hidden">
+      <div className="flex justify-between items-start mb-5">
         <div className="flex gap-4">
-          {renderAvatar(post.userId)}
+          <div className="pt-1">
+            {renderAvatar(post.userId)}
+          </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-[15px] font-black text-slate-900 tracking-tight">
+            <div className="flex items-center gap-2 mb-0.5">
+              <h3 className="text-[15px] font-black text-slate-800 tracking-tight leading-none group-hover:text-sky-600 transition-colors">
                 {post.userId?.username || DEFAULT_USERNAME}
               </h3>
+              {post.userId?.role === 'admin' && ( // Example role badge
+                <span className="bg-sky-50 text-sky-600 text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">
+                  Admin
+                </span>
+              )}
             </div>
-            <p className="text-[11px] text-slate-400 font-bold font-mono">
-              {new Date(post.createdAt).toLocaleDateString()} at {new Date(post.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            <p className="text-[11px] text-slate-400 font-bold font-mono tracking-wide">
+              {new Date(post.createdAt).toLocaleDateString()} • {new Date(post.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
         </div>
@@ -81,22 +88,22 @@ export function MessageCard(props: MessageCardProps) {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400"
+              className="p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-300 hover:text-slate-600 opacity-0 group-hover:opacity-100"
             >
-              <MoreVertical size={20} />
+              <MoreVertical size={18} />
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-20 animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-100 py-1.5 z-20 animate-in fade-in zoom-in-95 duration-200">
                 {onEdit && (
                   <button
                     onClick={() => {
                       onEdit();
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 transition-colors"
                   >
-                    <Edit3 size={16} />
+                    <Edit3 size={15} />
                     Edit Post
                   </button>
                 )}
@@ -106,9 +113,9 @@ export function MessageCard(props: MessageCardProps) {
                       onDelete();
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-rose-500 hover:bg-rose-50 transition-colors"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={15} />
                     Delete Post
                   </button>
                 )}
@@ -118,31 +125,34 @@ export function MessageCard(props: MessageCardProps) {
         )}
       </div>
 
-      <div className="text-[15px] text-slate-700 leading-relaxed font-medium whitespace-pre-wrap mb-6 pl-1 border-l-2 border-sky-500/10">
+      <div className="text-[15px] text-slate-600 leading-relaxed font-medium whitespace-pre-wrap mb-6">
         {post.content}
       </div>
 
-      <div className="flex items-center gap-6 pt-5 border-t border-slate-50/50">
+      <div className="flex items-center gap-3 pt-5 border-t border-slate-50">
         <button
           onClick={liked ? onUnlike : onLike}
-          className={`flex items-center gap-2 transition-all group/action ${liked ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'}`}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 group/action ${liked
+            ? 'bg-rose-50 text-rose-500'
+            : 'hover:bg-slate-50 text-slate-400 hover:text-slate-600'}`}
         >
           <ThumbsUp
-            size={18}
-            className={`transition-all ${liked ? 'fill-rose-500 text-rose-500 scale-110' : 'group-hover/action:scale-110'}`}
+            size={16}
+            className={`transition-transform duration-300 ${liked ? 'fill-rose-500 scale-110' : 'group-hover/action:scale-110'}`}
           />
-          <span className="text-sm font-bold">Like</span>
-          {likeCount > 0 && <span className="text-xs font-black">{likeCount}</span>}
+          <span className="text-[13px] font-bold">{likeCount > 0 ? likeCount : 'Like'}</span>
         </button>
+
         <button
           onClick={onToggleExpand}
-          className="flex items-center gap-2 text-slate-400 hover:text-sky-500 transition-colors group/action"
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 group/action ${isExpanded
+            ? 'bg-sky-50 text-sky-600'
+            : 'hover:bg-slate-50 text-slate-400 hover:text-slate-600'}`}
         >
-          <MessageCircle size={18} className="group-hover/action:scale-110 transition-transform" />
-          <span className="text-sm font-bold">Comments</span>
-          {post.comments.length > 0 && (
-            <span className="text-xs font-black">{post.comments.length}</span>
-          )}
+          <MessageCircle size={17} className="group-hover/action:scale-110 transition-transform duration-300" />
+          <span className="text-[13px] font-bold">
+            {post.comments.length > 0 ? post.comments.length : 'Comment'}
+          </span>
         </button>
       </div>
 

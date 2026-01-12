@@ -6,7 +6,7 @@ function buildUrl(endpoint: string) {
 }
 
 export const apiClient = {
-  async get(endpoint: string) {
+  async get<T = any>(endpoint: string): Promise<T> {
     const response = await fetch(buildUrl(endpoint));
     if (!response.ok) {
       const errorText = await response.text();
@@ -19,7 +19,7 @@ export const apiClient = {
     return result?.data !== undefined ? result.data : result;
   },
 
-  async post(endpoint: string, data: any) {
+  async post<T = any>(endpoint: string, data: any): Promise<T> {
     const response = await fetch(buildUrl(endpoint), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -38,7 +38,7 @@ export const apiClient = {
     return result?.data !== undefined ? result.data : result;
   },
 
-  async put(endpoint: string, data: any) {
+  async put<T = any>(endpoint: string, data: any): Promise<T> {
     const response = await fetch(buildUrl(endpoint), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -57,7 +57,7 @@ export const apiClient = {
     return result?.data !== undefined ? result.data : result;
   },
 
-  async patch(endpoint: string, data: any) {
+  async patch<T = any>(endpoint: string, data: any): Promise<T> {
     const response = await fetch(buildUrl(endpoint), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -76,7 +76,7 @@ export const apiClient = {
     return result?.data !== undefined ? result.data : result;
   },
 
-  async delete(endpoint: string) {
+  async delete<T = any>(endpoint: string): Promise<T> {
     const response = await fetch(buildUrl(endpoint), {
       method: 'DELETE',
     });

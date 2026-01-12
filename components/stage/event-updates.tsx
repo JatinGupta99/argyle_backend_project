@@ -82,23 +82,25 @@ export function EventUpdates({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/30 dark:bg-slate-900/10">
+    <div className="flex flex-col h-full bg-white">
       <RoleGuard permission="post:create">
-        <div className="p-6 md:p-8 bg-white dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_-12px_rgba(0,0,0,0.05)] z-10 sticky top-0 backdrop-blur-md">
-          <SocialInput
-            value={newPostContent}
-            onChange={setNewPostContent}
-            onSend={handleCreatePost}
-            placeholder="Broadcast an update..."
-            variant="broadcast"
-            hideAvatar={false}
-            avatarText={currentUserId}
-          />
+        <div className="w-full px-8 md:px-12 py-6 z-10 sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-50">
+          <div className="max-w-[50rem]">
+            <SocialInput
+              value={newPostContent}
+              onChange={setNewPostContent}
+              onSend={handleCreatePost}
+              placeholder="Share an update with attendees..."
+              variant="broadcast"
+              hideAvatar={false}
+              avatarText={currentUserId}
+            />
+          </div>
         </div>
       </RoleGuard>
 
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-10 pt-8 custom-scrollbar">
-        <div className="max-w-4xl mx-auto space-y-10">
+      <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-20 custom-scrollbar">
+        <div className="max-w-[60rem] space-y-6 pt-6">
           {safePosts.length > 0 ? (
             safePosts
               .slice()
@@ -134,12 +136,14 @@ export function EventUpdates({
                 </div>
               ))
           ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 border border-blue-100/50">
-                <Loader2 className="text-blue-200" size={40} />
+            <div className="flex flex-col items-center justify-center py-24 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200 mt-4">
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm ring-1 ring-slate-100">
+                <Loader2 className="text-sky-500 animate-[spin_3s_linear_infinite]" size={28} />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Stay tuned!</h3>
-              <p className="text-gray-400 max-w-xs mx-auto">No event updates have been posted yet. They will appear here once available.</p>
+              <h3 className="text-lg font-black text-slate-800 mb-2">Updates Coming Soon</h3>
+              <p className="text-slate-500 max-w-sm mx-auto text-sm leading-relaxed">
+                The event team hasn't posted any updates yet. <br /> Keep an eye on this feed for announcements!
+              </p>
             </div>
           )}
         </div>

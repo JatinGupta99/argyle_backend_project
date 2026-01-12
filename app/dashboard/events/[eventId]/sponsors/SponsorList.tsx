@@ -54,7 +54,7 @@ export default function SponsorList({ event }: { event: any }) {
             className="w-full text-left focus:outline-none"
           >
             <SponsorCardMemo
-              imageSrc={signedLogoUrls[sponsor._id] || sponsor.logoKey}
+              imageSrc={signedLogoUrls[sponsor._id] || ''}
               name={sponsor.name}
             />
           </button>

@@ -9,15 +9,16 @@ export function initializeSocket(): Socket {
   if (socket) return socket;
 
   socket = io(SOCKET_URL, {
+    transports: ['websocket'], // Force WebSocket to avoid xhr poll errors
     reconnection: true,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     reconnectionAttempts: 5,
   });
 
-  socket.on('connect', () => {});
+  socket.on('connect', () => { });
 
-  socket.on('disconnect', () => {});
+  socket.on('disconnect', () => { });
 
   socket.on('connect_error', (error) => {
     console.error('[Socket] Connection error:', error);

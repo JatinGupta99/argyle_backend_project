@@ -1,5 +1,6 @@
 import type React from 'react';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
+import { QueryProvider } from '@/components/providers/QueryProvider';
 import './globals.css';
 
 import { Inter } from 'next/font/google';
@@ -22,9 +23,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-background`}>
         <ReduxProvider>
-          <AuthProvider>
-            <SidebarProvider>{children}</SidebarProvider>
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <SidebarProvider>{children}</SidebarProvider>
+            </AuthProvider>
+          </QueryProvider>
         </ReduxProvider>
       </body>
     </html>
