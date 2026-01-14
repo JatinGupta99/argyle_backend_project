@@ -82,7 +82,7 @@ export function SocialInput({
             {/* Emoji Picker - Positioned responsibly */}
             <div
                 ref={pickerRef}
-                className={`absolute z-[100] transition-all duration-300 transform shadow-2xl rounded-2xl overflow-hidden border border-slate-100 ${isBroadcast ? 'top-full left-0 mt-2 origin-top-left' : 'bottom-full right-0 mb-2 origin-bottom-right'
+                className={`absolute z-[100] transition-all duration-300 transform shadow-2xl rounded-2xl overflow-x-auto border border-slate-100 ${isBroadcast ? 'top-full left-0 mt-2 origin-top-left' : 'bottom-full right-0 mb-2 origin-bottom-right'
                     } w-[calc(100vw-64px)] sm:w-[320px] max-w-[280px] ${showEmojiPicker ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
                     }`}
             >
@@ -105,8 +105,8 @@ export function SocialInput({
                 )}
 
                 <div className={`flex-1 flex flex-col transition-all duration-300 ${isBroadcast
-                        ? 'bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 p-4 md:p-6 shadow-inner focus-within:ring-2 focus-within:ring-blue-500/20'
-                        : 'bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-sky-500/20'
+                    ? 'bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 p-4 md:p-6 shadow-inner focus-within:ring-2 focus-within:ring-blue-500/20'
+                    : 'bg-background rounded-2xl border border-border shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-sky-500/20'
                     }`}>
                     <textarea
                         ref={textareaRef}
@@ -117,8 +117,8 @@ export function SocialInput({
                         disabled={disabled}
                         rows={1}
                         className={`w-full bg-transparent border-none outline-none font-medium resize-none custom-scrollbar ${isBroadcast
-                                ? 'text-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 min-h-[80px]'
-                                : 'text-[14px] text-slate-900 placeholder-slate-400 px-5 py-3'
+                            ? 'text-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 min-h-[80px]'
+                            : 'text-[14px] text-slate-900 placeholder-slate-400 px-5 py-3'
                             }`}
                     />
 
@@ -129,8 +129,8 @@ export function SocialInput({
                                 ref={triggerRef}
                                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                                 className={`p-1.5 rounded-lg cursor-pointer transition-all ${showEmojiPicker
-                                        ? 'bg-blue-100 text-blue-600'
-                                        : 'text-slate-400 hover:text-blue-500 hover:bg-blue-50'
+                                    ? 'bg-blue-100 text-blue-600'
+                                    : 'text-slate-400 hover:text-blue-500 hover:bg-blue-50'
                                     }`}
                             >
                                 <Smile size={isBroadcast ? 20 : 18} />
@@ -146,8 +146,8 @@ export function SocialInput({
                             onClick={onSend}
                             disabled={!value.trim() || disabled}
                             className={`flex items-center gap-2 transition-all disabled:opacity-30 ${isBroadcast
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/30'
-                                    : 'text-sky-500 hover:bg-sky-50 p-1.5 rounded-lg'
+                                ? 'bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/30'
+                                : 'text-sky-500 hover:bg-sky-50 p-1.5 rounded-lg'
                                 }`}
                         >
                             {isBroadcast && <Send size={18} />}

@@ -37,8 +37,16 @@ export function useEventRole(event: Event, role: Role) {
       : useDailyMediaControls(base.callObject);
   const live =
     role === ROLES.MODERATOR
-      ? useLiveState(base.callObject, eventId)
+      ? useLiveState(base.callObject, eventId, roomUrl || '')
       : { isLive: false, toggleLive: undefined, isLoading: false };
+  useEffect(() => {
+    if (base.ready && base.callObject && role === ROLES.MODERATOR) {
+      console.log('[useEventRole] Auto-muting Moderator on mount');
+      base.callObject.setLocalAudio(false);
+      base.callObject.setLocalVideo(false);
+    }
+  }, [base.ready, base.callObject, role]);
+
   return {
     ...base,
     ...media,

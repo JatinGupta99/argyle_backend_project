@@ -28,7 +28,13 @@ export function useDailyBase(
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const currentRoomUrlRef = useRef<string | null>(null);
+  const userNameRef = useRef<string>(userName);
   const isJoiningRef = useRef(false);
+
+  // Sync refs safely
+  useEffect(() => {
+    userNameRef.current = userName;
+  }, [userName]);
 
   // 1. Singleton & event subscriptions
   useEffect(() => {
@@ -43,14 +49,22 @@ export function useDailyBase(
       const roomInfo = await co.room();
       const currentRoomName = roomInfo && 'name' in roomInfo ? roomInfo.name : null;
 
-      console.log('[useDailyBase] Joined meeting event:', { currentRoomName, intendedUrl: currentRoomUrlRef.current });
-      if (currentRoomName && currentRoomUrlRef.current?.includes(currentRoomName)) {
-        setReady(true);
-        setError(null);
-      } else if (!currentRoomUrlRef.current) {
-        setReady(true);
-      }
+      setReady(true);
+      setError(null);
       isJoiningRef.current = false;
+
+      // Duplicate-session ejection logic
+      const participants = co.participants();
+      const localId = participants.local?.session_id;
+      const currentUserName = userNameRef.current;
+
+      console.log('[useDailyBase] Checking for duplicate sessions for:', currentUserName);
+      Object.values(participants).forEach((p: any) => {
+        if (p.session_id !== localId && p.user_name === currentUserName) {
+          console.warn('[useDailyBase] Found duplicate session for user, sending ejection request:', p.session_id);
+          co.sendAppMessage({ type: 'duplicate-session', eject: true }, p.session_id);
+        }
+      });
     };
 
     const handleLeft = () => {
@@ -65,15 +79,25 @@ export function useDailyBase(
       isJoiningRef.current = false;
     };
 
+    const handleAppMessage = (ev: any) => {
+      console.log('[useDailyBase] App Message received:', ev);
+      if (ev?.data?.type === 'duplicate-session' && ev?.data?.eject === true) {
+        console.warn('[useDailyBase] Received ejection request due to duplicate session. Leaving...');
+        co.leave();
+      }
+    };
+
     co.on('joined-meeting', handleJoined);
     co.on('left-meeting', handleLeft);
     co.on('error', handleError);
+    co.on('app-message', handleAppMessage);
 
     return () => {
       activeHooks--;
       co.off('joined-meeting', handleJoined);
       co.off('left-meeting', handleLeft);
       co.off('error', handleError);
+      co.off('app-message', handleAppMessage);
 
       // Only leave if no hooks are active and we aren't already left (Debounced for Strict Mode)
       setTimeout(() => {
@@ -122,8 +146,9 @@ export function useDailyBase(
 
         // Already in the desired room
         if (inCorrectRoom) {
-          console.log('[useDailyBase] DEBUG: Already in room, ready');
+          console.log('[useDailyBase] DEBUG: Already in room, setting ready');
           setReady(true);
+          setError(null);
           isJoiningRef.current = false;
           return;
         }
@@ -159,6 +184,15 @@ export function useDailyBase(
 
     joinRoom();
   }, [enable, roomUrl, userName, token]);
+
+  // 3. Sync userName if it changes while joined
+  useEffect(() => {
+    const co = globalCallInstance;
+    if (co && co.meetingState() === 'joined-meeting' && userName && co.participants().local?.user_name !== userName) {
+      console.log('[useDailyBase] Syncing userName to Daily:', userName);
+      co.setUserName(userName);
+    }
+  }, [userName]);
 
   return { callObject: instance, ready, error };
 }

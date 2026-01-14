@@ -30,7 +30,7 @@ export default function PreRecordedPage() {
     return (
         <div className="flex w-full h-full bg-black overflow-hidden relative">
             {/* Chat Section - Wrapper needs to be flexible or fixed height to allow ChatPanel to manage width */}
-            <div className="h-full z-10 border-r border-slate-200 bg-white shadow-xl">
+            <div className="h-full z-10 border-r border-border bg-background shadow-xl">
                 <ChatPanel
                     title3={ChatTab.Chat}
                     role={RoleView.Attendee}

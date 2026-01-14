@@ -39,9 +39,9 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar className="w-64 border-r border-slate-100 bg-white">
+    <Sidebar className="w-64 bg-background">
       {/* Header */}
-      <SidebarHeader className="h-auto flex items-center px-6 py-8 bg-white border-none">
+      <SidebarHeader className="h-auto flex items-center px-6 py-8 bg-background border-none">
         <Image
           src="/argyle-logo.png"
           alt="Argyle"
@@ -52,7 +52,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       {/* Sidebar content */}
-      <SidebarContent className="p-0 bg-white">
+      <SidebarContent className="p-0 bg-background">
         <SidebarMenu className="gap-0">
           {/* Lobby dropdown */}
           <SidebarMenuItem>
@@ -60,13 +60,13 @@ export function AppSidebar() {
               onClick={() => setOpenLobby((prev) => !prev)}
               className={cn(
                 'flex items-center gap-3 px-6 py-4 h-auto rounded-none font-bold transition-all duration-200 group relative w-full hover:bg-transparent',
-                'text-slate-900'
+                'text-[#000000]'
               )}
             >
               <span className="text-[16px]">Lobby</span>
               <ChevronDown
                 className={cn(
-                  'transition-transform ml-auto text-slate-900',
+                  'transition-transform ml-auto text-[#000000]',
                   openLobby ? 'rotate-180' : 'rotate-0'
                 )}
                 strokeWidth={2.5}
@@ -90,8 +90,8 @@ export function AppSidebar() {
                         className={cn(
                           'block w-full text-left pl-10 pr-6 py-3 text-[15px] font-medium transition-all relative',
                           isActive
-                            ? 'bg-[#1da1f2] text-white hover:bg-[#1a91da]'
-                            : 'text-slate-600 hover:text-[#1da1f2] hover:bg-sky-50/50'
+                            ? 'bg-[#71cdfa] text-[#000a28] hover:bg-[#71cdfa]/90'
+                            : 'text-slate-600 hover:text-[#71cdfa] hover:bg-sky-50/50'
                         )}
                       >
                         {sub.label}
@@ -110,8 +110,8 @@ export function AppSidebar() {
               className={cn(
                 'flex items-center gap-3 px-6 py-4 rounded-none font-bold transition-all w-full',
                 pathname === stagePath
-                  ? 'bg-[#1da1f2] text-white hover:bg-[#1a91da]'
-                  : 'text-slate-900 hover:bg-sky-50/30 hover:text-[#1da1f2]'
+                  ? 'bg-[#71cdfa] text-[#000a28] hover:bg-[#71cdfa]/90'
+                  : 'text-[#000000] hover:bg-sky-50/30 hover:text-[#71cdfa]'
               )}
             >
               <span className="text-[16px]">Stage</span>
@@ -141,8 +141,8 @@ export function AppSidebar() {
               className={cn(
                 'flex items-center gap-3 px-6 py-4 rounded-none font-bold transition-all w-full',
                 pathname === `/dashboard/events/${eventId}/sponsors`
-                  ? 'bg-[#1da1f2] text-white hover:bg-[#1a91da]'
-                  : 'text-slate-900 hover:bg-sky-50/30 hover:text-[#1da1f2]'
+                  ? 'bg-[#71cdfa] text-[#000a28] hover:bg-[#71cdfa]/90'
+                  : 'text-[#000000] hover:bg-sky-50/30 hover:text-[#71cdfa]'
               )}
             >
               <span className="text-[16px]">Sponsor</span>
@@ -152,7 +152,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="items-center text-[10px] text-slate-300 px-6 py-6 font-bold uppercase tracking-widest bg-white border-none mt-auto">
+      <SidebarFooter className="items-center text-[10px] text-slate-300 px-6 py-6 font-bold uppercase tracking-widest bg-background border-none mt-auto">
         © {new Date().getFullYear()} Argyle
       </SidebarFooter>
     </Sidebar>

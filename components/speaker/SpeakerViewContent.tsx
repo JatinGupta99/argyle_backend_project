@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useDailySpeaker } from '@/hooks/useDailySpeaker';
 import { DailyAudio, DailyProvider, DailyVideo, useLocalParticipant, useParticipantIds, useParticipantProperty, useScreenShare } from '@daily-co/daily-react';
-import { AlertCircle, Clock, Loader2, Mic, MicOff, Radio, Shield, Video, VideoOff } from 'lucide-react';
+import { Clock, Loader2, Mic, MicOff, Radio, Shield, ShieldAlert, Video, VideoOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ParticipantTile } from './ParticipantTile';
 import { SpeakerControls } from './SpeakerControls';
@@ -42,6 +42,7 @@ function SpeakerInterface({
   seconds,
   hasBeenLive,
   endEvent,
+  isTimeReached,
 }: {
   isLive: boolean;
   isRecording: boolean;
@@ -62,6 +63,7 @@ function SpeakerInterface({
   seconds: number;
   hasBeenLive: boolean;
   endEvent: () => void;
+  isTimeReached?: boolean;
 }) {
   const localParticipant = useLocalParticipant();
   const participantIds = useParticipantIds();
@@ -108,9 +110,9 @@ function SpeakerInterface({
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-black">
       {/* Header / Status Bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-b bg-card h-16 flex-none">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/50 backdrop-blur-md h-16 flex-none">
         <div className="flex items-center gap-3">
           {isLive ? (
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
@@ -145,7 +147,7 @@ function SpeakerInterface({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 bg-slate-50 dark:bg-slate-950 overflow-hidden relative">
+      <div className="flex-1 bg-black overflow-hidden relative">
 
 
         {/* MODE: SCREEN SHARE */}
@@ -259,6 +261,7 @@ function SpeakerInterface({
         onToggleLive={toggleLive}
         onEndEvent={role === ROLES.MODERATOR ? endEvent : undefined}
         isLoading={isLoading}
+        isTimeReached={isTimeReached}
       />
     </div>
   );
@@ -277,6 +280,25 @@ export function SpeakerViewContent({
 }: SpeakerViewContentProps) {
   const [hasJoined, setHasJoined] = useState(false);
   const [hasBeenLive, setHasBeenLive] = useState(false);
+  const [isTimeReached, setIsTimeReached] = useState<boolean>(() => {
+    const target = startTime ? new Date(startTime) : new Date();
+    return new Date() >= target;
+  });
+
+  useEffect(() => {
+    if (isTimeReached || !startTime) return;
+
+    const targetDate = new Date(startTime);
+    const interval = setInterval(() => {
+      if (new Date() >= targetDate) {
+        setIsTimeReached(true);
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [startTime, isTimeReached]);
+
   const role = normalizeRole(initialRole);
 
   const {
@@ -314,23 +336,36 @@ export function SpeakerViewContent({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center gap-4">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600">
-          <AlertCircle className="w-8 h-8" />
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Connection Error</h3>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-            {error}
+      <div className="flex flex-col items-center justify-center h-full bg-[#000a28] text-white p-6 animate-in fade-in duration-500">
+        <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-10 flex flex-col items-center text-center shadow-2xl">
+          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6 border border-red-500/20">
+            <ShieldAlert className="w-10 h-10 text-red-400" />
+          </div>
+
+          <h3 className="text-2xl font-bold text-white mb-3">Connection Interrupted</h3>
+
+          <p className="text-slate-400 leading-relaxed mb-8">
+            {error === 'Meeting has ended'
+              ? 'The broadcast has ended. Thank you for joining us.'
+              : 'We encountered an issue connecting to the stage. This might be due to a network interruption.'}
           </p>
+
+          <Button
+            size="lg"
+            onClick={() => window.location.reload()}
+            className="w-full h-12 bg-white text-[#000a28] hover:bg-slate-200 font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Reconnect to Stage
+          </Button>
+
+          {error && error !== 'Meeting has ended' && (
+            <div className="mt-6 p-3 bg-red-500/10 border border-red-500/10 rounded-xl w-full">
+              <p className="text-[11px] font-mono text-red-300/80 break-all">
+                Error Code: {error}
+              </p>
+            </div>
+          )}
         </div>
-        <Button
-          variant="outline"
-          onClick={() => window.location.reload()}
-          className="mt-2"
-        >
-          Retry Connection
-        </Button>
       </div>
     );
   }
@@ -429,7 +464,7 @@ export function SpeakerViewContent({
                       variant={isMicOn ? "outline" : "destructive"}
                       size="icon"
                       onClick={toggleMic}
-                      className={`w-12 h-12 rounded-xl transition-all ${isMicOn ? 'bg-white/10 border-white/10' : ''}`}
+                      className={`w-12 h-12 rounded-xl transition-all ${isMicOn ? 'bg-background/10 border-border/10' : ''}`}
                     >
                       {isMicOn ? <Mic className="w-5 h-5 text-white" /> : <MicOff className="w-5 h-5 text-white" />}
                     </Button>
@@ -443,7 +478,7 @@ export function SpeakerViewContent({
                       variant={isCamOn ? "outline" : "destructive"}
                       size="icon"
                       onClick={toggleCam}
-                      className={`w-12 h-12 rounded-xl transition-all ${isCamOn ? 'bg-white/10 border-white/10' : ''}`}
+                      className={`w-12 h-12 rounded-xl transition-all ${isCamOn ? 'bg-background/10 border-border/10' : ''}`}
                     >
                       {isCamOn ? <Video className="w-5 h-5 text-white" /> : <VideoOff className="w-5 h-5 text-white" />}
                     </Button>
@@ -511,6 +546,7 @@ export function SpeakerViewContent({
         seconds={seconds}
         hasBeenLive={hasBeenLive}
         endEvent={endEvent}
+        isTimeReached={isTimeReached}
       />
     </DailyProvider>
   );

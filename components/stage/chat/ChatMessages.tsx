@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2 } from 'lucide-react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Message } from '@/lib/types/api';
 import { RoleView } from '@/lib/slices/uiSlice';
@@ -15,15 +15,21 @@ interface ChatMessagesProps {
   isFetchingNextPage?: boolean;
 }
 
-export function ChatMessages({
+export interface ChatMessagesRef {
+  scrollToBottom: () => void;
+}
+
+export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
   messages,
   isLoading,
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage
-}: ChatMessagesProps) {
+}, ref) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const prevCount = useRef(messages.length);
+  const [atBottom, setAtBottom] = useState(true);
+  const [showScrollButton, setShowScrollButton] = useState(false); // Can be used for "New Messages" indicator later
 
   const sorted = useMemo(
     () =>
@@ -38,20 +44,38 @@ export function ChatMessages({
     [messages]
   );
 
-  useEffect(() => {
-    // If messages were added (new messages arrived), scroll to the bottom
-    if (messages.length > prevCount.current) {
-      // Small timeout to ensure Virtuoso has processed the new item
+  useImperativeHandle(ref, () => ({
+    scrollToBottom: () => {
+      // Force scroll to bottom immediately (for user sent messages)
       setTimeout(() => {
         virtuosoRef.current?.scrollToIndex({
           index: sorted.length - 1,
           behavior: 'smooth',
           align: 'end',
         });
-      }, 100);
+      }, 50);
+    }
+  }));
+
+  useEffect(() => {
+    // If messages were added
+    if (messages.length > prevCount.current) {
+      // Only auto-scroll if user was already at the bottom
+      if (atBottom) {
+        setTimeout(() => {
+          virtuosoRef.current?.scrollToIndex({
+            index: sorted.length - 1,
+            behavior: 'smooth',
+            align: 'end',
+          });
+        }, 100);
+      } else {
+        // Here we could show a "New messages below" toast
+        setShowScrollButton(true);
+      }
     }
     prevCount.current = messages.length;
-  }, [messages.length, sorted.length]);
+  }, [messages.length, sorted.length, atBottom]);
 
   const getInitials = (name: string) => {
     if (!name) return 'U';
@@ -94,19 +118,19 @@ export function ChatMessages({
 
     return (
       <div className="flex gap-3 mb-6 pr-4 animate-in fade-in slide-in-from-left-2 duration-300">
-        <Avatar className="h-10 w-10 flex-shrink-0 shadow-sm ring-2 ring-white border border-slate-100">
+        <Avatar className="h-10 w-10 flex-shrink-0 shadow-sm ring-2 ring-background border border-border">
           <AvatarImage src={displayPicture} alt={displayName} className="object-cover" />
-          <AvatarFallback className="text-[14px] font-black bg-[#1a9ad6] text-white">
+          <AvatarFallback className="text-[14px] font-black bg-accent text-white">
             {initials}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0 pt-0.5">
           <div className="flex flex-col mb-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-[15px] font-bold text-slate-900 tracking-tight truncate max-w-[180px] sm:max-w-none">
+              <span className="text-[15px] font-bold text-[#000000] tracking-tight truncate max-w-[180px] sm:max-w-none">
                 {displayName}
               </span>
-              <span className="text-[12px] text-slate-400 font-medium shrink-0">
+              <span className="text-[12px] text-muted-foreground/60 font-medium shrink-0">
                 {new Date(m.createdAt).toLocaleTimeString([], {
                   hour: 'numeric',
                   minute: '2-digit',
@@ -114,20 +138,18 @@ export function ChatMessages({
               </span>
             </div>
             {isOrganizer && (
-              <span className="text-[12px] font-bold text-amber-500 leading-none mt-0.5">
+              <span className="text-[12px] font-bold text-warning leading-none mt-0.5">
                 (Organizer)
               </span>
             )}
           </div>
-          <p className="text-[15px] text-slate-600 leading-relaxed break-words font-medium">
+          <p className="text-[15px] text-[#000000] leading-relaxed break-words font-normal">
             {m.content}
           </p>
         </div>
       </div>
     );
   };
-
-  const showScrollButton = false; // Placeholder for future scroll-to-bottom button
 
   return (
     <Virtuoso
@@ -137,7 +159,11 @@ export function ChatMessages({
       initialTopMostItemIndex={Math.max(0, sorted.length - 1)}
       increaseViewportBy={200}
       atBottomThreshold={100}
-      alignToBottom={true}
+      alignToBottom={true} // Consider removing if deprecated, but keeping for safety as per original
+      atBottomStateChange={(isAtBottom) => {
+        setAtBottom(isAtBottom);
+        if (isAtBottom) setShowScrollButton(false);
+      }}
       computeItemKey={(index, item) => item._id || index}
       startReached={() => {
         if (hasNextPage && !isFetchingNextPage) {
@@ -156,4 +182,6 @@ export function ChatMessages({
       }}
     />
   );
-}
+});
+
+ChatMessages.displayName = 'ChatMessages';

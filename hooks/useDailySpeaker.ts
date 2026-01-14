@@ -54,6 +54,16 @@ export function useDailySpeaker({
   }, [baseError]);
 
   const loading = !ready;
+  const isModerator = role === ROLES.MODERATOR;
+
+  // 5. Default Moderators to OFF (Camera/Mic)
+  useEffect(() => {
+    if (ready && callObject && isModerator) {
+      console.log('[useDailySpeaker] Auto-muting Moderator on join');
+      callObject.setLocalAudio(false);
+      callObject.setLocalVideo(false);
+    }
+  }, [ready, callObject, isModerator]);
 
   return {
     callObject,

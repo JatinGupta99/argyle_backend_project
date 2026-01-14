@@ -24,9 +24,13 @@ function EventPageContent() {
   const token = searchParams.get('token');
 
   const [imageSignedUrl, setImageSignedUrl] = useState<string | null>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const eventId = event._id as string;
   const currentUserId = userId || UserID;
+
+  const maxWidthClass = isSidebarCollapsed ? 'max-w-[75rem]' : 'max-w-[60rem]';
+  const inputMaxWidthClass = isSidebarCollapsed ? 'max-w-[65rem]' : 'max-w-[50rem]';
 
   useEffect(() => {
     if (role) return;
@@ -69,6 +73,8 @@ function EventPageContent() {
           currentUserId={currentUserId}
           type={ChatSessionType.PRE_LIVE}
           tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
+          collapsed={isSidebarCollapsed}
+          onToggleCollapse={setIsSidebarCollapsed}
         />
       }
     >
@@ -77,10 +83,13 @@ function EventPageContent() {
         <EventHeader
           title={event.title || ''}
           imageSrc={imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp'}
+          maxWidthClass={maxWidthClass}
         />
         <EventUpdates
           eventId={eventId}
           currentUserId={currentUserId}
+          maxWidthClass={maxWidthClass}
+          inputMaxWidthClass={inputMaxWidthClass}
         />
       </div>
     </SplitLayout>

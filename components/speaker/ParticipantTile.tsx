@@ -74,7 +74,7 @@ export function ParticipantTile({ sessionId, className, isLocal }: ParticipantTi
                 </span>
                 {isSpeaking && (
                     <div className="flex items-center gap-1 text-white animate-pulse">
-                        <div className="w-1 h-1 bg-white rounded-full" />
+                        <div className="w-1 h-1 bg-background rounded-full" />
                     </div>
                 )}
             </div>

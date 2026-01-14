@@ -13,7 +13,7 @@ export function SplitLayout({ sidebar, children, className }: SplitLayoutProps) 
             <aside className="h-full bg-[#FAFAFA] border-r flex-shrink-0 transition-all duration-300 z-10">
                 {sidebar}
             </aside>
-            <main className="flex-1 flex flex-col overflow-hidden bg-white">
+            <main className="flex-1 flex flex-col overflow-hidden bg-background">
                 {children}
             </main>
         </div>

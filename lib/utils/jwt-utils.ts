@@ -103,3 +103,8 @@ export function determineRoleWithFallback(
     return ROLES.ATTENDEE;
 }
 
+export function extractNameFromToken(token: string): string | null {
+    const payload = getTokenPayload<InviteTokenPayload>(token);
+    return payload?.name || payload?.email || null;
+}
+

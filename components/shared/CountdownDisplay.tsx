@@ -50,7 +50,7 @@ export function CountdownDisplay({
 
     const TimeBox = ({ value, label }: { value: number; label: string }) => (
         <div className="flex flex-col items-center gap-2">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl shadow-2xl flex items-center justify-center border border-slate-100 ring-1 ring-black/5">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-background rounded-xl shadow-2xl flex items-center justify-center border border-border ring-1 ring-black/5">
                 <span className="text-3xl sm:text-4xl font-black text-[#1da1f2] tracking-tighter">
                     {value.toString().padStart(2, '0')}
                 </span>

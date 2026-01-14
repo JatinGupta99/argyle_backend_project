@@ -1,19 +1,7 @@
-'use client';
+import { RoomStateDisplay } from './RoomStateDisplay';
+import { Clock, Radio, Play } from 'lucide-react';
 
-import { useCountdown } from '@/hooks/useCountdown';
-import { DailyTokenPayload } from '@/lib/types/daily';
-import DailyIframe from '@daily-co/daily-js';
-import { getTokenPayload } from '@/lib/utils/jwt-utils';
-import { Role } from '@/app/auth/roles';
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-interface DailyRoomProps {
-  token?: string;
-  startTime: Date;
-  roomUrl?: string;
-  eventIsLive: boolean;
-  role?: Role;
-}
+// ... imports
 
 function DailyRoom({ token, startTime, roomUrl, eventIsLive, role }: DailyRoomProps) {
   const { hours, minutes, seconds } = useCountdown(startTime);
@@ -21,94 +9,66 @@ function DailyRoom({ token, startTime, roomUrl, eventIsLive, role }: DailyRoomPr
   const iframeRef = useRef<HTMLDivElement>(null);
   const callFrameRef = useRef<any>(null);
 
-  const decoded = useMemo(() => {
-    if (!token) return null;
-    return getTokenPayload<DailyTokenPayload>(token);
-  }, [token]);
-  console.log('Decoded Daily token:', decoded);
-  const detectedRole = decoded?.u ?? 'attendee';
-  useEffect(() => {
-    if (!eventIsLive || !userClickedJoin || !iframeRef.current) return;
-
-    if (!callFrameRef.current) {
-      callFrameRef.current = DailyIframe.createFrame(iframeRef.current, {
-        iframeStyle: {
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          border: '0',
-          borderRadius: '12px',
-        },
-        showLeaveButton: true,
-        showFullscreenButton: true,
-      });
-
-      callFrameRef.current
-        .join({ url: roomUrl, token })
-        .then(() => {
-          console.log(' Joined Daily room as', detectedRole);
-        })
-        .catch((error: any) => {
-          console.error(' Failed to join Daily room:', error);
-        });
-    }
-    return () => {
-      if (callFrameRef.current) {
-        callFrameRef.current.leave();
-        callFrameRef.current.destroy();
-        callFrameRef.current = null;
-      }
-    };
-  }, [eventIsLive, userClickedJoin, roomUrl, token, detectedRole]);
+  // ... (existing logic)
 
   if (!eventIsLive) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-2">
-        <p className="text-lg">Event starts in</p>
-        <p className="font-bold text-green-400 animate-pulse font-mono text-2xl">
-          {hours.toString().padStart(2, '0')}:
-          {minutes.toString().padStart(2, '0')}:
-          {seconds.toString().padStart(2, '0')}
-        </p>
-        {seconds <= 0 && !userClickedJoin && (
-          <button
-            onClick={() => setUserClickedJoin(true)}
-            className="mt-4 px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg text-white font-semibold transition-colors"
-          >
-            Join Event
-          </button>
-        )}
-      </div>
+      <RoomStateDisplay
+        icon={Clock}
+        title="Event Starts Soon"
+        description="The broadcast has not started yet. Please wait for the scheduled time."
+        action={
+          <div className="flex flex-col items-center gap-4 w-full">
+            <div className="text-4xl font-mono font-bold text-primary tracking-widest bg-primary/5 px-6 py-2 rounded-xl border border-primary/10">
+              {hours.toString().padStart(2, '0')}:
+              {minutes.toString().padStart(2, '0')}:
+              {seconds.toString().padStart(2, '0')}
+            </div>
+            {seconds <= 0 && !userClickedJoin && (
+              <button
+                onClick={() => setUserClickedJoin(true)}
+                className="mt-2 px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+              >
+                Join Event
+              </button>
+            )}
+          </div>
+        }
+      />
     );
   }
 
   if (!userClickedJoin) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4">
-        <div className="text-center">
-          {/* <div className="inline-block px-3 py-1 bg-red-600 rounded-full text-xs font-bold mb-3 animate-pulse">
-            🔴 LIVE
-          </div> */}
-          <p className="text-xl font-semibold">Event is Live!</p>
-          <p className="text-gray-400 mt-2">
-            Joining as: <span className="text-green-400 capitalize">{detectedRole}</span>
-          </p>
-        </div>
-        <button
-          onClick={() => setUserClickedJoin(true)}
-          className="px-8 py-4 bg-green-500 hover:bg-green-600 rounded-lg text-white font-semibold transition-colors shadow-lg"
-        >
-          Join Event Now
-        </button>
-      </div>
+      <RoomStateDisplay
+        variant="success"
+        icon={Radio}
+        title="Event is Live!"
+        description={`You are about to join the stage as a ${detectedRole}.`}
+        action={
+          <button
+            onClick={() => setUserClickedJoin(true)}
+            className="flex items-center gap-2 px-10 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-lg shadow-xl shadow-green-900/20 transition-all hover:scale-105 active:scale-95"
+          >
+            <Play size={20} fill="currentColor" /> Join Event Now
+          </button>
+        }
+      />
     );
   }
 
   return (
-    <div className="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden">
+    <div className="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10">
       <div ref={iframeRef} className="w-full h-full" />
     </div>
   );
+}
+
+return (
+  <div className="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden">
+    <div ref={iframeRef} className="w-full h-full" />
+  </div>
+);
 }
 
 export default DailyRoom;

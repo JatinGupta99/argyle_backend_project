@@ -61,7 +61,7 @@ export function MessageCard(props: MessageCardProps) {
   };
 
   return (
-    <div className="group bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] hover:border-sky-100 transition-all duration-300 relative overflow-hidden">
+    <div className="group bg-background rounded-[24px] p-6 border border-border shadow-[0_2px_8px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)] hover:border-sky-100 transition-all duration-300 relative overflow-hidden">
       <div className="flex justify-between items-start mb-5">
         <div className="flex gap-4">
           <div className="pt-1">
@@ -69,7 +69,7 @@ export function MessageCard(props: MessageCardProps) {
           </div>
           <div>
             <div className="flex items-center gap-2 mb-0.5">
-              <h3 className="text-[15px] font-black text-slate-800 tracking-tight leading-none group-hover:text-sky-600 transition-colors">
+              <h3 className="text-[15px] font-bold text-[#000000] tracking-tight leading-none group-hover:text-sky-600 transition-colors">
                 {post.userId?.username || DEFAULT_USERNAME}
               </h3>
               {post.userId?.role === 'admin' && ( // Example role badge
@@ -94,7 +94,7 @@ export function MessageCard(props: MessageCardProps) {
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-100 py-1.5 z-20 animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute right-0 mt-2 w-48 bg-background rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-border py-1.5 z-20 animate-in fade-in zoom-in-95 duration-200">
                 {onEdit && (
                   <button
                     onClick={() => {
@@ -125,7 +125,7 @@ export function MessageCard(props: MessageCardProps) {
         )}
       </div>
 
-      <div className="text-[15px] text-slate-600 leading-relaxed font-medium whitespace-pre-wrap mb-6">
+      <div className="text-[15px] text-[#000000] font-normal leading-relaxed whitespace-pre-wrap mb-6">
         {post.content}
       </div>
 

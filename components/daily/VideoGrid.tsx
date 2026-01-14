@@ -106,7 +106,7 @@ export function VideoGrid({ callObject }: VideoGridProps) {
 
   if (allCamerasOff) {
     return (
-      <div className="h-full w-full relative bg-white flex items-center justify-center">
+      <div className="h-full w-full relative bg-background flex items-center justify-center">
         <div className="absolute inset-0 flex items-center justify-center text-black text-lg font-semibold text-center p-6">
           Speakers are live, but their <br /> cameras are off.
         </div>

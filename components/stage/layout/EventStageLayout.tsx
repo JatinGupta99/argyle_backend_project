@@ -9,6 +9,8 @@ import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { StageProviders } from '@/components/providers/StageProvider';
 
+import { cn } from '@/lib/utils';
+import { ROLES } from '@/app/auth/roles';
 import { useAuth } from '@/app/auth/auth-context';
 
 type Props = {
@@ -43,8 +45,14 @@ export function EventStageLayout({
 
   return (
     <StageProviders>
-      <div className="flex h-screen w-screen overflow-hidden bg-background">
-        <aside className="h-full flex-shrink-0 bg-[#FAFAFA] flex flex-col border-r border-gray-200 shadow-sm z-10 transition-all duration-300">
+      <div className={cn(
+        "flex h-screen w-screen overflow-hidden",
+        (userRole === ROLES.SPEAKER || userRole === ROLES.MODERATOR || _role === RoleView.Speaker) ? "bg-black" : "bg-background"
+      )}>
+        <aside className={cn(
+          "h-full flex-shrink-0 flex flex-col shadow-sm z-10 transition-all duration-300",
+          (userRole === ROLES.SPEAKER || userRole === ROLES.MODERATOR || _role === RoleView.Speaker) ? "bg-black" : "bg-[#FAFAFA]"
+        )}>
           <ChatPanel
             title3={title ?? ChatTab.Everyone}
             role={(userRole as unknown as RoleView) || _role}
@@ -55,7 +63,10 @@ export function EventStageLayout({
           />
         </aside>
 
-        <main className="flex flex-1 flex-col overflow-hidden bg-[#FFFFFF] relative">
+        <main className={cn(
+          "flex flex-1 flex-col overflow-hidden relative",
+          (userRole === ROLES.SPEAKER || userRole === ROLES.MODERATOR || _role === RoleView.Speaker) ? "bg-black" : "bg-background"
+        )}>
           <Header title={event.title || 'Live Stage'} />
           <div className="flex-1 overflow-hidden relative">
             {children}

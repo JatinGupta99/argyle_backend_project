@@ -20,9 +20,9 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="flex h-screen w-screen bg-white overflow-hidden">
+    <div className="flex h-screen w-screen bg-background overflow-hidden">
       <AppSidebar />
-      <div className="flex-grow flex flex-col h-full overflow-hidden relative bg-white">
+      <div className="flex-grow flex flex-col h-full overflow-hidden relative bg-background">
         <main className="flex-grow overflow-hidden relative">
           {children}
         </main>

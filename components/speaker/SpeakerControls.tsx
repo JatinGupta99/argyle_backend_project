@@ -19,6 +19,7 @@ interface SpeakerControlsProps {
   onToggleLive?: () => void;
   onEndEvent?: () => void;
   isLoading?: boolean;
+  isTimeReached?: boolean;
 }
 
 export function SpeakerControls({
@@ -33,19 +34,22 @@ export function SpeakerControls({
   onToggleLive,
   onEndEvent,
   isLoading = false,
+  isTimeReached = true,
 }: SpeakerControlsProps) {
+  const isGoLiveDisabled = isLoading || (!isLive && !isTimeReached);
+
   return (
-    <div className="w-full h-20 bg-background border-t flex items-center justify-center gap-6 px-4 z-50">
+    <div className="w-full h-20 bg-[#000a28] border-t border-white/10 flex items-center justify-center gap-6 px-4 z-50">
       {role === ROLES.MODERATOR && onToggleLive && (
         <div className="flex items-center gap-2">
           <Button
             variant={isLive ? 'destructive' : 'default'}
             size="lg"
             onClick={onToggleLive}
-            disabled={isLoading}
+            disabled={isGoLiveDisabled}
             className={cn(
               'min-w-[140px] font-semibold transition-all',
-              isLive ? 'animate-pulse' : 'bg-green-600 hover:bg-green-700'
+              isLive ? 'animate-pulse' : 'bg-green-600 hover:bg-green-700 disabled:bg-slate-800 disabled:text-slate-500'
             )}
           >
             {isLoading ? (
@@ -53,24 +57,13 @@ export function SpeakerControls({
             ) : (
               <Radio className="mr-2 h-4 w-4" />
             )}
-            {isLive ? 'Stop Airing' : 'Go On Air'}
+            {isLive ? 'Stop Live' : 'Go Live'}
           </Button>
 
-          {isLive && onEndEvent && (
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={onEndEvent}
-              disabled={isLoading}
-              className="border-red-500/50 text-red-500 hover:bg-red-500/10"
-            >
-              End Event
-            </Button>
-          )}
         </div>
       )}
 
-      {role === ROLES.MODERATOR && <div className="w-px h-8 bg-border" />}
+      {role === ROLES.MODERATOR && <div className="w-px h-8 bg-white/10" />}
 
       <MediaControls
         isMicOn={isMicOn}

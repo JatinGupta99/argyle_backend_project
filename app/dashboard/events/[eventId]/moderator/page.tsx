@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ModeratorControls } from '@/components/moderator/ModeratorControls';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerVideoPreview } from '@/components/speaker/SpeakerVideoPreview';
@@ -64,6 +65,25 @@ function ModeratorViewContent({ event }: { event: Event }) {
   } = useEventRole(event, ROLES.MODERATOR);
 
   const localParticipant = useLocalParticipant();
+
+  const [isTimeReached, setIsTimeReached] = useState<boolean>(() => {
+    const targetDate = event.schedule?.startTime ? new Date(event.schedule.startTime) : new Date();
+    return new Date() >= targetDate;
+  });
+
+  useEffect(() => {
+    if (isTimeReached) return;
+
+    const targetDate = event.schedule?.startTime ? new Date(event.schedule.startTime) : new Date();
+    const interval = setInterval(() => {
+      if (new Date() >= targetDate) {
+        setIsTimeReached(true);
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [event.schedule?.startTime, isTimeReached]);
 
   if (error) return <FullScreenState errorMessage={error} />;
 
@@ -140,7 +160,7 @@ function ModeratorViewContent({ event }: { event: Event }) {
               ) : (
                 <div className="space-y-3">
                   <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-600 rounded-lg text-xs font-black text-white shadow-lg shadow-red-900/40">
-                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                    <div className="w-1.5 h-1.5 bg-background rounded-full animate-ping" />
                     TRANSMITTING LIVE
                   </div>
                   <p className="text-slate-400 text-xs">
@@ -211,6 +231,7 @@ function ModeratorViewContent({ event }: { event: Event }) {
             onToggleCam={toggleCam}
             onToggleScreenShare={toggleScreenShare}
             isLoading={isLoading}
+            isTimeReached={isTimeReached}
           />
         </footer>
       </div>

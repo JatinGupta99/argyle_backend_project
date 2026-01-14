@@ -9,6 +9,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
+import { getChatSessionStatus } from '@/lib/utils/chat-utils';
 import SponsorList from './SponsorList';
 
 interface SponsorListWrapperProps {
@@ -29,7 +30,7 @@ export default function SponsorListWrapper({ event }: SponsorListWrapperProps) {
                 role={RoleView.Attendee}
                 eventId={event._id}
                 currentUserId={UserID}
-                type={ChatSessionType.LIVE}
+                type={getChatSessionStatus(event)}
                 tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
               />
             }

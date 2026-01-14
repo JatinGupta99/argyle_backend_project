@@ -1,12 +1,12 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { ArrowLeftFromLine } from 'lucide-react';
 
 import { YouTubeEmbed } from '@/components/shared/YouTubeEmbed';
 import { ChatInputSection } from '@/components/stage/chat/ChatInputSection';
-import { ChatMessages } from '@/components/stage/chat/ChatMessages';
+import { ChatMessages, ChatMessagesRef } from '@/components/stage/chat/ChatMessages';
 import { ChatTabs } from '@/components/stage/chat/ChatTabs';
 
 import { useMessages } from '@/hooks/useMessages';
@@ -28,10 +28,16 @@ export function ChatPanel({
   role,
   type = ChatSessionType.LIVE,
   tabs,
-}: ChatPanelProps) {
+  collapsed: controlledCollapsed,
+  onToggleCollapse,
+}: ChatPanelProps & {
+  collapsed?: boolean;
+  onToggleCollapse?: (collapsed: boolean) => void;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const event = useEventContext();
+  const chatRef = useRef<ChatMessagesRef>(null);
 
   const [activeCategory, setActiveCategory] = useState<ChatCategoryType>(
     () => {
@@ -39,7 +45,18 @@ export function ChatPanel({
       return tabs[0] ?? ChatCategoryType.EVERYONE;
     }
   );
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
+
+  const isCollapsed = controlledCollapsed ?? internalCollapsed;
+  const setIsCollapsed = (value: boolean | ((prev: boolean) => boolean)) => {
+    if (onToggleCollapse) {
+      const newValue = typeof value === 'function' ? value(isCollapsed) : value;
+      onToggleCollapse(newValue);
+    } else {
+      setInternalCollapsed(value);
+    }
+  };
+
   const [videoUrl, setVideoUrl] = useState<string | null>(youtubeProp ?? null);
   const [imageSignedUrl, setImageSignedUrl] = useState<string | null>(null);
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
@@ -104,6 +121,8 @@ export function ChatPanel({
     async (text: string) => {
       if (!text.trim() || !currentUserId) return;
       await createMessage(text);
+      // Force scroll to bottom immediately after sending
+      chatRef.current?.scrollToBottom();
     },
     [createMessage, currentUserId]
   );
@@ -125,7 +144,7 @@ export function ChatPanel({
           <YouTubeEmbed
             url={videoUrl}
             title="Sponsor Video"
-            className="rounded-lg border shadow-md overflow-hidden"
+            className="rounded-lg shadow-md overflow-hidden"
           />
         </div>
       );
@@ -133,7 +152,7 @@ export function ChatPanel({
 
     return (
       <div className="pt-2 pb-4 px-2">
-        <div className="aspect-video rounded-xl border shadow-md bg-gray-100 overflow-hidden">
+        <div className="aspect-video rounded-xl shadow-md bg-gray-100 overflow-hidden">
           <img
             src={imageSignedUrl || event.eventLogoUrl || '/placeholder.svg'}
             alt={event.title || 'Event'}
@@ -147,17 +166,17 @@ export function ChatPanel({
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-blue-50/50 border-gray-200 text-gray-900 overflow-hidden transition-all duration-300 ease-in-out z-20 relative",
-        isCollapsed ? "w-[60px]" : "w-full md:w-[340px]"
+        "flex flex-col h-full bg-background text-foreground overflow-hidden transition-all duration-300 ease-in-out z-20 relative",
+        isCollapsed ? "w-[60px]" : "w-full md:w-[300px]"
       )}
     >
       {/* Header */}
-      <header className="h-16 px-0 flex items-center justify-between bg-blue-50/20 relative">
+      <header className="h-16 px-0 flex items-center justify-between bg-card relative">
         <div className={cn(
           "absolute left-4 transition-opacity duration-200",
           isCollapsed ? "opacity-0 pointer-events-none" : "opacity-100"
         )}>
-          <h2 className="text-[22px] font-black tracking-tight truncate">
+          <h2 className="text-[22px] font-bold text-[#000000] tracking-tight truncate">
             {activeLabel}
           </h2>
         </div>
@@ -166,14 +185,14 @@ export function ChatPanel({
           onClick={() => setIsCollapsed(v => !v)}
           aria-label={isCollapsed ? 'Expand chat' : 'Collapse chat'}
           className={cn(
-            "p-1.5 rounded-xl hover:bg-white/50 transition absolute",
+            "p-1.5 rounded-xl hover:bg-background/50 transition absolute",
             isCollapsed ? "left-1/2 -translate-x-1/2" : "right-4"
           )}
         >
           <ArrowLeftFromLine
             size={24}
             className={cn(
-              'stroke-[3px] text-sky-500 transition-transform duration-300',
+              'stroke-[3px] text-[#1c97d4] transition-transform duration-300',
               isCollapsed && 'rotate-180'
             )}
           />
@@ -184,7 +203,6 @@ export function ChatPanel({
       <div
         className={cn(
           'flex-1 flex flex-col transition-all duration-300 overflow-hidden w-full',
-          isCollapsed && 'opacity-0 pointer-events-none'
         )}
       >
         <div className="flex-none">
@@ -192,45 +210,53 @@ export function ChatPanel({
             tabs={tabs}
             activeTab={activeCategory}
             onChangeTab={setActiveCategory}
+            collapsed={isCollapsed}
           />
         </div>
 
-        <div className="flex-none">
-          {isLoadingVideo ? (
-            <p className="text-center py-4 text-gray-500 italic">
-              Loading content...
-            </p>
-          ) : videoError ? (
-            <p className="text-center py-4 text-red-500 text-sm">
-              {videoError}
-            </p>
-          ) : (
-            topContent
-          )}
-        </div>
+        <div className={cn(
+          "flex-1 flex flex-col overflow-hidden transition-all duration-300",
+          isCollapsed ? "opacity-0 pointer-events-none h-0" : "opacity-100"
+        )}>
+          <div className="flex-none">
+            {isLoadingVideo ? (
+              <p className="text-center py-4 text-gray-500 italic">
+                Loading content...
+              </p>
+            ) : videoError ? (
+              <p className="text-center py-4 text-red-500 text-sm">
+                {videoError}
+              </p>
+            ) : (
+              topContent
+            )}
+          </div>
 
-        <div className="flex items-center px-6 py-4 gap-4">
-          <div className="flex-1 h-px bg-sky-200/50" />
-          <span className="text-sm font-bold text-sky-500">Today</span>
-          <div className="flex-1 h-px bg-sky-200/50" />
-        </div>
 
-        <div className="flex-1 min-h-0 px-2">
-          <ChatMessages
-            key={activeCategory}
-            messages={messages ?? []}
-            isLoading={isLoading}
-            fetchNextPage={fetchNextPage}
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-          />
-        </div>
+          <div className="flex items-center px-6 py-4 gap-4">
+            <div className="flex-1 h-px bg-[#1c97d4]/20" />
+            <span className="text-sm font-bold text-[#1c97d4]">Today</span>
+            <div className="flex-1 h-px bg-[#1c97d4]/20" />
+          </div>
 
-        <div className="flex-none">
-          <ChatInputSection
-            onSend={handleSendMessage}
-            disabled={isLoading || isLoadingVideo}
-          />
+          <div className="flex-1 min-h-0 px-2">
+            <ChatMessages
+              ref={chatRef}
+              key={activeCategory}
+              messages={messages ?? []}
+              isLoading={isLoading}
+              fetchNextPage={fetchNextPage}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+            />
+          </div>
+
+          <div className="flex-none">
+            <ChatInputSection
+              onSend={handleSendMessage}
+              disabled={isLoading || isLoadingVideo}
+            />
+          </div>
         </div>
       </div>
     </div>

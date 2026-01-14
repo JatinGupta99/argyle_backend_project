@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { getSponsorDownloadUrl } from '@/lib/sponsor';
 
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
+import { useEventContext } from '@/components/providers/EventContextProvider';
 import { Header } from '@/components/stage/layout/Header';
 import { SplitLayout } from '@/components/stage/layout/SplitLayout';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ import { API_ROUTES } from '@/lib/api-routes';
 import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
+import { getChatSessionStatus } from '@/lib/utils/chat-utils';
 
 export default function SponsorBoothMeet() {
   const { eventId, sponsorId } = useParams() as { eventId: string; sponsorId: string };
@@ -147,7 +149,7 @@ export default function SponsorBoothMeet() {
           eventId={eventId}
           currentUserId={UserID}
           role={RoleView.Attendee}
-          type={ChatSessionType.LIVE}
+          type={getChatSessionStatus(useEventContext())}
           tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
         />
       }
@@ -155,7 +157,7 @@ export default function SponsorBoothMeet() {
       <Header title={sponsor.name} />
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-1 items-center justify-center px-6 py-10">
-          <div className="max-w-4xl w-full bg-white border shadow-sm rounded-lg p-8 space-y-8">
+          <div className="max-w-4xl w-full bg-background border border-border shadow-sm rounded-lg p-8 space-y-8">
             <h1 className="text-3xl font-bold text-center">Meet Our Sponsor</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

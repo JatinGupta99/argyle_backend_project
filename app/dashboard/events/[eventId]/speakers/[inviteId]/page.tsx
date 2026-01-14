@@ -11,7 +11,7 @@ import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { RoleView } from '@/lib/slices/uiSlice';
 import { DailyJoinResponse } from '@/lib/types/daily';
-import { determineRoleWithFallback } from '@/lib/utils/jwt-utils';
+import { determineRoleWithFallback, extractNameFromToken } from '@/lib/utils/jwt-utils';
 
 /* -------------------------------------------------------------------------- */
 /*                                Component                                   */
@@ -37,6 +37,7 @@ export default function SpeakerPage() {
   const [token, setToken] = useState<string | null>(null);
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
   const [localRole, setLocalRole] = useState<Role | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -77,10 +78,12 @@ export default function SpeakerPage() {
         const { token: dailyToken, roomUrl: url } = res.data.data;
 
         const extractedRole = determineRoleWithFallback(urlToken, dailyToken);
+        const extractedName = urlToken ? extractNameFromToken(urlToken) : null;
 
         setToken(dailyToken);
         setRoomUrl(url);
         setLocalRole(extractedRole);
+        setUserName(extractedName);
 
         // Centralize session in AuthContext
         setRole(extractedRole, 'speaker-session');
@@ -135,12 +138,13 @@ export default function SpeakerPage() {
       >
         <div className="flex-1 -mt-4 h-full relative">
           {/* Speakers can always join - backstage mode with countdown shown in header */}
-          <div className="w-full h-full p-6">
+          <div className="w-full h-full p-4">
             <SpeakerViewContent
               token={token}
               roomUrl={roomUrl}
               eventId={event!._id!}
               role={localRole}
+              userName={userName || undefined}
               initialIsLive={eventIsLive}
               startTime={targetDate}
             />

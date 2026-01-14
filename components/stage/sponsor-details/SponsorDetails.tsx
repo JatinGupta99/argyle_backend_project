@@ -118,7 +118,7 @@ export default function SponsorDetails({
     router.push(`/dashboard/events/${eventId}/sponsors`);
   };
   return (
-    <div className="flex flex-col flex-1 bg-white h-full px-4 sm:px-6 py-4">
+    <div className="flex flex-col flex-1 bg-background h-full px-4 sm:px-6 py-4">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3 flex-wrap">
           <button
@@ -131,7 +131,7 @@ export default function SponsorDetails({
           {name && (
             <>
               <span className="hidden sm:block text-gray-400">|</span>
-              <span className="font-semibold text-gray-800 text-sm sm:text-base">
+              <span className="font-bold text-[#000000] text-sm sm:text-base">
                 {name}
               </span>
             </>
@@ -143,7 +143,7 @@ export default function SponsorDetails({
             variant={activeView === 'video' ? 'default' : 'outline'}
             className={`text-sm rounded-r-none border-r-0 ${activeView === 'video'
               ? 'bg-blue-500 hover:bg-blue-600 text-white'
-              : 'text-gray-700 bg-white hover:bg-gray-50'
+              : 'text-gray-700 bg-background hover:bg-gray-50'
               }`}
             onClick={() => setActiveView('video')}
           >
@@ -153,7 +153,7 @@ export default function SponsorDetails({
             variant={activeView === 'details' ? 'default' : 'outline'}
             className={`text-sm rounded-l-none ${activeView === 'details'
               ? 'bg-blue-500 hover:bg-blue-600 text-white'
-              : 'text-gray-700 bg-white hover:bg-gray-50'
+              : 'text-gray-700 bg-background hover:bg-gray-50'
               }`}
             onClick={() => setActiveView('details')}
           >
@@ -164,7 +164,7 @@ export default function SponsorDetails({
 
       <main className="flex-1 overflow-y-auto mt-4 space-y-8 pr-2">
         {activeView === 'video' ? (
-          <section className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex flex-col items-center">
+          <section className="bg-background rounded-lg shadow-sm border border-border p-6 flex flex-col items-center">
             {sponsor.youtubeUrl ? (
               <div className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden shadow-lg border border-gray-200 bg-black relative group">
                 {!videoPlaying && thumbnailUrl ? (
@@ -179,7 +179,7 @@ export default function SponsorDetails({
                       className="object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                     />
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/40 flex items-center justify-center transition-transform transform group-hover:scale-110">
+                      <div className="w-16 h-16 rounded-full bg-background/20 backdrop-blur-sm border border-border/40 flex items-center justify-center transition-transform transform group-hover:scale-110">
                         <Play className="text-white fill-white ml-1" size={32} />
                       </div>
                     </div>
@@ -200,7 +200,7 @@ export default function SponsorDetails({
           </section>
         ) : (
           <>
-            <section className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 relative flex flex-col sm:flex-row justify-between gap-6">
+            <section className="bg-background border border-border rounded-lg shadow-sm p-6 relative flex flex-col sm:flex-row justify-between gap-6">
               <div className="flex-1 flex flex-col justify-between text-center sm:text-left relative">
                 <div className="flex-1 overflow-y-auto max-h-[300px] pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                   <p className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-line break-words">
@@ -230,9 +230,9 @@ export default function SponsorDetails({
               )}
             </section>
 
-            <section className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+            <section className="bg-background rounded-lg shadow-sm border border-border p-6">
               <div className="flex items-center justify-between flex-wrap gap-3 border-b border-gray-100 pb-3 mb-4">
-                <h2 className="text-lg sm:text-2xl font-bold text-gray-800">
+                <h2 className="text-lg sm:text-2xl font-bold text-[#000000]">
                   Documents & Links
                 </h2>
                 {socialLinks.length > 0 && (
@@ -302,7 +302,7 @@ export default function SponsorDetails({
             </section>
 
             <div className="flex flex-wrap items-center justify-center mt-8 gap-3 text-center">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-800 ml-2">
+              <h3 className="text-base sm:text-lg font-bold text-[#000000] ml-2">
                 Hey, would you like to meet?
               </h3>
               <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base">

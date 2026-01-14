@@ -8,8 +8,9 @@ import SponsorDetails from '@/components/stage/sponsor-details/SponsorDetails';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useDetailSponsor } from '@/hooks/useDetailSponsor';
 import { UserID } from '@/lib/constants/api';
-import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
+import { ChatCategoryType } from '@/lib/constants/chat';
 import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
+import { getChatSessionStatus } from '@/lib/utils/chat-utils';
 import { useParams } from 'next/navigation';
 
 export default function SponsorBillPage() {
@@ -31,7 +32,7 @@ export default function SponsorBillPage() {
             eventId={event?._id || ''}
             currentUserId={UserID}
             role={RoleView.Attendee}
-            type={ChatSessionType.LIVE}
+            type={getChatSessionStatus(event || {})}
             tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
           />
         }

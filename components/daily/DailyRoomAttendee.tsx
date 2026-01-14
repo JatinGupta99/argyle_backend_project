@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { DailyAudio, DailyProvider, useParticipantIds, useParticipantProperty, useLocalParticipant } from '@daily-co/daily-react';
+import { DailyAudio, DailyProvider } from '@daily-co/daily-react';
 import { useDailyBase } from '@/hooks/useDailyBase';
 import { Role } from '@/app/auth/roles';
 import { useCountdown } from '@/hooks/useCountdown';
 import { VideoGrid } from './VideoGrid';
 import { fetchMeetingToken } from '@/lib/api/daily';
-import { Loader2, Clock } from 'lucide-react';
+import { Loader2, Clock, AlertCircle, RefreshCw, CheckCircle2, CalendarX } from 'lucide-react';
+import { RoomStateDisplay } from './RoomStateDisplay';
 
 export interface DailyRoomProps {
   role: Role;
@@ -46,18 +47,45 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
   );
 
   if (error) {
+    const errorMsg = typeof error === 'string' ? error.toLowerCase() : '';
+    const isRoomUnavailable = errorMsg.includes('room is no longer available') ||
+      errorMsg.includes('meeting has ended') ||
+      errorMsg.includes('room not found');
+
+    if (isRoomUnavailable) {
+      return (
+        <RoomStateDisplay
+          variant="default"
+          icon={CalendarX}
+          title="Event Unavailable"
+          description="The live room is currently closed. The event may have concluded or is not scheduled for this time."
+          action={
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center gap-2 px-6 py-2.5 bg-secondary/10 hover:bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-all border border-secondary/20"
+            >
+              <RefreshCw size={16} /> Check Status Again
+            </button>
+          }
+        />
+      );
+    }
+
     return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4 p-6 text-center">
-        <div className="text-5xl">⚠️</div>
-        <h3 className="text-xl font-bold text-red-500">Connection Failed</h3>
-        <p className="text-gray-300 max-w-md">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
-        >
-          Reload Page
-        </button>
-      </div>
+      <RoomStateDisplay
+        variant="destructive"
+        icon={AlertCircle}
+        title="Connection Failed"
+        description={typeof error === 'string' ? error : "An unexpected error occurred while connecting to the room."}
+        action={
+          <button
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-red-900/20"
+          >
+            <RefreshCw size={16} /> Reload Page
+          </button>
+        }
+      />
     );
   }
 
@@ -67,10 +95,11 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
 
   if (!callObject || !ready) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-lg">Preparing event room...</p>
-      </div>
+      <RoomStateDisplay
+        isLoading
+        title="Connecting to Event"
+        description="We are securing your connection to the live room..."
+      />
     );
   }
 
@@ -138,26 +167,20 @@ function AttendeeLobbyWrapper({ callObject }: { callObject: any }) {
 
   if (isEnded) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-slate-950 text-white gap-8 p-12 text-center animate-in zoom-in duration-700">
-        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-2 border border-primary/20">
-          <div className="w-12 h-12 text-primary font-black text-4xl">✓</div>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-4xl font-black tracking-tight uppercase">Event Concluded</h2>
-          <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
-          <p className="text-slate-400 max-w-sm text-lg font-medium leading-relaxed">
-            Thank you for attending! The broadcast has officially ended. We hope you enjoyed the session.
-          </p>
-        </div>
-
-        <button
-          onClick={() => window.close()}
-          className="px-8 py-3 bg-slate-900 border border-white/10 rounded-xl font-bold hover:bg-slate-800 transition-all"
-        >
-          Close Window
-        </button>
-      </div>
+      <RoomStateDisplay
+        variant="default"
+        icon={CheckCircle2}
+        title="Event Concluded"
+        description="Thank you for attending! The broadcast has officially ended. We hope you enjoyed the session."
+        action={
+          <button
+            onClick={() => window.close()}
+            className="px-8 py-3 bg-slate-800 border border-white/10 rounded-xl font-bold hover:bg-slate-700 transition-all text-slate-200"
+          >
+            Close Window
+          </button>
+        }
+      />
     );
   }
 
@@ -173,32 +196,21 @@ function AttendeeLobbyWrapper({ callObject }: { callObject: any }) {
   // If was previously live but now stopped -> SHOW BREAK SCREEN
   if (hasBeenLive && !isModeratorLive) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-slate-950 text-white gap-8 p-12 text-center animate-in fade-in duration-700">
-        <div className="relative">
-          <div className="w-24 h-24 bg-amber-500/10 rounded-3xl flex items-center justify-center mb-2 border border-amber-500/20">
-            <Clock className="w-12 h-12 text-amber-500 animate-pulse" />
+      <RoomStateDisplay
+        variant="warning"
+        icon={Clock}
+        title="Short Break"
+        description="The event is currently on a brief intermission. Please stay tuned, we will be back shortly!"
+        action={
+          <div className="flex items-center gap-3 px-6 py-3 bg-amber-950/30 rounded-2xl border border-amber-500/10">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+            </span>
+            <span className="text-sm font-bold text-amber-500 uppercase tracking-widest">Live Updates Paused</span>
           </div>
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full animate-ping" />
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-4xl font-black tracking-tight uppercase">Short Break</h2>
-          <div className="h-1 w-20 bg-amber-500 mx-auto rounded-full" />
-          <p className="text-slate-400 max-w-sm text-lg font-medium leading-relaxed">
-            The event is currently on a brief intermission. Please stay tuned, we will be back shortly!
-          </p>
-        </div>
-
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex items-center gap-3 px-6 py-3 bg-slate-900/50 rounded-2xl border border-white/5 shadow-2xl">
-            <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-            <span className="text-sm font-bold text-amber-500 uppercase tracking-widest">Intermission</span>
-          </div>
-          <p className="text-xs text-slate-500 font-bold uppercase tracking-tighter">
-            Waiting for speakers to resume...
-          </p>
-        </div>
-      </div>
+        }
+      />
     );
   }
 

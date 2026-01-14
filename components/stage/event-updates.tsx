@@ -13,9 +13,13 @@ import { MessageCard } from './message/MessageCard';
 export function EventUpdates({
   eventId,
   currentUserId = UserID,
+  maxWidthClass = 'max-w-[60rem]',
+  inputMaxWidthClass = 'max-w-[50rem]',
 }: {
   eventId: string;
   currentUserId?: string;
+  maxWidthClass?: string;
+  inputMaxWidthClass?: string;
 }) {
   const { can } = useAuth();
   const { posts, isLoading, likePost, unlikePost, addComment, createPost, deletePost, updatePost } =
@@ -82,10 +86,10 @@ export function EventUpdates({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-background">
       <RoleGuard permission="post:create">
-        <div className="w-full px-8 md:px-12 py-6 z-10 sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-50">
-          <div className="max-w-[50rem]">
+        <div className="w-full px-8 md:px-12 py-6 z-10 sticky top-0 bg-background/95 backdrop-blur-md border-b border-border">
+          <div className={`${inputMaxWidthClass} mx-auto`}>
             <SocialInput
               value={newPostContent}
               onChange={setNewPostContent}
@@ -100,7 +104,7 @@ export function EventUpdates({
       </RoleGuard>
 
       <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-20 custom-scrollbar">
-        <div className="max-w-[60rem] space-y-6 pt-6">
+        <div className={`${maxWidthClass} mx-auto space-y-6 pt-6`}>
           {safePosts.length > 0 ? (
             safePosts
               .slice()
@@ -137,7 +141,7 @@ export function EventUpdates({
               ))
           ) : (
             <div className="flex flex-col items-center justify-center py-24 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200 mt-4">
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm ring-1 ring-slate-100">
+              <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center mb-4 shadow-sm ring-1 ring-border">
                 <Loader2 className="text-sky-500 animate-[spin_3s_linear_infinite]" size={28} />
               </div>
               <h3 className="text-lg font-black text-slate-800 mb-2">Updates Coming Soon</h3>
