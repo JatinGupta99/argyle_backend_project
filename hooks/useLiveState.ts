@@ -1,6 +1,7 @@
 import { DailyCall } from '@daily-co/daily-js';
 import { useCallback, useState, useEffect } from 'react';
 import { goLive, stopAiring, endEvent as endEventAPI, startRecordingControl, stopRecordingControl } from '@/lib/api/daily';
+import { mergeUserData } from '@/lib/utils/daily-utils';
 
 /**
  * useLiveState - Professional broadcast management
@@ -89,23 +90,26 @@ export function useLiveState(
         callObject.setLocalVideo(nextLiveState);
 
         // 2. Broadcast live state to other participants via Daily metadata
-        await (callObject as any).setUserData({ isLive: nextLiveState });
+        await mergeUserData(callObject, { isLive: nextLiveState });
       }
 
-      // 3. Backend Event Lifecycle (handles recording automatically)
+      // 3. Backend Event Lifecycle 
       if (nextLiveState) {
         console.log('[LiveState] Going On Air...');
         try {
           await goLive(eventId);
+          // Explicitly start recording if requested and not handled by backend
+          // await startRecordingControl(roomName);
         } catch (err) {
-          console.error('[LiveState] Failed to go live:', err);
+          console.error('[LiveState] Failed to go live or start recording:', err);
         }
       } else {
         console.log('[LiveState] Stopping Airing (Break)...');
         try {
           await stopAiring(eventId);
+          await stopRecordingControl(roomName);
         } catch (err) {
-          console.error('[LiveState] Failed to stop airing:', err);
+          console.error('[LiveState] Failed to stop airing or recording:', err);
         }
       }
 
@@ -130,7 +134,7 @@ export function useLiveState(
 
       // Sync metadata to all participants
       if (callObject) {
-        await (callObject as any).setUserData({ isLive: false, isEnded: true });
+        await mergeUserData(callObject, { isLive: false, isEnded: true });
       }
 
       setIsLive(false);

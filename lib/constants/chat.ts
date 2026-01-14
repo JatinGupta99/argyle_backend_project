@@ -7,5 +7,5 @@ export enum ChatCategoryType {
   CHAT = 'chat',
   BACKSTAGE = 'backStage',
   QA = 'QA',
-  None = 'None',
+  None = 'none',
 }

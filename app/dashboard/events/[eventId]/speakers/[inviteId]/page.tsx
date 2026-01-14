@@ -32,7 +32,7 @@ export default function SpeakerPage() {
   const searchParams = useSearchParams();
   const urlToken = searchParams.get('token');
   const event = useEventContext();
-  const { setRole } = useAuth();
+  const { setAuth, token: authToken } = useAuth(); // Use authToken from context (localStorage)
 
   const [token, setToken] = useState<string | null>(null);
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
@@ -41,6 +41,7 @@ export default function SpeakerPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // ... time logic ...
   const targetDate = useMemo(() => {
     const start = event?.schedule?.startTime;
     if (!start) return new Date();
@@ -72,21 +73,38 @@ export default function SpeakerPage() {
     const fetchToken = async () => {
       try {
         setIsLoading(true);
+
+        // 1. Try to use existing Auth Token (from localStorage via AuthContext) if valid
+        // This avoids re-fetching or issues if URL token is gone on refresh.
+        // However, we still need the Room URL and Daily Token which might be different?
+        // Usually, the invite token IS the daily token or related.
+
+        // Let's first fetch the specific join data needed for the stage
         const res = await axios.get<{ data: DailyJoinResponse }>(
           `${process.env.NEXT_PUBLIC_API_URL}/invite/join/${inviteId}`,
         );
         const { token: dailyToken, roomUrl: url } = res.data.data;
 
-        const extractedRole = determineRoleWithFallback(urlToken, dailyToken);
-        const extractedName = urlToken ? extractNameFromToken(urlToken) : null;
+        // 2. Determine Role & Name
+        // Priority: URL -> Context/Storage -> Daily Token
+        const tokenToAnalyze = urlToken || authToken || dailyToken;
+
+        const extractedRole = determineRoleWithFallback(tokenToAnalyze, dailyToken);
+        const extractedName = extractNameFromToken(tokenToAnalyze);
 
         setToken(dailyToken);
         setRoomUrl(url);
         setLocalRole(extractedRole);
         setUserName(extractedName);
 
-        // Centralize session in AuthContext
-        setRole(extractedRole, 'speaker-session');
+        // 3. Update Sync AuthContext
+        // We use the most authoritative token we have for the app session
+        // If we have a fresh daily token or url token, we update the app session.
+        const appToken = urlToken || dailyToken;
+        if (appToken && appToken !== authToken) {
+          const userId = extractNameFromToken(appToken) || 'speaker'; // minimal id
+          setAuth(extractedRole, userId, appToken);
+        }
 
       } catch (err: any) {
         console.error('[SpeakerPage] Access verification failed:', err);
@@ -97,7 +115,7 @@ export default function SpeakerPage() {
     };
 
     fetchToken();
-  }, [inviteId, urlToken, setRole]);
+  }, [inviteId, urlToken, authToken, setAuth]);
 
   /* ----------------------------- Render Helpers --------------------------- */
 

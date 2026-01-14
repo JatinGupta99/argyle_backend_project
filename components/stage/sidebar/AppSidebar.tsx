@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sidebar,
   SidebarContent,
@@ -15,18 +16,28 @@ import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useParams, usePathname } from 'next/navigation';
+import { useAuth } from '@/app/auth/auth-context';
+import { ROLES_ADMIN } from '@/app/auth/roles';
+import { getTokenPayload } from '@/lib/utils/jwt-utils';
 
 export function AppSidebar() {
   const params = useParams();
   const pathname = usePathname();
-  const eventId = params?.eventId as string;
-  const inviteId = params?.inviteId as string;
+  const { role, token } = useAuth();
 
-  // Professional dynamic routing:
-  // If we have an inviteId (Speakers/Moderators), redirect to the specific stage
-  const stagePath = inviteId
-    ? `/dashboard/events/${eventId}/speakers/${inviteId}`
-    : `/dashboard/events/${eventId}/attendees`;
+  const eventId = params?.eventId as string;
+  const paramInviteId = params?.inviteId as string;
+
+  // Recover inviteId from token if not in params (e.g. when on Update/Info pages)
+  const tokenPayload = getTokenPayload<{ inviteId?: string }>(token || '');
+  const effectiveInviteId = paramInviteId || tokenPayload?.inviteId;
+
+  // Dynamic Strict Navigation based on Role
+  let stagePath = `/dashboard/events/${eventId}/attendees`; // Default for Attendees
+
+  if (role === ROLES_ADMIN.Moderator || ROLES_ADMIN.Speaker) {
+    stagePath = `/dashboard/events/${eventId}/speakers/${effectiveInviteId}`;
+  }
 
   const lobbySubItems = [
     { label: 'Updates', path: `/dashboard/events/${eventId}/update` },
@@ -39,121 +50,143 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar className="w-64 bg-background">
+    <Sidebar className="w-72 bg-[#000a28] border-r border-white/5 shadow-2xl overflow-hidden group/sidebar">
+      {/* Background radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.05),transparent_50%)] z-0 pointer-events-none" />
+
       {/* Header */}
-      <SidebarHeader className="h-auto flex items-center px-6 py-8 bg-background border-none">
-        <Image
-          src="/argyle-logo.png"
-          alt="Argyle"
-          width={130}
-          height={40}
-          className="object-contain w-32 h-auto"
-        />
+      <SidebarHeader className="h-auto px-8 py-10 bg-transparent border-none relative z-10 overflow-hidden">
+        <Link href="/dashboard" className="block transition-transform hover:scale-105 active:scale-95">
+          <Image
+            src="/argyle-logo.png"
+            alt="Argyle"
+            width={140}
+            height={44}
+            className="object-contain brightness-0 invert"
+          />
+        </Link>
       </SidebarHeader>
 
       {/* Sidebar content */}
-      <SidebarContent className="p-0 bg-background">
-        <SidebarMenu className="gap-0">
-          {/* Lobby dropdown */}
+      <SidebarContent className="px-4 pb-6 bg-transparent relative z-10 custom-scrollbar">
+        <SidebarMenu className="gap-2.5">
+          {/* Lobby Section */}
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => setOpenLobby((prev) => !prev)}
               className={cn(
-                'flex items-center gap-3 px-6 py-4 h-auto rounded-none font-bold transition-all duration-200 group relative w-full hover:bg-transparent',
-                'text-[#000000]'
+                'flex items-center gap-4 px-6 py-4 h-14 rounded-[1.25rem] font-bold transition-all duration-300 group select-none relative overflow-hidden',
+                openLobby ? 'bg-white/10 text-white shadow-xl' : 'text-slate-400 hover:text-white hover:bg-white/5'
               )}
             >
-              <span className="text-[16px]">Lobby</span>
+              <span className="text-[15px] text-white">Lobby</span>
               <ChevronDown
                 className={cn(
-                  'transition-transform ml-auto text-[#000000]',
-                  openLobby ? 'rotate-180' : 'rotate-0'
+                  'transition-transform ml-auto duration-300',
+                  openLobby ? 'rotate-180 text-[#71cdfa]' : 'rotate-0 text-slate-500 group-hover:text-slate-300'
                 )}
-                strokeWidth={2.5}
+                strokeWidth={3}
                 size={16}
               />
             </SidebarMenuButton>
 
-            <div
-              className={cn(
-                'overflow-hidden transition-all duration-300 ease-in-out',
-                openLobby ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
+            <AnimatePresence mode="wait">
+              {openLobby && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                  className="mt-1.5 flex flex-col gap-1.5 px-3"
+                >
+                  <ul className="space-y-1 py-1 border-l border-white/10 ml-6 pl-4">
+                    {lobbySubItems.map((sub) => {
+                      const isActive = pathname === sub.path;
+                      return (
+                        <li key={sub.label}>
+                          <Link
+                            href={sub.path}
+                            className={cn(
+                              'block w-full text-left py-2.5 text-[14px] font-semibold transition-all rounded-xl relative group/item',
+                              isActive
+                                ? 'text-[#71cdfa]'
+                                : 'text-slate-500 hover:text-slate-200'
+                            )}
+                          >
+                            <span className="relative z-10">{sub.label}</span>
+                            {isActive && (
+                              <motion.div
+                                layoutId="activeHighlight"
+                                className="absolute -left-5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[#71cdfa] shadow-[0_0_8px_rgba(113,205,250,0.6)]"
+                              />
+                            )}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </motion.div>
               )}
-            >
-              <ul className="space-y-0 bg-[#F0F9FF]">
-                {lobbySubItems.map((sub) => {
-                  const isActive = pathname === sub.path;
-                  return (
-                    <li key={sub.label}>
-                      <Link
-                        href={sub.path}
-                        className={cn(
-                          'block w-full text-left pl-10 pr-6 py-3 text-[15px] font-medium transition-all relative',
-                          isActive
-                            ? 'bg-[#71cdfa] text-[#000a28] hover:bg-[#71cdfa]/90'
-                            : 'text-slate-600 hover:text-[#71cdfa] hover:bg-sky-50/50'
-                        )}
-                      >
-                        {sub.label}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            </AnimatePresence>
           </SidebarMenuItem>
+
+          {/* Minimalist Separator */}
+          <div className="my-3 mx-6 h-px bg-blue-900/40 lg:my-4" />
 
           {/* Stage */}
           <SidebarMenuItem>
             <Link
               href={stagePath}
               className={cn(
-                'flex items-center gap-3 px-6 py-4 rounded-none font-bold transition-all w-full',
-                pathname === stagePath
-                  ? 'bg-[#71cdfa] text-[#000a28] hover:bg-[#71cdfa]/90'
-                  : 'text-[#000000] hover:bg-sky-50/30 hover:text-[#71cdfa]'
+                'flex items-center gap-4 px-6 py-4 h-14 rounded-[1.25rem] font-bold transition-all group relative overflow-hidden',
+                pathname.includes('/speakers/') || pathname.includes('/attendees')
+                  ? 'bg-gradient-to-br from-[#71cdfa] to-[#1c97d4] text-[#000a28] shadow-[0_8px_25px_-5px_rgba(113,205,250,0.4)]'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
               )}
             >
-              <span className="text-[16px]">Stage</span>
+              <span className="text-[15px] tracking-tight">Main Stage</span>
+
+              {!(pathname.includes('/speakers/') || pathname.includes('/attendees')) && (
+                <div className="ml-auto flex items-center gap-2">
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3].map(i => (
+                      <motion.div
+                        key={i}
+                        animate={{ height: [4, 10, 4] }}
+                        transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }}
+                        className="w-0.5 bg-rose-500 rounded-full"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </Link>
           </SidebarMenuItem>
 
-          {/* Pre-recorded (On Hold)
-          <SidebarMenuItem>
-            <Link
-              href={`/dashboard/events/${eventId}/pre-recorded`}
-               className={cn(
-                'flex items-center gap-3 px-6 py-4 rounded-none font-bold transition-all w-full',
-                pathname === `/dashboard/events/${eventId}/pre-recorded`
-                  ? 'bg-[#1da1f2] text-white hover:bg-[#1a91da]'
-                  : 'text-slate-900 hover:bg-sky-50/30 hover:text-[#1da1f2]'
-              )}
-            >
-              <span className="text-[16px]">Pre-recorded</span>
-            </Link>
-          </SidebarMenuItem>
-          */}
-
-          {/* Sponsor */}
+          {/* Sponsors */}
           <SidebarMenuItem>
             <Link
               href={`/dashboard/events/${eventId}/sponsors`}
               className={cn(
-                'flex items-center gap-3 px-6 py-4 rounded-none font-bold transition-all w-full',
-                pathname === `/dashboard/events/${eventId}/sponsors`
-                  ? 'bg-[#71cdfa] text-[#000a28] hover:bg-[#71cdfa]/90'
-                  : 'text-[#000000] hover:bg-sky-50/30 hover:text-[#71cdfa]'
+                'flex items-center gap-4 px-6 py-4 h-14 rounded-[1.25rem] font-bold transition-all group relative',
+                pathname.includes('/sponsors')
+                  ? 'bg-white/10 text-[#71cdfa] border border-white/5 shadow-lg'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
               )}
             >
-              <span className="text-[16px]">Sponsor</span>
+              <span className="text-[15px] tracking-tight">Sponsors</span>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="items-center text-[10px] text-slate-300 px-6 py-6 font-bold uppercase tracking-widest bg-background border-none mt-auto">
-        © {new Date().getFullYear()} Argyle
+      <SidebarFooter className="px-8 py-8 bg-transparent border-t border-white/5 relative z-10">
+        <div className="flex flex-col gap-5">
+          <p className="text-[9px] text-slate-500 font-semibold tracking-wide">
+            © {new Date().getFullYear()} ARGYLE
+          </p>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

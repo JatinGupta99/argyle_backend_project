@@ -6,6 +6,7 @@ import { Role, ROLES } from '@/app/auth/roles';
 import { normalizeRole } from '@/app/auth/access';
 import { useDailyMediaControls } from './useDailyMediaControls';
 import { useLiveState } from './useLiveState';
+import { mergeUserData } from '@/lib/utils/daily-utils';
 
 interface UseDailySpeakerProps {
   roomUrl: string;
@@ -56,7 +57,15 @@ export function useDailySpeaker({
   const loading = !ready;
   const isModerator = role === ROLES.MODERATOR;
 
-  // 5. Default Moderators to OFF (Camera/Mic)
+  // 5. Sync Role to userData for other participants to see
+  useEffect(() => {
+    if (ready && callObject && role) {
+      console.log('[useDailySpeaker] Syncing role to userData:', role);
+      mergeUserData(callObject, { role });
+    }
+  }, [ready, callObject, role]);
+
+  // 6. Default Moderators to OFF (Camera/Mic)
   useEffect(() => {
     if (ready && callObject && isModerator) {
       console.log('[useDailySpeaker] Auto-muting Moderator on join');

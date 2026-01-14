@@ -9,7 +9,7 @@ import { ChatInputSection } from '@/components/stage/chat/ChatInputSection';
 import { ChatMessages, ChatMessagesRef } from '@/components/stage/chat/ChatMessages';
 import { ChatTabs } from '@/components/stage/chat/ChatTabs';
 
-import { useMessages } from '@/hooks/useMessages';
+import { useChat } from '@/hooks/useChat';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatPanelProps } from '@/lib/types/components';
 
@@ -64,17 +64,19 @@ export function ChatPanel({
 
   const {
     messages,
+    sendMessage,
+    isConnected,
     isLoading,
-    createMessage,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useMessages(
-    type,
+  } = useChat({
     eventId,
+    sessionType: type,
     activeCategory
-  );
+  });
 
+  // const isLoading = !isConnected; // Handled by hook now
   const sponsorMatch = useMemo(() => {
     const match = pathname?.match(/^\/sponsors\/([^/]+)\/(bill|meet)(\/.*)?$/);
     return match ? { sponsorId: match[1] } : null;
@@ -119,12 +121,14 @@ export function ChatPanel({
 
   const handleSendMessage = useCallback(
     async (text: string) => {
-      if (!text.trim() || !currentUserId) return;
-      await createMessage(text);
+      if (!text.trim()) return;
+      sendMessage(text);
       // Force scroll to bottom immediately after sending
-      chatRef.current?.scrollToBottom();
+      setTimeout(() => {
+        chatRef.current?.scrollToBottom();
+      }, 50);
     },
-    [createMessage, currentUserId]
+    [sendMessage]
   );
 
   const activeLabel = useMemo(() => {
@@ -243,7 +247,7 @@ export function ChatPanel({
             <ChatMessages
               ref={chatRef}
               key={activeCategory}
-              messages={messages ?? []}
+              messages={messages}
               isLoading={isLoading}
               fetchNextPage={fetchNextPage}
               hasNextPage={hasNextPage}

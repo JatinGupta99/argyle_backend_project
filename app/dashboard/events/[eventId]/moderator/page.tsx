@@ -6,7 +6,7 @@ import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerVideoPreview } from '@/components/speaker/SpeakerVideoPreview';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-import { ROLES } from '@/app/auth/roles';
+import { ROLES, ROLES_ADMIN } from '@/app/auth/roles';
 import { useEventRole } from '@/hooks/useEventRole';
 import { Event } from '@/lib/types/components';
 import { DailyProvider, useLocalParticipant } from '@daily-co/daily-react';
@@ -251,7 +251,7 @@ export default function ModeratorPage() {
   }
 
   return (
-    <PageGuard permission="event:manage">
+    <PageGuard permission="event:manage" role={ROLES_ADMIN.Moderator}>
       <ModeratorViewContent event={event as Event} />
     </PageGuard>
   );

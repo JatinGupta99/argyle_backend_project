@@ -19,9 +19,9 @@ import { useEffect, useState } from 'react';
 
 function EventPageContent() {
   const event = useEventContext();
-  const { role, userId, setRole } = useAuth();
+  const { role, userId, token: authToken, setAuth } = useAuth();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const urlToken = searchParams.get('token');
 
   const [imageSignedUrl, setImageSignedUrl] = useState<string | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -36,10 +36,12 @@ function EventPageContent() {
     if (role) return;
 
     // Use centralized utility to extract role from token
-    const determinedRole = token ? extractRoleFromInviteToken(token) : ROLES.ATTENDEE;
+    const tokenToUse = urlToken || authToken;
+    const determinedRole = tokenToUse ? extractRoleFromInviteToken(tokenToUse) : ROLES.ATTENDEE;
 
-    setRole(determinedRole, UserID);
-  }, [token, role, setRole]);
+    // Use setAuth (token required for socket)
+    setAuth(determinedRole, UserID, tokenToUse || '');
+  }, [urlToken, authToken, role, setAuth]);
 
   useEffect(() => {
     async function fetchImage() {

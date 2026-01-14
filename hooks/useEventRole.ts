@@ -39,13 +39,8 @@ export function useEventRole(event: Event, role: Role) {
     role === ROLES.MODERATOR
       ? useLiveState(base.callObject, eventId, roomUrl || '')
       : { isLive: false, toggleLive: undefined, isLoading: false };
-  useEffect(() => {
-    if (base.ready && base.callObject && role === ROLES.MODERATOR) {
-      console.log('[useEventRole] Auto-muting Moderator on mount');
-      base.callObject.setLocalAudio(false);
-      base.callObject.setLocalVideo(false);
-    }
-  }, [base.ready, base.callObject, role]);
+  // Removed auto-mute logic. Moderators should start with default state or controlled by UI.
+  // Previous code forced setLocalVideo(false) which caused "camera always disabled" report.
 
   return {
     ...base,

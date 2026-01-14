@@ -71,13 +71,18 @@ function SpeakerInterface({
   // 1. Separate Remote Speakers from the rest
   const remoteSpeakerIds = participantIds.filter(id => {
     const p = callObject.participants()?.[id];
-    if (!p || p.local) return false; // Exclude local
+    if (!p || p.local) return false;
 
-    // Hide attendees and Moderators (owners)
-    if (p.user_name?.startsWith('Attendee_') || p.owner) {
+    const userData = (p as any).userData || {};
+    const role = (userData.role || userData.participantType || userData.participant_type || '').toLowerCase();
+
+    // Hide Attendees
+    if (role === 'attendee' || p.user_name?.toLowerCase().startsWith('attendee_')) {
       return false;
     }
-    return true;
+
+    // Include Speakers and Moderators (owners)
+    return role === 'speaker' || p.owner;
   });
 
   // 2. Identify the local participant's role

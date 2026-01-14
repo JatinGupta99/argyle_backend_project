@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DailyAudio, DailyProvider } from '@daily-co/daily-react';
 import { useDailyBase } from '@/hooks/useDailyBase';
 import { Role } from '@/app/auth/roles';
+import { useAuth } from '@/app/auth/auth-context';
 import { useCountdown } from '@/hooks/useCountdown';
 import { VideoGrid } from './VideoGrid';
 import { fetchMeetingToken } from '@/lib/api/daily';
@@ -18,19 +19,25 @@ export interface DailyRoomProps {
 
 export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, eventId }: DailyRoomProps) {
   const [userName] = useState(() => `Attendee_${Math.floor(Math.random() * 1000)}`);
+
+  const { token: authToken } = useAuth();
+
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     const urlParams = new URLSearchParams(window.location.search);
     const urlToken = urlParams.get('token');
 
-    // Hardcoded for testing fallback as requested
-    const hardcodedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyIjoiYXNja2xubGFzY2siLCJ1ZCI6ImphdGluZ3VwdGFAZXhhbXBsZS5jb20iLCJ1IjoiVGVzdCBBdHRlbmRlZSIsImV4cCI6MTc2Nzk2MDE0NywibyI6ZmFsc2UsInNzIjpmYWxzZSwiZXB1aSI6dHJ1ZSwidm8iOnRydWUsImFvIjp0cnVlLCJwIjp7ImhwIjp0cnVlLCJjcyI6ZmFsc2UsImNhIjpmYWxzZX0sImQiOiIxM2ZkYjg5Yi1mMTM3LTQ3ZWYtYTczNS04M2EzOGM5ZTY2YTEiLCJpYXQiOjE3Njc4NzM3NDZ9.Fm-VG49Wdbom3bxi0d7U1JvlhkwaiocgYzdYN2gFnkw';
-
-    return urlToken || hardcodedToken;
+    return urlToken || authToken;
   });
 
+  // Keep token in sync if authToken loads late (hydration)
   useEffect(() => {
-    // Priority: URL Token > Hardcoded Token > Dynamic Fetch
+    if (!token && authToken) {
+      setToken(authToken);
+    }
+  }, [authToken, token]);
+
+  useEffect(() => {
     if (token) return;
 
     if (eventIsLive && eventId) {
@@ -48,9 +55,10 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
 
   if (error) {
     const errorMsg = typeof error === 'string' ? error.toLowerCase() : '';
-    const isRoomUnavailable = errorMsg.includes('room is no longer available') ||
+    const isRoomUnavailable = errorMsg.includes('no longer available') ||
       errorMsg.includes('meeting has ended') ||
-      errorMsg.includes('room not found');
+      errorMsg.includes('room not found') ||
+      errorMsg.includes('room_deleted');
 
     if (isRoomUnavailable) {
       return (
@@ -73,14 +81,14 @@ export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, event
 
     return (
       <RoomStateDisplay
-        variant="destructive"
+        variant="default"
         icon={AlertCircle}
-        title="Connection Failed"
-        description={typeof error === 'string' ? error : "An unexpected error occurred while connecting to the room."}
+        title="Connection Issue"
+        description={typeof error === 'string' ? `${error}. Please try reloading.` : "We're having trouble connecting to the broadcast. Please try reloading."}
         action={
           <button
             onClick={() => window.location.reload()}
-            className="flex items-center gap-2 px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-red-900/20"
+            className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold transition-all shadow-lg"
           >
             <RefreshCw size={16} /> Reload Page
           </button>

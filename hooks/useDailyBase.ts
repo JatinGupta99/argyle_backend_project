@@ -43,7 +43,6 @@ export function useDailyBase(
 
     setInstance(co);
     activeHooks++;
-    console.log('[useDailyBase] Hook mounted. Active hooks:', activeHooks);
 
     const handleJoined = async () => {
       const roomInfo = await co.room();

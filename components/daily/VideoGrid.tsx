@@ -5,6 +5,7 @@ import { DailyCall } from '@daily-co/daily-js';
 import { ParticipantState } from './ParticipantState';
 import { VideoTile } from './VideoTile';
 import { useScreenShare, DailyVideo, useParticipantProperty } from '@daily-co/daily-react';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 
 interface VideoGridProps {
   callObject: DailyCall;
@@ -25,27 +26,26 @@ export function VideoGrid({ callObject }: VideoGridProps) {
     if (!p) return false;
 
     const userData = (p as any).userData || {};
-    const role = (userData.role || userData.participantType || userData.participant_type || '').toLowerCase();
+    // Normalize role for comparison, handling potential case differences
+    const rawRole = userData.role || userData.participantType || userData.participant_type || '';
+    // Check against ROLES_ADMIN (Title Case) or fallback to lowercase check
+    const isSpeaker = rawRole === ROLES_ADMIN.Speaker || rawRole.toLowerCase() === 'speaker';
+    const isModerator = rawRole === ROLES_ADMIN.Moderator || rawRole.toLowerCase() === 'moderator' || p.owner;
+    const isAttendee = rawRole === ROLES_ADMIN.Attendee || rawRole.toLowerCase() === 'attendee';
 
-    console.log(`[VideoGrid] Checking participant ${id}:`, {
-      name: p.user_name,
-      role: role,
-      isOwner: p.owner,
-      hasVideo: !!p.video,
-      hasAudio: !!p.audio,
-      userData
-    });
+    // 1. Hide Attendees
+    if (isAttendee || p.user_name?.toLowerCase().startsWith('attendee_')) return false;
 
-    // 1. Explicitly show Speakers
-    if (role === 'Speaker') return true;
+    // 2. Filter by Camera
+    if (!p.video) return false;
 
-    // 2. Hide Attendees
-    if (role === 'Attendee' || p.user_name?.startsWith('Attendee_')) return false;
+    // 3. Strict Allowance: ONLY Speakers
+    // User requested to hide Moderators ("how moderator is coming?????")
+    // So we only return true if isSpeaker. Moderators are explicitly excluded by not being included here.
+    if (isSpeaker) return true;
 
-    // 3. Hide Moderators (owners)
-    if (p.owner) return false;
-
-    return true;
+    // 4. Fallback Block (Includes Moderators)
+    return false;
   });
 
   if (!filteredIds.length && !hasScreenShare) {
@@ -100,8 +100,8 @@ export function VideoGrid({ callObject }: VideoGridProps) {
   const { cols, rows } = computeGrid(filteredIds.length);
 
   const allCamerasOff = filteredIds.every((id: string) => {
-    const tracks = callObject.participants()?.[id]?.tracks;
-    return tracks?.video?.state !== 'playable';
+    const p = callObject.participants()?.[id];
+    return !p?.video;
   });
 
   if (allCamerasOff) {
