@@ -5,10 +5,14 @@ export interface DailyTokenResponse {
     roomUrl: string; // Sometimes returned
 }
 
-export const fetchMeetingToken = async (eventId: string): Promise<string | null> => {
+export const fetchMeetingToken = async (eventId: string, authToken?: string | null): Promise<string | null> => {
     try {
         const { data } = await axios.post<{ data: { token: string } }>(
-            `${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}/join`
+            `${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}/join`,
+            {},
+            {
+                headers: authToken ? { Authorization: `Bearer ${authToken}` } : {}
+            }
         );
         return data.data.token;
     } catch (error) {

@@ -8,7 +8,7 @@ import { useInfiniteQuery, useQueryClient, InfiniteData } from '@tanstack/react-
 import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
 import { useAuth } from '@/app/auth/auth-context';
-import { extractNameFromToken } from '@/lib/utils/jwt-utils';
+import { extractNameFromToken, extractEmailFromToken } from '@/lib/utils/jwt-utils';
 
 interface UseChatOptions {
     eventId: string;
@@ -30,6 +30,7 @@ export function useChat({
     const { socket, isConnected, emit, on, off } = useSocket();
 
     const userName = token ? extractNameFromToken(token) : 'Guest';
+    const userEmail = token ? extractEmailFromToken(token) : null;
 
     const queryKey = ['messages', eventId, sessionType, activeCategory];
 
@@ -169,23 +170,33 @@ export function useChat({
             return { ...oldData, pages: newPages };
         });
 
+        // Prepare user object
+        const userPayload = {
+            _id: userId || 'guest',
+            role: role || 'Attendee',
+            name: userName || 'Guest User',
+            avatar: null,
+            email: userEmail || null
+        };
+
         // 1. Emit Socket (Real-time speed)
         emit('sendMessage', {
             eventId,
             content,
             sessionType,
             category: activeCategory,
-            senderName: userName
+            senderName: userName,
+            user: userPayload
         });
 
         // 2. Persist via REST API (Reliability)
         try {
-            // Note: API expects { content, sessionType, category } in body
-            // Adjust payload based on backend expectation. Assuming standard DTO.
+            // Note: API expects { content, sessionType, category, user } in body
             apiClient.post(API_ROUTES.chat.create(eventId), {
                 content,
                 sessionType,
-                category: activeCategory
+                category: activeCategory,
+                user: userPayload
             }).catch(err => {
                 console.error('[useChat] Failed to persist message:', err);
                 // Optional: Trigger rollback or error toast
@@ -196,7 +207,7 @@ export function useChat({
 
         // We assume socket 'newMessage' broadcast will eventually replace this temp message
         // or we could handle ack if socket supported it.
-    }, [emit, eventId, sessionType, activeCategory, userId, userName, queryClient, queryKey]);
+    }, [emit, eventId, sessionType, activeCategory, userId, userName, userEmail, role, queryClient, queryKey]);
 
     return {
         messages,

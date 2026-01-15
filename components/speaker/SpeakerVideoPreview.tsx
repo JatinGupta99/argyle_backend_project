@@ -4,7 +4,7 @@ import React from 'react';
 import { DailyVideo } from '@daily-co/daily-react';
 import { DailyParticipant } from '@daily-co/daily-js';
 import { User, Camera, CameraOff } from 'lucide-react';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 
 interface SpeakerVideoPreviewProps {
   localParticipant: DailyParticipant | null;
@@ -19,7 +19,7 @@ export function SpeakerVideoPreview({
   isLive,
   isCamOn,
   isMicOn = false,
-  role = ROLES.SPEAKER,
+  role = ROLES_ADMIN.Speaker,
 }: SpeakerVideoPreviewProps) {
   if (!localParticipant) return null;
 

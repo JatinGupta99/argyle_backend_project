@@ -14,7 +14,13 @@ export default function EventLayout({ children }: EventLayoutProps) {
   const eventId = params?.eventId as string;
 
   const { event, isLoading, error } = useEvent(eventId);
-  console.log(event, 'event');
+
+  console.log('[Event Layout] Debug:', {
+    urlEventId: eventId,
+    fetchedEventId: event?._id,
+    mismatch: eventId !== event?._id,
+    event
+  });
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">

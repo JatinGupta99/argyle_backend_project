@@ -22,7 +22,8 @@ export function useDailyBase(
   roomUrl: string,
   enable: boolean,
   userName: string,
-  token: string | null = null
+  token: string | null = null,
+  userData: any = null
 ) {
   const [instance, setInstance] = useState<DailyCall | null>(getOrCreateInstance());
   const [ready, setReady] = useState(false);
@@ -162,6 +163,7 @@ export function useDailyBase(
         const joinOptions: DailyCallOptions = {
           url: roomUrl,
           userName,
+          userData,
           token: token || undefined,
           activeSpeakerMode: true,
           customLayout: true,
@@ -182,7 +184,7 @@ export function useDailyBase(
     };
 
     joinRoom();
-  }, [enable, roomUrl, userName, token]);
+  }, [enable, roomUrl, userName, token, JSON.stringify(userData)]);
 
   // 3. Sync userName if it changes while joined
   useEffect(() => {

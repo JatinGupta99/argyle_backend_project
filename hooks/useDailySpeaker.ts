@@ -2,11 +2,13 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useDailyBase } from './useDailyBase';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import { normalizeRole } from '@/app/auth/access';
 import { useDailyMediaControls } from './useDailyMediaControls';
 import { useLiveState } from './useLiveState';
 import { mergeUserData } from '@/lib/utils/daily-utils';
+import { extractUserDataFromToken } from '@/lib/utils/jwt-utils';
+import { useMemo } from 'react';
 
 interface UseDailySpeakerProps {
   roomUrl: string;
@@ -27,19 +29,30 @@ export function useDailySpeaker({
   roomUrl,
   eventId,
   role: initialRole,
-  userName = ROLES.SPEAKER,
+  userName = ROLES_ADMIN.Speaker,
   token,
   enableJoin = true,
   initialIsLive = false
 }: UseDailySpeakerProps) {
   const role = normalizeRole(initialRole);
+  const userData = useMemo(() => {
+    if (!token) return null;
+    return extractUserDataFromToken(token);
+  }, [token]);
+
+  // Priority: Token-provided URL -> Prop-provided URL
+  const finalRoomUrl = userData?.dailyUrl || roomUrl;
+  // Priority: Token-provided Daily Token -> Prop-provided Token
+  const finalToken = userData?.dailyToken || token;
+  // Use name from token if available
+  const finalUserName = userData?.name || userName;
 
   // 1. Core Connection
   const {
     callObject,
     ready,
     error: baseError,
-  } = useDailyBase(roomUrl, enableJoin, userName, token || null);
+  } = useDailyBase(finalRoomUrl, enableJoin, finalUserName, finalToken || null, userData);
 
   // 2. Hardware Controls (Synced Source of Truth)
   const media = useDailyMediaControls(callObject);
@@ -55,7 +68,7 @@ export function useDailySpeaker({
   }, [baseError]);
 
   const loading = !ready;
-  const isModerator = role === ROLES.MODERATOR;
+  const isModerator = role === ROLES_ADMIN.Moderator;
 
   // 5. Sync Role to userData for other participants to see
   useEffect(() => {
@@ -83,7 +96,7 @@ export function useDailySpeaker({
     isLoading,
     isRecording,
     ...media,
-    toggleLive: role === ROLES.MODERATOR ? toggleLive : async () => { },
-    endEvent: role === ROLES.MODERATOR ? endEvent : async () => { },
+    toggleLive: role === ROLES_ADMIN.Moderator ? toggleLive : async () => { },
+    endEvent: role === ROLES_ADMIN.Moderator ? endEvent : async () => { },
   };
 }

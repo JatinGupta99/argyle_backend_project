@@ -1,3 +1,4 @@
+import { ROLES_ADMIN } from '@/app/auth/roles.js';
 import { ChatCategoryType, ChatSessionType } from '../constants/chat.js';
 import { RoleView } from '../slices/uiSlice.ts';
 
@@ -15,7 +16,7 @@ export interface ChatPanelProps {
   eventId: string;
   youtubeUrl?: string;
   currentUserId?: string;
-  role: RoleView;
+  role: ROLES_ADMIN;
   type: ChatSessionType;
   tabs: ChatCategoryType[];
 }

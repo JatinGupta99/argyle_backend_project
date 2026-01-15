@@ -1,16 +1,10 @@
-export const ROLES = {
-  MODERATOR: "Moderator",
-  SPEAKER: "Speaker",
-  ATTENDEE: "Attendee",
-} as const;
-
 export enum ROLES_ADMIN {
   Moderator = 'Moderator',
   Speaker = 'Speaker',
   Attendee = 'Attendee',
 }
 
-export type Role = typeof ROLES[keyof typeof ROLES];
+export type Role = ROLES_ADMIN;
 
 /**
  * Granular permissions for professional RBAC
@@ -29,8 +23,8 @@ export type Permission =
  * Role to Permission mapping
  * Single source of truth for capabilities
  */
-export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-  [ROLES.MODERATOR]: [
+export const ROLE_PERMISSIONS: Record<ROLES_ADMIN, Permission[]> = {
+  [ROLES_ADMIN.Moderator]: [
     'event:view',
     'event:edit',
     'event:manage',
@@ -40,11 +34,11 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     'chat:backstage',
     'broadcast:start',
   ],
-  [ROLES.SPEAKER]: [
+  [ROLES_ADMIN.Speaker]: [
     'event:view',
     'chat:backstage',
   ],
-  [ROLES.ATTENDEE]: [
+  [ROLES_ADMIN.Attendee]: [
     'event:view',
   ],
 };

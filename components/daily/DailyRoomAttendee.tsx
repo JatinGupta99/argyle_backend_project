@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DailyAudio, DailyProvider } from '@daily-co/daily-react';
 import { useDailyBase } from '@/hooks/useDailyBase';
 import { Role } from '@/app/auth/roles';
@@ -6,6 +6,7 @@ import { useAuth } from '@/app/auth/auth-context';
 import { useCountdown } from '@/hooks/useCountdown';
 import { VideoGrid } from './VideoGrid';
 import { fetchMeetingToken } from '@/lib/api/daily';
+import { extractUserDataFromToken } from '@/lib/utils/jwt-utils';
 import { Loader2, Clock, AlertCircle, RefreshCw, CheckCircle2, CalendarX } from 'lucide-react';
 import { RoomStateDisplay } from './RoomStateDisplay';
 
@@ -17,41 +18,82 @@ export interface DailyRoomProps {
   eventId: string;
 }
 
-export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, eventId }: DailyRoomProps) {
-  const [userName] = useState(() => `Attendee_${Math.floor(Math.random() * 1000)}`);
-
+export function DailyRoomAttendee({ role, startTime, roomUrl: initialRoomUrl, eventIsLive, eventId }: DailyRoomProps) {
   const { token: authToken } = useAuth();
 
-  const [token, setToken] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null;
+  const [tokenParams, setTokenParams] = useState<{ token: string | null, dailyToken: string | null, dailyUrl: string | null }>(() => {
+    if (typeof window === 'undefined') return { token: null, dailyToken: null, dailyUrl: null };
     const urlParams = new URLSearchParams(window.location.search);
-    const urlToken = urlParams.get('token');
+    const urlToken = urlParams.get('token') || authToken;
 
-    return urlToken || authToken;
+    if (urlToken) {
+      const details = extractUserDataFromToken(urlToken);
+      return {
+        token: urlToken,
+        dailyToken: details?.dailyToken || null,
+        dailyUrl: details?.dailyUrl || null
+      };
+    }
+    return { token: null, dailyToken: null, dailyUrl: null };
   });
+
+  const token = tokenParams.token;
+  const roomUrl = tokenParams.dailyUrl; // Strictly use token-provided URL, no fallback
+  const joinToken = tokenParams.dailyToken || token; // Prefer internal daily_token if available
+
+  const userData = useMemo(() => {
+    if (!token) return null;
+    return extractUserDataFromToken(token);
+  }, [token]);
+
+  const userName = userData?.name || `Attendee_${Math.floor(Math.random() * 1000)}`;
 
   // Keep token in sync if authToken loads late (hydration)
   useEffect(() => {
-    if (!token && authToken) {
-      setToken(authToken);
+    if (!tokenParams.token && authToken) {
+      const details = extractUserDataFromToken(authToken);
+      setTokenParams({
+        token: authToken,
+        dailyToken: details?.dailyToken || null,
+        dailyUrl: details?.dailyUrl || null
+      });
     }
-  }, [authToken, token]);
+  }, [authToken, tokenParams.token]);
 
   useEffect(() => {
     if (token) return;
 
     if (eventIsLive && eventId) {
-      fetchMeetingToken(eventId).then(setToken);
+      fetchMeetingToken(eventId).then(newToken => {
+        // Fallback fetch for raw daily token if no JWT token exists
+        setTokenParams({
+          token: newToken,
+          dailyToken: null,
+          dailyUrl: null // Note: API should ideally return roomUrl too if we strictly require it
+        });
+      });
     }
   }, [eventIsLive, eventId, token]);
 
   // Joined automatically in background once time is reached
   const { callObject, ready, error } = useDailyBase(
-    roomUrl,
-    eventIsLive,
+    roomUrl || '',
+    eventIsLive && !!roomUrl,
     userName,
-    token
+    joinToken,
+    userData
   );
+
+  if (!roomUrl && token) {
+    return (
+      <RoomStateDisplay
+        variant="default"
+        icon={AlertCircle}
+        title="Invalid Invite"
+        description="This invite token does not contain a valid room link. Please contact the organizer."
+      />
+    );
+  }
 
   if (error) {
     const errorMsg = typeof error === 'string' ? error.toLowerCase() : '';

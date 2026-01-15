@@ -2,30 +2,45 @@
 
 import { useState, useEffect } from 'react';
 import { Event } from '@/lib/types/components';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import { useDailyBase } from './useDailyBase';
 import { useDailyMediaControls } from './useDailyMediaControls';
 import { useLiveState } from './useLiveState';
 import { fetchMeetingToken } from '@/lib/api/daily';
+import { useAuth } from '@/app/auth/auth-context';
+import { extractUserDataFromToken } from '@/lib/utils/jwt-utils';
+import { useMemo } from 'react';
 
 export function useEventRole(event: Event, role: Role) {
   const eventId = event?._id;
   const roomUrl = event?.dailyRoomDetails?.dailyRoomUrl;
-  const displayName = event?.title || 'Guest';
-
+  const { token: authToken } = useAuth();
   const [token, setToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Only moderators need to fetch a token this way (Speakers use useDailySpeaker)
-    if (role === ROLES.MODERATOR && eventId) {
-      fetchMeetingToken(eventId).then(setToken);
-    }
-  }, [eventId, role]);
+  const userData = useMemo(() => {
+    if (!authToken) return null;
+    return extractUserDataFromToken(authToken);
+  }, [authToken]);
 
-  // (roomUrl, enable, userName, token)
-  const base = useDailyBase(roomUrl, true, displayName, token);
+  useEffect(() => {
+    // If token has a dailyToken, use it immediately
+    if (userData?.dailyToken) {
+      setToken(userData.dailyToken);
+      return;
+    }
+    // Otherwise fetch if moderator
+    if (role === ROLES_ADMIN.Moderator && eventId) {
+      fetchMeetingToken(eventId, authToken).then(setToken);
+    }
+  }, [eventId, role, userData?.dailyToken, authToken]);
+
+  const finalRoomUrl = userData?.dailyUrl || roomUrl;
+  const finalDisplayName = userData?.name || '';
+
+  // (roomUrl, enable, userName, token, userData)
+  const base = useDailyBase(finalRoomUrl, true, finalDisplayName, token, userData);
   const media =
-    role === ROLES.ATTENDEE
+    role === ROLES_ADMIN.Attendee
       ? {
         isMicOn: false,
         isCamOn: false,
@@ -36,7 +51,7 @@ export function useEventRole(event: Event, role: Role) {
       }
       : useDailyMediaControls(base.callObject);
   const live =
-    role === ROLES.MODERATOR
+    role === ROLES_ADMIN.Moderator
       ? useLiveState(base.callObject, eventId, roomUrl || '')
       : { isLive: false, toggleLive: undefined, isLoading: false };
   // Removed auto-mute logic. Moderators should start with default state or controlled by UI.

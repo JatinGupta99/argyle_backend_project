@@ -3,7 +3,7 @@
 import DailyRoom from '@/components/daily/DailyRoom';
 import { DailyRoomAttendee } from '@/components/daily/DailyRoomAttendee';
 import { useEventContext } from '@/components/providers/EventContextProvider';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import type { RootState } from '@/lib/store';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -14,7 +14,7 @@ interface VideoPanelProps {
 
 export function VideoPanel({
   eventId,
-  role = ROLES.ATTENDEE,
+  role = ROLES_ADMIN.Attendee,
 }: VideoPanelProps) {
   const dispatch = useDispatch();
   const reduxIsLive = useSelector((state: RootState) => state.ui.isLive);

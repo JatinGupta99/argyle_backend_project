@@ -1,4 +1,4 @@
-import { Role, ROLES } from "./roles";
+import { Role, ROLES_ADMIN } from "./roles";
 
 type Media = "audio" | "video" | "screenVideo" | "screenAudio";
 
@@ -18,8 +18,8 @@ export type RoleConfig = {
   permissions: Permissions;
 };
 
-export const ROLE_CONFIG: Record<Role, RoleConfig> = {
-  [ROLES.MODERATOR]: {
+export const ROLE_CONFIG: Record<ROLES_ADMIN, RoleConfig> = {
+  [ROLES_ADMIN.Moderator]: {
     is_owner: true,
     enable_screenshare: true,
     enable_prejoin_ui: false,
@@ -33,7 +33,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     },
   },
 
-  [ROLES.SPEAKER]: {
+  [ROLES_ADMIN.Speaker]: {
     is_owner: false,
     enable_screenshare: true,
     enable_prejoin_ui: false,
@@ -46,7 +46,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     },
   },
 
-  [ROLES.ATTENDEE]: {
+  [ROLES_ADMIN.Attendee]: {
     is_owner: false,
     enable_screenshare: false,
     enable_prejoin_ui: true,

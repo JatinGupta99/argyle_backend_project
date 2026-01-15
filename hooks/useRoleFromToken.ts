@@ -1,6 +1,6 @@
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import { extractRoleFromInviteToken, isTokenExpired } from '@/lib/utils/jwt-utils';
 
 /**
@@ -15,7 +15,7 @@ export function useRoleFromToken() {
         // No token provided
         if (!token) {
             return {
-                role: ROLES.ATTENDEE,
+                role: ROLES_ADMIN.Attendee,
                 token: null,
                 isExpired: false,
                 hasToken: false,

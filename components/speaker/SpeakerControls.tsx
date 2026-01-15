@@ -5,7 +5,7 @@ import { MediaControls } from '@/components/shared/MediaControls';
 import { Button } from '@/components/ui/button';
 import { Radio, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 
 interface SpeakerControlsProps {
   isMicOn: boolean;
@@ -40,7 +40,7 @@ export function SpeakerControls({
 
   return (
     <div className="w-full h-20 bg-[#000a28] border-t border-white/10 flex items-center justify-center gap-6 px-4 z-50">
-      {role === ROLES.MODERATOR && onToggleLive && (
+      {role === ROLES_ADMIN.Moderator && onToggleLive && (
         <div className="flex items-center gap-2">
           <Button
             variant={isLive ? 'destructive' : 'default'}
@@ -63,7 +63,7 @@ export function SpeakerControls({
         </div>
       )}
 
-      {role === ROLES.MODERATOR && <div className="w-px h-8 bg-white/10" />}
+      {role === ROLES_ADMIN.Moderator && <div className="w-px h-8 bg-white/10" />}
 
       <MediaControls
         isMicOn={isMicOn}

@@ -1,8 +1,9 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/store/store';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuth } from '@/app/auth/auth-context';
+import { extractNameFromToken, extractEmailFromToken } from '@/lib/utils/jwt-utils';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -10,11 +11,13 @@ interface HeaderProps {
 }
 
 export function Header({ title = '' }: HeaderProps) {
-  const user = useSelector((state: RootState) => state.user);
-  console.log('Header Rendered. Title:', title, 'User:', user);
+  const { token } = useAuth();
 
-  const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()
+  const userName = token ? extractNameFromToken(token) : null;
+  const userEmail = token ? extractEmailFromToken(token) : null;
+
+  const initials = userName
+    ? userName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
     : 'U';
 
   return (
@@ -35,30 +38,26 @@ export function Header({ title = '' }: HeaderProps) {
               "w-1.5 h-1.5 rounded-full",
               title === 'Speaker Live Stage' ? "bg-red-500 animate-pulse" : "bg-emerald-500"
             )} />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-              {title === 'Speaker Live Stage' ? 'Live Transmission' : 'Secure Portal'}
-            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="flex flex-col items-end">
-            <span className={cn(
-              "text-sm font-black tracking-tight",
-              title === 'Speaker Live Stage' ? "text-white" : "text-[#000a28]"
-            )}>
-              {""}
-            </span>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-              {user?.email || ''}
-            </span>
-          </div>
-          <Avatar className="h-11 w-11 ring-2 ring-white/10 shadow-xl cursor-pointer hover:scale-110 active:scale-95 transition-all">
-            <AvatarImage src={user?.email === 'demo@argyle.com' ? '/attendee-avatar.jpg' : ''} alt={user?.name || "User avatar"} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-sm">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Avatar className="h-11 w-11 ring-2 ring-white/10 shadow-xl cursor-pointer hover:scale-110 active:scale-95 transition-all">
+                <AvatarImage src={userEmail === 'demo@argyle.com' ? '/attendee-avatar.jpg' : ''} alt={userName || "User avatar"} />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-sm">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="bg-slate-900 text-white border-slate-700 px-4 py-3">
+              <div className="flex flex-col gap-1">
+                <p className="font-bold text-sm">{userName || 'User'}</p>
+                <p className="text-xs text-slate-300">{userEmail || 'No email'}</p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </div>

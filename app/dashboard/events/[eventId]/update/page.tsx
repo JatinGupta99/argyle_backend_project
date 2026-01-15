@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthProvider, useAuth } from '@/app/auth/auth-context';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { useSearchParams } from 'next/navigation';
@@ -29,17 +29,21 @@ function EventPageContent() {
   const eventId = event._id as string;
   const currentUserId = userId || UserID;
 
+  console.log('[Update Page] Event Context:', {
+    eventId,
+    eventTitle: event.title,
+    fullEvent: event
+  });
+
   const maxWidthClass = isSidebarCollapsed ? 'max-w-[75rem]' : 'max-w-[60rem]';
   const inputMaxWidthClass = isSidebarCollapsed ? 'max-w-[65rem]' : 'max-w-[50rem]';
 
   useEffect(() => {
     if (role) return;
 
-    // Use centralized utility to extract role from token
     const tokenToUse = urlToken || authToken;
-    const determinedRole = tokenToUse ? extractRoleFromInviteToken(tokenToUse) : ROLES.ATTENDEE;
+    const determinedRole = tokenToUse ? extractRoleFromInviteToken(tokenToUse) : ROLES_ADMIN.Attendee;
 
-    // Use setAuth (token required for socket)
     setAuth(determinedRole, UserID, tokenToUse || '');
   }, [urlToken, authToken, role, setAuth]);
 
@@ -70,7 +74,7 @@ function EventPageContent() {
       sidebar={
         <ChatPanel
           title3={ChatTab.Argyle}
-          role={role === ROLES.MODERATOR ? RoleView.Moderator : RoleView.Attendee}
+          role={role === ROLES_ADMIN.Moderator ? ROLES_ADMIN.Moderator : ROLES_ADMIN.Attendee}
           eventId={eventId}
           currentUserId={currentUserId}
           type={ChatSessionType.PRE_LIVE}

@@ -1,7 +1,7 @@
 'use client';
 
 import { normalizeRole } from '@/app/auth/access';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import { Button } from '@/components/ui/button';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useDailySpeaker } from '@/hooks/useDailySpeaker';
@@ -74,15 +74,18 @@ function SpeakerInterface({
     if (!p || p.local) return false;
 
     const userData = (p as any).userData || {};
-    const role = (userData.role || userData.participantType || userData.participant_type || '').toLowerCase();
+    const rawRole = (userData.role || userData.participantType || userData.participant_type || '');
+
+    // Normalize and compare
+    const pRole = normalizeRole(rawRole);
 
     // Hide Attendees
-    if (role === 'attendee' || p.user_name?.toLowerCase().startsWith('attendee_')) {
+    if (pRole === ROLES_ADMIN.Attendee || p.user_name?.toLowerCase().startsWith('attendee_')) {
       return false;
     }
 
     // Include Speakers and Moderators (owners)
-    return role === 'speaker' || p.owner;
+    return pRole === ROLES_ADMIN.Speaker || pRole === ROLES_ADMIN.Moderator || p.owner;
   });
 
   // 2. Identify the local participant's role
@@ -264,7 +267,7 @@ function SpeakerInterface({
         role={role}
         isLive={isLive}
         onToggleLive={toggleLive}
-        onEndEvent={role === ROLES.MODERATOR ? endEvent : undefined}
+        onEndEvent={role === ROLES_ADMIN.Moderator ? endEvent : undefined}
         isLoading={isLoading}
         isTimeReached={isTimeReached}
       />
@@ -333,7 +336,7 @@ export function SpeakerViewContent({
 
   // Start camera/mic for lobby preview (Speakers only)
   useEffect(() => {
-    if (!hasJoined && callObject && role !== ROLES.MODERATOR) {
+    if (!hasJoined && callObject && role !== ROLES_ADMIN.Moderator) {
       console.log('[SpeakerViewContent] Starting camera for lobby preview...');
       callObject.startCamera();
     }
@@ -383,7 +386,7 @@ export function SpeakerViewContent({
         <div className="relative h-screen w-full overflow-hidden bg-slate-950">
           {/* 1. Background Layer */}
           <div className="absolute inset-0 z-0">
-            {role === ROLES.MODERATOR ? (
+            {role === ROLES_ADMIN.Moderator ? (
               // Moderator: Clean Professional Gradient
               <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[120px]" />
@@ -401,17 +404,17 @@ export function SpeakerViewContent({
           <div className="absolute top-8 left-8 z-20">
             <div className="flex flex-col gap-1">
               <span className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase backdrop-blur-xl border shadow-2xl
-                ${role === ROLES.MODERATOR
+                ${role === ROLES_ADMIN.Moderator
                   ? 'bg-blue-500/10 text-blue-300 border-blue-400/20'
                   : 'bg-emerald-500/10 text-emerald-300 border-emerald-400/20'}`}>
-                {role === ROLES.MODERATOR ? <Shield className="w-4 h-4" /> : <Radio className="w-4 h-4" />}
-                {role === ROLES.MODERATOR ? 'Moderator' : 'Speaker'}
+                {role === ROLES_ADMIN.Moderator ? <Shield className="w-4 h-4" /> : <Radio className="w-4 h-4" />}
+                {role === ROLES_ADMIN.Moderator ? ROLES_ADMIN.Moderator : ROLES_ADMIN.Speaker}
               </span>
             </div>
           </div>
 
           {/* 3. Role-Based Content Layout */}
-          {role === ROLES.MODERATOR ? (
+          {role === ROLES_ADMIN.Moderator ? (
             // MODERATOR JOIN: Centered Card
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6">
               <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-10 flex flex-col gap-8 shadow-2xl animate-in fade-in zoom-in-95 duration-500">

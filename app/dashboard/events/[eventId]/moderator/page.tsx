@@ -6,12 +6,15 @@ import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerVideoPreview } from '@/components/speaker/SpeakerVideoPreview';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-import { ROLES, ROLES_ADMIN } from '@/app/auth/roles';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { useEventRole } from '@/hooks/useEventRole';
 import { Event } from '@/lib/types/components';
 import { DailyProvider, useLocalParticipant } from '@daily-co/daily-react';
 import { AlertCircle, Clock, Loader2, Users } from 'lucide-react';
 import { PageGuard } from '@/components/auth/PageGuard';
+import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/app/auth/auth-context';
+import { extractRoleFromInviteToken, extractNameFromToken } from '@/lib/utils/jwt-utils';
 
 /**
  * FullScreenState - Shared UI for loading/error states
@@ -62,7 +65,7 @@ function ModeratorViewContent({ event }: { event: Event }) {
     toggleMic,
     toggleCam,
     toggleScreenShare,
-  } = useEventRole(event, ROLES.MODERATOR);
+  } = useEventRole(event, ROLES_ADMIN.Moderator);
 
   const localParticipant = useLocalParticipant();
 
@@ -134,7 +137,7 @@ function ModeratorViewContent({ event }: { event: Event }) {
                 isLive={isLive}
                 isCamOn={isCamOn}
                 isMicOn={isMicOn}
-                role={ROLES.MODERATOR}
+                role={ROLES_ADMIN.Moderator}
               />
             </div>
 
@@ -245,6 +248,17 @@ function ModeratorViewContent({ event }: { event: Event }) {
  */
 export default function ModeratorPage() {
   const event = useEventContext();
+  const searchParams = useSearchParams();
+  const urlToken = searchParams.get('token');
+  const { setAuth, token: authToken } = useAuth();
+
+  useEffect(() => {
+    if (urlToken && urlToken !== authToken) {
+      const role = extractRoleFromInviteToken(urlToken);
+      const name = extractNameFromToken(urlToken) || ROLES_ADMIN.Moderator;
+      setAuth(role, name, urlToken);
+    }
+  }, [urlToken, authToken, setAuth]);
 
   if (!event) {
     return <FullScreenState errorMessage="Critical Error: Event context could not be established." />;

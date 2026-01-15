@@ -24,6 +24,14 @@ export interface InviteTokenPayload {
     name?: string;
     role?: string;      // "Moderator", "Speaker", "Attendee"
     is_owner?: boolean; // alternative owner flag
+    daily_token?: string; // The token to use for Daily.co join
+    // The room URL override (snake_case)
+    dailyRoomUrl?: string; // The room URL override (camelCase)
+    user_info?: {
+        name?: string;
+        email?: string;
+        role?: string;
+    };
     iat?: number;       // issued at
     exp?: number;       // expiration
 }

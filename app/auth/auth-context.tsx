@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
-import { ROLE_PERMISSIONS, Role, Permission } from "./roles";
+import { ROLE_PERMISSIONS, Role, Permission, ROLES_ADMIN } from "./roles";
 
 interface AuthContextType {
   role: Role | null;
@@ -57,9 +57,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Map Role
           // Using simple mapping or importing helper. 
           // For invite tokens, payload has 'role'.
-          let derivedRole: Role = 'Attendee'; // Default
-          if (payload.role?.toLowerCase() === 'moderator' || payload.is_owner) derivedRole = 'Moderator';
-          else if (payload.role?.toLowerCase() === 'speaker') derivedRole = 'Speaker';
+          let derivedRole: Role = ROLES_ADMIN.Attendee; // Default
+          if (payload.role?.toLowerCase() === 'moderator' || payload.is_owner) derivedRole = ROLES_ADMIN.Moderator;
+          else if (payload.role?.toLowerCase() === 'speaker') derivedRole = ROLES_ADMIN.Speaker;
 
           const derivedUserId = payload.id || payload.userId || payload.sub || payload.email || 'guest';
 

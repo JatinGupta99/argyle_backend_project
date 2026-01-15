@@ -4,7 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Radio } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ROLES } from '@/app/auth/roles';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { MediaControls } from '@/components/shared/MediaControls';
 
 interface ModeratorControlsProps {
@@ -70,7 +70,7 @@ export function ModeratorControls({
         onToggleMic={onToggleMic}
         onToggleCam={onToggleCam}
         onToggleScreenShare={onToggleScreenShare}
-        role={ROLES.MODERATOR}
+        role={ROLES_ADMIN.Moderator}
       />
     </div>
   );

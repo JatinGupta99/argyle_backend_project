@@ -9,8 +9,8 @@ import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { UserID } from '@/lib/constants/api';
 import { useAuth } from '@/app/auth/auth-context';
-import { ROLES } from '@/app/auth/roles';
 import { cn } from '@/lib/utils';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 
 const RAW_VIDEO_URL = "https://www.youtube.com/watch?v=8NJTFdpecaI";
 const YOUTUBE_URL = RAW_VIDEO_URL.replace(/\s/g, '');
@@ -20,7 +20,7 @@ export default function PreRecordedPage() {
     const eventId = params?.eventId as string;
     const { role } = useAuth();
 
-    const canControl = role === ROLES.MODERATOR;
+    const canControl = role === ROLES_ADMIN.Moderator;
 
     React.useEffect(() => {
         console.log('Current Role:', role);

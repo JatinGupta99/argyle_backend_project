@@ -1,5 +1,5 @@
 import { ROLE_CONFIG } from "./role-config";
-import { Role, ROLES } from "./roles";
+import { Role, ROLES_ADMIN } from "./roles";
 
 type Media = "audio" | "video" | "screenVideo" | "screenAudio";
 
@@ -22,13 +22,13 @@ export const canSendMedia = (
 };
 
 export const normalizeRole = (r?: string | Role): Role => {
-  if (!r) return ROLES.ATTENDEE;
+  if (!r) return ROLES_ADMIN.Attendee;
 
-  const vals = Object.values(ROLES) as string[];
+  const vals = Object.values(ROLES_ADMIN) as string[];
   if (vals.includes(r as string)) return r as Role;
 
   const lower = String(r).toLowerCase();
-  if (lower === 'moderator') return ROLES.MODERATOR;
-  if (lower === 'speaker') return ROLES.SPEAKER;
-  return ROLES.ATTENDEE;
+  if (lower === 'moderator') return ROLES_ADMIN.Moderator;
+  if (lower === 'speaker') return ROLES_ADMIN.Speaker;
+  return ROLES_ADMIN.Attendee;
 };

@@ -4,14 +4,14 @@ import axios from 'axios';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerViewContent } from '@/components/speaker/SpeakerViewContent';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { RoleView } from '@/lib/slices/uiSlice';
 import { DailyJoinResponse } from '@/lib/types/daily';
-import { determineRoleWithFallback, extractNameFromToken } from '@/lib/utils/jwt-utils';
+import { determineRoleWithFallback, extractNameFromToken, extractUserDataFromToken } from '@/lib/utils/jwt-utils';
 
 /* -------------------------------------------------------------------------- */
 /*                                Component                                   */
@@ -74,36 +74,41 @@ export default function SpeakerPage() {
       try {
         setIsLoading(true);
 
-        // 1. Try to use existing Auth Token (from localStorage via AuthContext) if valid
-        // This avoids re-fetching or issues if URL token is gone on refresh.
-        // However, we still need the Room URL and Daily Token which might be different?
-        // Usually, the invite token IS the daily token or related.
+        // 1. Decode Role from JWT (Look at who is trying to join)
+        const tokenToAnalyze = urlToken || authToken;
+        const details = tokenToAnalyze ? extractUserDataFromToken(tokenToAnalyze) : null;
 
-        // Let's first fetch the specific join data needed for the stage
+        if (details) {
+          console.log(`[SpeakerPage] Verifying role: ${details.role} for user: ${details.name}`);
+        }
+
+        // 2. Call backend to verify invite and GENERATE the Daily Meeting Token
+        // We pass the JWT in the header for secure verification
         const res = await axios.get<{ data: DailyJoinResponse }>(
           `${process.env.NEXT_PUBLIC_API_URL}/invite/join/${inviteId}`,
+          {
+            headers: tokenToAnalyze ? { Authorization: `Bearer ${tokenToAnalyze}` } : {}
+          }
         );
-        const { token: dailyToken, roomUrl: url } = res.data.data;
 
-        // 2. Determine Role & Name
-        // Priority: URL -> Context/Storage -> Daily Token
-        const tokenToAnalyze = urlToken || authToken || dailyToken;
+        const { token: generatedDailyToken, roomUrl: apiRoomUrl } = res.data.data;
 
-        const extractedRole = determineRoleWithFallback(tokenToAnalyze, dailyToken);
-        const extractedName = extractNameFromToken(tokenToAnalyze);
+        // 3. Consolidate Join Parameters
+        // Priority: Room URL from JWT -> Room URL from API
+        const finalRoomUrl = details?.dailyUrl || apiRoomUrl;
+        const extractedRole = details?.role || ROLES_ADMIN.Speaker;
+        const extractedName = details?.name || 'Speaker';
 
-        setToken(dailyToken);
-        setRoomUrl(url);
+        console.log('[SpeakerPage] Verification complete. Joining stage...');
+
+        setToken(generatedDailyToken);
+        setRoomUrl(finalRoomUrl);
         setLocalRole(extractedRole);
         setUserName(extractedName);
 
-        // 3. Update Sync AuthContext
-        // We use the most authoritative token we have for the app session
-        // If we have a fresh daily token or url token, we update the app session.
-        const appToken = urlToken || dailyToken;
-        if (appToken && appToken !== authToken) {
-          const userId = extractNameFromToken(appToken) || 'speaker'; // minimal id
-          setAuth(extractedRole, userId, appToken);
+        // 4. Sync Auth Context if needed
+        if (tokenToAnalyze && tokenToAnalyze !== authToken) {
+          setAuth(extractedRole, extractedName, tokenToAnalyze);
         }
 
       } catch (err: any) {
@@ -147,7 +152,7 @@ export default function SpeakerPage() {
   }
 
   return (
-    <PageGuard role={[ROLES.SPEAKER, ROLES.MODERATOR]}>
+    <PageGuard role={[ROLES_ADMIN.Speaker, ROLES_ADMIN.Moderator]}>
       <EventStageLayout
         role={RoleView.Speaker}
         chatType={eventIsLive ? ChatSessionType.LIVE : ChatSessionType.PRE_LIVE}
@@ -158,7 +163,7 @@ export default function SpeakerPage() {
           {/* Speakers can always join - backstage mode with countdown shown in header */}
           <div className="w-full h-full p-4">
             <SpeakerViewContent
-              token={token}
+              token={urlToken || token}
               roomUrl={roomUrl}
               eventId={event!._id!}
               role={localRole}

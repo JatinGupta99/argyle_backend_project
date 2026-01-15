@@ -10,11 +10,11 @@ import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { StageProviders } from '@/components/providers/StageProvider';
 
 import { cn } from '@/lib/utils';
-import { ROLES } from '@/app/auth/roles';
 import { useAuth } from '@/app/auth/auth-context';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 
 type Props = {
-  role?: RoleView; // Keep for legacy compatibility during transition
+  role?: ROLES_ADMIN; // Keep for legacy compatibility during transition
   chatType: ChatSessionType;
   chatTabs: ChatCategoryType[];
   title?: ChatTab | string;
@@ -47,15 +47,15 @@ export function EventStageLayout({
     <StageProviders>
       <div className={cn(
         "flex h-screen w-screen overflow-hidden",
-        (userRole === ROLES.SPEAKER || userRole === ROLES.MODERATOR || _role === RoleView.Speaker) ? "bg-black" : "bg-background"
+        (userRole === ROLES_ADMIN.Speaker || userRole === ROLES_ADMIN.Moderator || _role === ROLES_ADMIN.Speaker) ? "bg-black" : "bg-background"
       )}>
         <aside className={cn(
           "h-full flex-shrink-0 flex flex-col shadow-sm z-10 transition-all duration-300",
-          (userRole === ROLES.SPEAKER || userRole === ROLES.MODERATOR || _role === RoleView.Speaker) ? "bg-black" : "bg-[#FAFAFA]"
+          (userRole === ROLES_ADMIN.Speaker || userRole === ROLES_ADMIN.Moderator || _role === ROLES_ADMIN.Speaker) ? "bg-black" : "bg-[#FAFAFA]"
         )}>
           <ChatPanel
             title3={title ?? ChatTab.Everyone}
-            role={(userRole as unknown as RoleView) || _role}
+            role={(userRole as unknown as ROLES_ADMIN) || _role}
             eventId={eventId}
             currentUserId={userId}
             type={chatType}
@@ -65,7 +65,7 @@ export function EventStageLayout({
 
         <main className={cn(
           "flex flex-1 flex-col overflow-hidden relative",
-          (userRole === ROLES.SPEAKER || userRole === ROLES.MODERATOR || _role === RoleView.Speaker) ? "bg-black" : "bg-background"
+          (userRole === ROLES_ADMIN.Speaker || userRole === ROLES_ADMIN.Moderator || _role === ROLES_ADMIN.Speaker) ? "bg-black" : "bg-background"
         )}>
           <Header title={event.title || 'Live Stage'} />
           <div className="flex-1 overflow-hidden relative">

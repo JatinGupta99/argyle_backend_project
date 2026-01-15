@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/app/auth/auth-context';
 import { useSearchParams } from 'next/navigation';
 import { extractRoleFromInviteToken, extractNameFromToken } from '@/lib/utils/jwt-utils';
-import { ROLES, ROLES_ADMIN } from '@/app/auth/roles';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { PageGuard } from '@/components/auth/PageGuard';
 
 export default function AttendeeViewProfilePage() {
@@ -37,7 +37,7 @@ export default function AttendeeViewProfilePage() {
     if (tokenToUse) {
       const determinedRole = extractRoleFromInviteToken(tokenToUse);
       // Fallback to Attendee if token doesn't specify (or if it's just a raw id token)
-      const finalRole = determinedRole || ROLES.ATTENDEE;
+      const finalRole = determinedRole || ROLES_ADMIN.Attendee;
       const userId = extractNameFromToken(tokenToUse) || 'attendee-guest';
 
       // Only update if we have a token (avoid clearing if just navigating)
@@ -104,7 +104,7 @@ export default function AttendeeViewProfilePage() {
             ) : (
               <div className="flex-1 flex h-full items-center justify-center p-4">
                 <DailyRoomAttendee
-                  role={RoleView.Attendee}
+                  role={ROLES_ADMIN.Attendee}
                   startTime={targetDate}
                   roomUrl={dailyRoomDetails?.dailyRoomUrl || ''}
                   eventIsLive={isTimeReached}
