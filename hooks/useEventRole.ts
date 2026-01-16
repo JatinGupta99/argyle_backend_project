@@ -49,7 +49,7 @@ export function useEventRole(event: Event, role: Role) {
         toggleCam: () => { },
         toggleScreenShare: async () => { },
       }
-      : useDailyMediaControls(base.callObject);
+      : useDailyMediaControls(base.callObject, role);
   const live =
     role === ROLES_ADMIN.Moderator
       ? useLiveState(base.callObject, eventId, roomUrl || '')

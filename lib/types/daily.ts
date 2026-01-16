@@ -23,6 +23,7 @@ export interface InviteTokenPayload {
     email?: string;
     name?: string;
     role?: string;      // "Moderator", "Speaker", "Attendee"
+    speakerId?: string; // Speaker/Moderator ID (used as _id in chat)
     is_owner?: boolean; // alternative owner flag
     daily_token?: string; // The token to use for Daily.co join
     // The room URL override (snake_case)
@@ -32,6 +33,10 @@ export interface InviteTokenPayload {
         email?: string;
         role?: string;
     };
+    // Fallback ID fields for different token formats
+    id?: string;
+    userId?: string;
+    sub?: string;
     iat?: number;       // issued at
     exp?: number;       // expiration
 }

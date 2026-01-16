@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DailyCall, DailyParticipant } from '@daily-co/daily-js';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 
 /**
  * useDailyMediaControls - Professional hardware state management
@@ -7,7 +8,7 @@ import { DailyCall, DailyParticipant } from '@daily-co/daily-js';
  * Provider-independent: Uses direct callObject event listeners to ensure
  * synchronization even when used outside a <DailyProvider>.
  */
-export function useDailyMediaControls(callObject: DailyCall | null) {
+export function useDailyMediaControls(callObject: DailyCall | null, role?: string) {
   const [isMicOn, setIsMicOn] = useState(false);
   const [isCamOn, setIsCamOn] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
@@ -67,8 +68,15 @@ export function useDailyMediaControls(callObject: DailyCall | null) {
 
   const toggleCam = useCallback(() => {
     if (!callObject) return;
+
+    // Moderators cannot enable camera (permanent off)
+    if (role === ROLES_ADMIN.Moderator && !isCamOn) {
+      console.log('[MediaControls] Moderator camera is permanently disabled');
+      return;
+    }
+
     callObject.setLocalVideo(!isCamOn);
-  }, [callObject, isCamOn]);
+  }, [callObject, isCamOn, role]);
 
   const toggleScreenShare = useCallback(async () => {
     if (!callObject) return;

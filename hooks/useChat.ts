@@ -8,7 +8,7 @@ import { useInfiniteQuery, useQueryClient, InfiniteData } from '@tanstack/react-
 import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
 import { useAuth } from '@/app/auth/auth-context';
-import { extractNameFromToken, extractEmailFromToken } from '@/lib/utils/jwt-utils';
+import { extractChatUserFromToken } from '@/lib/utils/jwt-utils';
 
 interface UseChatOptions {
     eventId: string;
@@ -29,8 +29,8 @@ export function useChat({
     const { token, userId, role } = useAuth();
     const { socket, isConnected, emit, on, off } = useSocket();
 
-    const userName = token ? extractNameFromToken(token) : 'Guest';
-    const userEmail = token ? extractEmailFromToken(token) : null;
+    // Extract complete user details from token
+    const chatUser = token ? extractChatUserFromToken(token) : null;
 
     const queryKey = ['messages', eventId, sessionType, activeCategory];
 
@@ -76,7 +76,7 @@ export function useChat({
         const shouldConnect = sessionType === ChatSessionType.LIVE || (sessionType === ChatSessionType.PRE_LIVE && isChatEnabled);
 
         if (shouldConnect) {
-            console.log(`[useChat] Joining ${sessionType}:${activeCategory}`);
+            console.log(`[useChat] Joining Room -> event:${eventId}:${sessionType}:${activeCategory}`);
             emit('joinRoom', {
                 eventId,
                 sessionType,
@@ -86,10 +86,15 @@ export function useChat({
 
         return () => {
             if (shouldConnect) {
-                // Optional: emit('leaveRoom', ...) if backend supports it
+                console.log(`[useChat] Leaving Room -> event:${eventId}:${sessionType}:${activeCategory}`);
+                emit('leaveRoom', {
+                    eventId,
+                    sessionType,
+                    category: activeCategory,
+                });
             }
         };
-    }, [socket, isConnected, eventId, sessionType, activeCategory, isChatEnabled, emit]);
+    }, [socket, isConnected, eventId, sessionType, activeCategory, isChatEnabled]); // Removed 'emit' and others that might trigger unnecessarily
 
     // 3. Real-time Updates (Socket -> Query Cache)
     useEffect(() => {
@@ -123,16 +128,39 @@ export function useChat({
             queryClient.setQueryData<InfiniteData<Message[]>>(queryKey, (oldData) => {
                 if (!oldData) return { pages: [[newMessage]], pageParams: [undefined] };
 
-                // Dedup
+                // 1. Exact ID Dedup
                 const allMessages = oldData.pages.flatMap(p => p);
                 if (allMessages.some(m => m._id === newMessage._id)) return oldData;
 
+                // 2. Temp ID Replacement (Deduplication for optimistic UI)
+                const isDuplicate = allMessages.some(m => {
+                    if (!m._id.startsWith('temp-')) return false;
+                    const timeDiff = Math.abs(new Date(m.createdAt).getTime() - new Date(newMessage.createdAt).getTime());
+                    return m.content === newMessage.content && m.userId._id === newMessage.userId._id && timeDiff < 10000;
+                });
+
                 const newPages = [...oldData.pages];
-                if (newPages.length > 0) {
-                    newPages[0] = [newMessage, ...newPages[0]];
+                if (isDuplicate) {
+                    // Replace the temp message with the real one in the correct page
+                    newPages.forEach((page, pIdx) => {
+                        const mIdx = page.findIndex(m =>
+                            m._id.startsWith('temp-') &&
+                            m.content === newMessage.content &&
+                            m.userId._id === newMessage.userId._id
+                        );
+                        if (mIdx !== -1) {
+                            page[mIdx] = newMessage;
+                        }
+                    });
                 } else {
-                    newPages[0] = [newMessage];
+                    // Prepend new message
+                    if (newPages.length > 0) {
+                        newPages[0] = [newMessage, ...newPages[0]];
+                    } else {
+                        newPages[0] = [newMessage];
+                    }
                 }
+
                 return { ...oldData, pages: newPages };
             });
         };
@@ -141,11 +169,20 @@ export function useChat({
         return () => {
             off('newMessage', handleNewMessage);
         };
-    }, [socket, eventId, activeCategory, sessionType, queryClient, queryKey, on, off]);
+    }, [socket, eventId, activeCategory, sessionType, queryClient, queryKey]); // Optimized dependencies
 
-    // 4. Sending (Optimistic UI + Socket)
+    // 4. Sending (Socket-Driven for Real-time)
     const sendMessage = useCallback((content: string) => {
         if (!content.trim()) return;
+
+        // Prepare user object from token or default
+        const userPayload = chatUser || {
+            _id: userId || 'guest',
+            role: role || 'Attendee',
+            name: 'Guest User',
+            avatar: null,
+            email: null
+        };
 
         const tempId = `temp-${Date.now()}`;
         const optimistMsg: Message = {
@@ -154,9 +191,9 @@ export function useChat({
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             userId: {
-                _id: userId || 'me',
-                username: userName || 'Me',
-                email: '',
+                _id: userPayload._id,
+                username: userPayload.name,
+                email: userPayload.email || '',
             },
             likes: [],
             comments: []
@@ -170,44 +207,19 @@ export function useChat({
             return { ...oldData, pages: newPages };
         });
 
-        // Prepare user object
-        const userPayload = {
-            _id: userId || 'guest',
-            role: role || 'Attendee',
-            name: userName || 'Guest User',
-            avatar: null,
-            email: userEmail || null
-        };
-
-        // 1. Emit Socket (Real-time speed)
+        // 1. Emit Socket (Primary for sending)
+        // Backend handles DB persistence and broadcasts 'newMessage'
         emit('sendMessage', {
             eventId,
             content,
             sessionType,
             category: activeCategory,
-            senderName: userName,
             user: userPayload
         });
 
-        // 2. Persist via REST API (Reliability)
-        try {
-            // Note: API expects { content, sessionType, category, user } in body
-            apiClient.post(API_ROUTES.chat.create(eventId), {
-                content,
-                sessionType,
-                category: activeCategory,
-                user: userPayload
-            }).catch(err => {
-                console.error('[useChat] Failed to persist message:', err);
-                // Optional: Trigger rollback or error toast
-            });
-        } catch (e) {
-            console.error('[useChat] API call error', e);
-        }
-
-        // We assume socket 'newMessage' broadcast will eventually replace this temp message
-        // or we could handle ack if socket supported it.
-    }, [emit, eventId, sessionType, activeCategory, userId, userName, userEmail, role, queryClient, queryKey]);
+        // REST POST is REMOVED for sending to avoid redundancy and out-of-order execution
+        // History/Pagination still use REST (see fetchMessages)
+    }, [emit, eventId, sessionType, activeCategory, chatUser, userId, role, queryKey, queryClient]);
 
     return {
         messages,

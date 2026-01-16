@@ -10,18 +10,28 @@ const SocketContext = createContext<{ socket: Socket | null; isConnected: boolea
 
 import { useAuth } from '@/app/auth/auth-context';
 
-export const SocketProvider = ({ children }: {
-    children: React.ReactNode    // Use Redux to detect user/token changes if available, otherwise rely on localStorage check loop or event
-    // Simplest: Check localStorage periodically or listen to custom event. 
-    // OR: since we are inside Provider, maybe we can access store if wrapper allows. 
-    // But this file imports from 'socket.io-client'.
-    // Let's rely on a window event or just polling if localstorage matches.
-    // Actually, best is to pass token as prop or have a context that provides it.
-    // But to fix QUICKLY without refactoring auth: relying on localStorage interval or just retry.
+const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+let socketInstance: Socket | null = null;
 
-    // BETTER FIX: The user is likely logging in via Redux action. 
-    // Let's try to import store/hooks if possible? 
-    // Yes, 'react-redux' is used in useChat.
+const getSocket = (token: string) => {
+    if (!socketInstance) {
+        console.log('[SocketProvider] Creating new socket instance');
+        socketInstance = io(`${socketUrl}/chat`, {
+            auth: { token },
+            transports: ['websocket'],
+            reconnectionAttempts: 5,
+            reconnection: true,
+            autoConnect: false,
+        });
+    } else {
+        // Update token if it changed
+        socketInstance.auth = { token };
+    }
+    return socketInstance;
+};
+
+export const SocketProvider = ({ children }: {
+    children: React.ReactNode
 }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -31,32 +41,20 @@ export const SocketProvider = ({ children }: {
 
     useEffect(() => {
         if (!token) {
-            if (socket) {
-                console.log('[SocketProvider] Token removed, disconnecting.');
-                socket.disconnect();
-                setSocket(null);
+            if (socketInstance) {
+                console.log('[SocketProvider] No token, disconnecting instance');
+                socketInstance.disconnect();
                 setIsConnected(false);
             }
             return;
         }
 
-        // Avoid unnecessary reconnection if token hasn't changed (though react effect handles dependency)
-        // If we already have a socket connected with THIS token, we are good.
-        // But checking token inside socket object is hard.
-        // Since 'token' is dependency, this runs on change.
+        const s = getSocket(token);
 
-        if (socket) {
-            socket.disconnect();
+        if (!s.connected) {
+            console.log('[SocketProvider] Connecting singleton socket...');
+            s.connect();
         }
-
-        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
-        console.log('[SocketProvider] Connecting to:', `${socketUrl}/chat`);
-
-        const s = io(`${socketUrl}/chat`, {
-            auth: { token },
-            transports: ['websocket'],
-            reconnectionAttempts: 5,
-        });
 
         s.on('connect', () => {
             console.log('[SocketProvider] Connected:', s.id);
@@ -71,12 +69,19 @@ export const SocketProvider = ({ children }: {
         s.on('disconnect', (reason) => {
             console.warn('[SocketProvider] Disconnected:', reason);
             setIsConnected(false);
+            if (reason === 'io server disconnect' || reason === 'transport close' || reason === 'transport error') {
+                // Low-level errors should trigger reconnect if we still have a token
+                if (token) s.connect();
+            }
         });
 
         setSocket(s);
 
+        // DO NOT disconnect on unmount as per user instruction
         return () => {
-            s.disconnect();
+            s.off('connect');
+            s.off('connect_error');
+            s.off('disconnect');
         };
     }, [token]); // Strictly depend on token
 

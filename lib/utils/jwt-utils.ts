@@ -110,6 +110,41 @@ export function extractEmailFromToken(token: string): string | null {
 }
 
 /**
+ * Extract complete user details for chat from token
+ * Uses speakerId for speakers/moderators, falls back to other ID fields for attendees
+ */
+export function extractChatUserFromToken(token: string) {
+    const payload = getTokenPayload<InviteTokenPayload>(token);
+    if (!payload) {
+        return null;
+    }
+
+    // Determine role
+    const role = mapPayloadToRole(payload);
+
+    // Extract _id: use speakerId for speakers/moderators
+    let userId: string;
+    if (payload.speakerId) {
+        userId = payload.speakerId;
+    } else {
+        // Fallback for attendees or other users
+        userId = payload.id || payload.userId || payload.sub || payload.email || 'guest';
+    }
+
+    // Extract name and email
+    const name = payload.user_info?.name || payload.name || 'Guest';
+    const email = payload.user_info?.email || payload.email || null;
+
+    return {
+        _id: userId,
+        role,
+        name,
+        avatar: null,
+        email
+    };
+}
+
+/**
  * Extract full user metadata for Daily.co userData
  */
 export function extractUserDataFromToken(token: string) {

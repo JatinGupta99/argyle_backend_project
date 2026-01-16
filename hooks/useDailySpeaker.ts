@@ -55,7 +55,7 @@ export function useDailySpeaker({
   } = useDailyBase(finalRoomUrl, enableJoin, finalUserName, finalToken || null, userData);
 
   // 2. Hardware Controls (Synced Source of Truth)
-  const media = useDailyMediaControls(callObject);
+  const media = useDailyMediaControls(callObject, role);
 
   // 3. Live State Management (Moderator only)
   const { isLive, isLoading, isRecording, toggleLive, endEvent } = useLiveState(callObject, eventId, roomUrl, initialIsLive);
