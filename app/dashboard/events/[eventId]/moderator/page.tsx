@@ -15,6 +15,10 @@ import { PageGuard } from '@/components/auth/PageGuard';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/app/auth/auth-context';
 import { extractRoleFromInviteToken, extractNameFromToken } from '@/lib/utils/jwt-utils';
+import { getEventTimingStatus } from '@/lib/utils/event-timing';
+import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
+import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
+
 
 /**
  * FullScreenState - Shared UI for loading/error states
@@ -69,26 +73,38 @@ function ModeratorViewContent({ event }: { event: Event }) {
 
   const localParticipant = useLocalParticipant();
 
-  const [isTimeReached, setIsTimeReached] = useState<boolean>(() => {
-    const targetDate = event.schedule?.startTime ? new Date(event.schedule.startTime) : new Date();
-    return new Date() >= targetDate;
-  });
+  const { canJoinEarly, isPastStart, isPastEnd, isExpired } = getEventTimingStatus(event);
+
+  const [isTimeReached, setIsTimeReached] = useState<boolean>(isPastStart);
+  const [canJoinWindow, setCanJoinWindow] = useState<boolean>(canJoinEarly);
 
   useEffect(() => {
-    if (isTimeReached) return;
-
-    const targetDate = event.schedule?.startTime ? new Date(event.schedule.startTime) : new Date();
     const interval = setInterval(() => {
-      if (new Date() >= targetDate) {
-        setIsTimeReached(true);
-        clearInterval(interval);
-      }
-    }, 1000);
+      const timing = getEventTimingStatus(event);
+      setIsTimeReached(timing.isPastStart);
+      setCanJoinWindow(timing.canJoinEarly);
+    }, 5000); // Check every 5 seconds
 
     return () => clearInterval(interval);
-  }, [event.schedule?.startTime, isTimeReached]);
+  }, [event]);
 
   if (error) return <FullScreenState errorMessage={error} />;
+
+  if (isExpired) {
+    return (
+      <FullScreenState
+        errorMessage="This event session has expired and is no longer accessible."
+      />
+    );
+  }
+
+  if (!canJoinWindow && !isPastStart) {
+    return (
+      <FullScreenState
+        message="The stage control panel will be available 60 minutes before the event starts for preparation."
+      />
+    );
+  }
 
   if (!callObject) {
     return (
@@ -145,18 +161,19 @@ function ModeratorViewContent({ event }: { event: Event }) {
               {!isLive ? (
                 <div className="space-y-4 text-slate-400">
                   <p className="text-sm leading-relaxed">
-                    You are currently in <span className="text-white font-semibold">Standby Mode</span>. <br />
-                    Verify your stage presence below, then click{' '}
-                    <span className="text-blue-400 font-bold">Go Live</span> to begin the stream.
+                    You are in <span className="text-white font-semibold">Stage Preparation Mode</span>. <br />
+                    {isTimeReached
+                      ? "The scheduled start time has been reached. You may Go Live whenever you're ready."
+                      : "You can use this time to test your hardware and coordinate with speakers."}
                   </p>
                   <div className="flex items-center justify-center gap-8 py-3 px-6 bg-slate-900/50 rounded-xl border border-slate-800/50">
                     <div className="flex items-center gap-2 text-xs">
                       <Users className="h-3 w-3 text-slate-500" />
-                      <span>Attendees Waiting</span>
+                      <span>Early Access Active</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <Clock className="h-3 w-3 text-slate-500" />
-                      <span>{event.status === 'LIVE' ? 'Stream Ready' : 'Pre-event'}</span>
+                      <span>{isTimeReached ? 'Started' : 'PRE-LIVE PREP'}</span>
                     </div>
                   </div>
                 </div>
@@ -266,7 +283,14 @@ export default function ModeratorPage() {
 
   return (
     <PageGuard permission="event:manage" role={ROLES_ADMIN.Moderator}>
-      <ModeratorViewContent event={event as Event} />
+      <EventStageLayout
+        chatType={ChatSessionType.LIVE}
+        chatTabs={[ChatCategoryType.EVERYONE, ChatCategoryType.QA, ChatCategoryType.BACKSTAGE]}
+      >
+
+        <ModeratorViewContent event={event as Event} />
+      </EventStageLayout>
     </PageGuard>
   );
 }
+

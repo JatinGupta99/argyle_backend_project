@@ -13,6 +13,8 @@ import { useChat } from '@/hooks/useChat';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatPanelProps } from '@/lib/types/components';
 
+
+
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
@@ -138,6 +140,8 @@ export function ChatPanel({
       case ChatCategoryType.CHAT: return 'Chat';
       case ChatCategoryType.BACKSTAGE: return 'Backstage';
       default: return 'Chat';
+
+
     }
   }, [activeCategory]);
 
@@ -262,6 +266,7 @@ export function ChatPanel({
             />
           </div>
         </div>
+
       </div>
     </div>
   );

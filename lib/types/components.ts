@@ -1,6 +1,6 @@
-import { ROLES_ADMIN } from '@/app/auth/roles.js';
-import { ChatCategoryType, ChatSessionType } from '../constants/chat.js';
-import { RoleView } from '../slices/uiSlice.ts';
+import { ROLES_ADMIN } from '@/app/auth/roles';
+import { ChatCategoryType, ChatSessionType } from '../constants/chat';
+
 
 export interface EventPageProps {
   params: { eventId: string };
@@ -45,7 +45,29 @@ export interface EventAnalytics {
   joinedUsers: string[];
 }
 
-// --- Main Event Interface ---
+
+export interface AgendaSpeaker {
+  _id: string;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
+  title: string;
+  pictureUrl: string;
+}
+
+export interface Agenda {
+  _id: string;
+  title: string;
+  description: string;
+  date: string; // ISO Date string
+  startTime: string; // HH:mm format
+  endTime: string; // HH:mm format
+  speakers: AgendaSpeaker[];
+  hasPoll: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export interface Event {
   _id: string;
@@ -57,8 +79,9 @@ export interface Event {
   privacy: 'public' | 'private' | string;
   status: 'UPCOMING' | 'LIVE' | 'COMPLETED' | string;
   host: string; // User ID
-  agendas: any[]; // Consider defining a specific Agenda interface later
+  agendas: Agenda[];
   sponsors: any[]; // Consider defining a specific Sponsor interface later
+
   attendees: any[]; // Consider defining a specific Attendee interface later
   analytics: EventAnalytics;
   invitedUsers: any[]; // Consider defining a specific InvitedUser interface later

@@ -1,36 +1,27 @@
 'use client';
 
-import { useEventContext } from '@/components/providers/EventContextProvider';
-import { useAuth } from '@/app/auth/auth-context';
-import { ROLES_ADMIN } from '@/app/auth/roles';
-import { getTokenPayload } from '@/lib/utils/jwt-utils';
 import {
     Calendar,
     Clock,
-    MapPin,
     Info,
-    ChevronRight,
-    Play,
-    LayoutDashboard,
     CheckCircle2,
-    Users
+    Users,
+    Play,
+    LayoutDashboard
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { format } from 'date-fns';
+import Link from 'next/link';
 import type { Event as IEvent } from '@/lib/types/components';
 
-export default function InfoPage() {
-    const event = useEventContext() as IEvent;
-    const { role, token } = useAuth();
+interface EventInfoContentProps {
+    event: IEvent;
+    variant?: 'full' | 'sidebar';
+    onEnter?: () => string; // Optional function to get entry route
+}
 
-    if (!event || !event._id) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
+export function EventInfoContent({ event, variant = 'full', onEnter }: EventInfoContentProps) {
+    if (!event || !event._id) return null;
 
     const { schedule, status, title, eventDetails, eventLogoUrl } = event;
     const startTime = schedule?.startTime ? new Date(schedule.startTime) : new Date();
@@ -39,19 +30,69 @@ export default function InfoPage() {
     const isLive = status === 'LIVE';
     const isCompleted = status === 'COMPLETED';
 
-    const getEnterRoute = () => {
-        const payload = token ? getTokenPayload<{ inviteId?: string }>(token) : null;
-        const inviteId = payload?.inviteId;
+    if (variant === 'sidebar') {
+        return (
+            <div className="flex flex-col h-full bg-background overflow-y-auto custom-scrollbar p-6 space-y-8">
+                {/* Minimalist Hero for Sidebar */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                        {isLive ? (
+                            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded-full text-[9px] font-black text-red-500 uppercase tracking-widest animate-pulse">
+                                <div className="w-1 h-1 rounded-full bg-red-500" />
+                                Live
+                            </span>
+                        ) : isCompleted ? (
+                            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-black text-emerald-500 uppercase tracking-widest">
+                                <CheckCircle2 size={10} />
+                                Done
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[9px] font-black text-blue-500 uppercase tracking-widest">
+                                Preview
+                            </span>
+                        )}
+                    </div>
+                    <h1 className="text-xl font-black text-foreground leading-tight tracking-tight">
+                        {title}
+                    </h1>
+                </div>
 
-        if ((role === ROLES_ADMIN.Moderator || role === ROLES_ADMIN.Speaker) && inviteId) {
-            return `/dashboard/events/${event._id}/speakers/${inviteId}`;
-        }
+                {/* Timing Grid - Sidebar Version */}
+                <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-card border border-border rounded-xl">
+                        <Calendar className="w-4 h-4 text-primary" />
+                        <span className="text-xs font-bold text-foreground">
+                            {format(startTime, 'MMM do, yyyy')}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-card border border-border rounded-xl">
+                        <Clock className="w-4 h-4 text-blue-500" />
+                        <span className="text-xs font-bold text-foreground">
+                            {format(startTime, 'hh:mm a')} - {format(endTime, 'hh:mm a')}
+                        </span>
+                    </div>
+                </div>
 
-        if (role === ROLES_ADMIN.Moderator) return `/dashboard/events/${event._id}/moderator`;
-        if (role === ROLES_ADMIN.Speaker) return `/dashboard/events/${event._id}/speaker`;
-        return `/dashboard/events/${event._id}/attendees`;
-    };
+                {/* About Section */}
+                <div className="space-y-3">
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">About Event</h3>
+                    <p className="text-xs leading-relaxed text-slate-500 font-medium whitespace-pre-wrap">
+                        {eventDetails || "No further details available."}
+                    </p>
+                </div>
 
+                {/* Engagement */}
+                <div className="pt-4 border-t border-border">
+                    <div className="flex items-center gap-3 text-slate-400">
+                        <Users size={14} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Engage in Everyone Chat</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Default Full View (for Info Page)
     return (
         <div className="min-h-full bg-slate-950 text-slate-200 pb-12">
             {/* Hero Section */}
@@ -103,29 +144,44 @@ export default function InfoPage() {
             </div>
 
             <div className="max-w-5xl mx-auto px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Details */}
+                {/* Left Column: Details & About */}
                 <div className="lg:col-span-2 space-y-8">
                     <motion.section
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-slate-900/50 rounded-3xl border border-white/5 p-8 h-full"
+                        className="bg-slate-900/50 rounded-3xl border border-white/5 p-8"
                     >
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-2 bg-primary/10 rounded-lg">
                                 <Info className="w-5 h-5 text-primary" />
                             </div>
-                            <h2 className="text-xl font-bold text-white tracking-tight">Event Details</h2>
+                            <h2 className="text-xl font-bold text-white tracking-tight">About Event</h2>
                         </div>
                         <div className="prose prose-invert max-w-none">
-                            <p className="text-slate-400 leading-relaxed whitespace-pre-wrap text-lg">
-                                {eventDetails || "No detailed description provided for this session. Join the live show to learn more and engage with the community!"}
+                            <p className="text-slate-400 leading-relaxed whitespace-pre-wrap">
+                                {eventDetails || "No description provided for this event."}
                             </p>
                         </div>
                     </motion.section>
+
+                    <motion.section
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-slate-900/50 rounded-3xl border border-white/5 p-8"
+                    >
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-purple-500/10 rounded-lg">
+                                <Users className="w-5 h-5 text-purple-500" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white tracking-tight">Community</h2>
+                        </div>
+                        <p className="text-slate-400 text-sm">
+                            Join hundreds of other professionals in this exclusive session. Use the live chat to engage with speakers and peers.
+                        </p>
+                    </motion.section>
                 </div>
-
-
 
                 {/* Right Column: Schedule & Actions */}
                 <div className="space-y-6">
@@ -164,23 +220,25 @@ export default function InfoPage() {
                             </div>
                         </div>
 
-                        <div className="pt-4 space-y-3">
-                            <Link
-                                href={getEnterRoute()}
-                                className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-2xl font-black text-lg shadow-xl shadow-primary/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                                <Play size={20} fill="white" />
-                                {isLive ? 'Enter Live Event' : 'Go to Stage'}
-                            </Link>
+                        {onEnter && (
+                            <div className="pt-4 space-y-3">
+                                <Link
+                                    href={onEnter()}
+                                    className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-2xl font-black text-lg shadow-xl shadow-primary/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                                >
+                                    <Play size={20} fill="white" />
+                                    {isLive ? 'Enter Live Event' : 'Go to Stage'}
+                                </Link>
 
-                            <Link
-                                href="/dashboard/events"
-                                className="w-full h-14 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
-                            >
-                                <LayoutDashboard size={18} />
-                                Back to Events
-                            </Link>
-                        </div>
+                                <Link
+                                    href="/dashboard/events"
+                                    className="w-full h-14 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
+                                >
+                                    <LayoutDashboard size={18} />
+                                    Back to Events
+                                </Link>
+                            </div>
+                        )}
                     </motion.section>
 
                     <motion.div

@@ -33,4 +33,12 @@ export const API_ROUTES = {
     fetchById: (eventId: string) => `events/${eventId}`,
     getEventImageUrl: (eventId: string) => `events/${eventId}/image-url`,
   },
+  agenda: {
+    fetchAll: (eventId: string, query?: Record<string, string | number>) => {
+      const params = query ? `?${new URLSearchParams(query as any).toString()}` : '';
+      return `/events/${eventId}/agendas${params}`;
+    },
+    fetchById: (eventId: string, agendaId: string) => `/events/${eventId}/agendas/${agendaId}`,
+  },
 };
+

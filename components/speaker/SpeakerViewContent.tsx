@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react';
 import { ParticipantTile } from './ParticipantTile';
 import { SpeakerControls } from './SpeakerControls';
 import { SpeakerPreviewWrapper } from './SpeakerPreviewWrapper';
+import { getEventTimingStatus } from '@/lib/utils/event-timing';
+import { useEventContext } from '../providers/EventContextProvider';
 
 interface SpeakerViewContentProps {
   eventId: string;
@@ -133,7 +135,7 @@ function SpeakerInterface({
                 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
                 : 'bg-slate-500/20 text-slate-400 border-slate-500/30'}`}>
               <Clock className="w-4 h-4" />
-              {hasBeenLive ? 'ON BREAK' : 'OFF AIR'}
+              {hasBeenLive ? 'ON BREAK' : isTimeReached ? 'OFF AIR' : 'PRE-LIVE PREP'}
               {startTime && !hasBeenLive && (
                 <span className="font-mono text-xs ml-1">
                   {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
@@ -288,24 +290,21 @@ export function SpeakerViewContent({
 }: SpeakerViewContentProps) {
   const [hasJoined, setHasJoined] = useState(false);
   const [hasBeenLive, setHasBeenLive] = useState(false);
-  const [isTimeReached, setIsTimeReached] = useState<boolean>(() => {
-    const target = startTime ? new Date(startTime) : new Date();
-    return new Date() >= target;
-  });
+
+  const event = useEventContext();
+  const timing = getEventTimingStatus(event as any);
+
+  const [isTimeReached, setIsTimeReached] = useState<boolean>(timing.isPastStart);
+  const [canJoinWindow, setCanJoinWindow] = useState<boolean>(timing.canJoinEarly);
 
   useEffect(() => {
-    if (isTimeReached || !startTime) return;
-
-    const targetDate = new Date(startTime);
     const interval = setInterval(() => {
-      if (new Date() >= targetDate) {
-        setIsTimeReached(true);
-        clearInterval(interval);
-      }
-    }, 1000);
-
+      const t = getEventTimingStatus(event as any);
+      setIsTimeReached(t.isPastStart);
+      setCanJoinWindow(t.canJoinEarly);
+    }, 5000);
     return () => clearInterval(interval);
-  }, [startTime, isTimeReached]);
+  }, [event]);
 
   const role = normalizeRole(initialRole);
 
@@ -341,6 +340,33 @@ export function SpeakerViewContent({
       callObject.startCamera();
     }
   }, [hasJoined, callObject, role]);
+
+  if (timing.isExpired) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-[#000a28] text-white p-6">
+        <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-10 flex flex-col items-center text-center">
+          <Clock className="w-12 h-12 text-slate-500 mb-4" />
+          <h3 className="text-2xl font-bold mb-2">Session Expired</h3>
+          <p className="text-slate-400">This event session has concluded and the room is no longer accessible.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canJoinWindow && !isTimeReached) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-[#000a28] text-white p-6">
+        <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-10 flex flex-col items-center text-center">
+          <Clock className="w-12 h-12 text-blue-400 mb-4 animate-pulse" />
+          <h3 className="text-2xl font-bold mb-2">Too Early</h3>
+          <p className="text-slate-400">The stage will be available 60 minutes before the event starts for preparation.</p>
+          <div className="mt-6 text-3xl font-mono text-white">
+            {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (

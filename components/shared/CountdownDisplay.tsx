@@ -8,14 +8,18 @@ interface CountdownDisplayProps {
     eventTitle: string;
     onTimerComplete?: () => void;
     logoUrl?: string;
+    onLeave?: () => void;
 }
+
 
 export function CountdownDisplay({
     startTime,
     eventTitle,
     onTimerComplete,
     logoUrl,
+    onLeave,
 }: CountdownDisplayProps) {
+
     const [timeLeft, setTimeLeft] = useState<{
         days: number;
         hours: number;
@@ -99,7 +103,24 @@ export function CountdownDisplay({
                     <div className="text-3xl sm:text-4xl font-black text-white pt-5 opacity-30">:</div>
                     <TimeBox value={timeLeft.seconds} label="Secs" />
                 </motion.div>
+
+                {onLeave && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="mt-12"
+                    >
+                        <button
+                            onClick={onLeave}
+                            className="px-8 py-3 bg-transparent border border-white/10 hover:bg-white/5 rounded-xl font-bold text-slate-400 hover:text-white transition-all text-sm"
+                        >
+                            Leave Event
+                        </button>
+                    </motion.div>
+                )}
             </div>
+
         </div>
     );
 }

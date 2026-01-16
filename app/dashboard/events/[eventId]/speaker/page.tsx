@@ -4,8 +4,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerViewContent } from '@/components/speaker/SpeakerViewContent';
+import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
+import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 
 export default function SpeakerPage() {
+
   const event = useEventContext();
   if (!event) {
     return (
@@ -36,5 +39,14 @@ export default function SpeakerPage() {
     );
   }
 
-  return <SpeakerViewContent eventId={eventId} roomUrl={roomUrl} initialIsLive={event.status === 'LIVE'} />;
+  return (
+    <EventStageLayout
+      chatType={ChatSessionType.LIVE}
+      chatTabs={[ChatCategoryType.EVERYONE, ChatCategoryType.QA]}
+    >
+
+      <SpeakerViewContent eventId={eventId} roomUrl={roomUrl} initialIsLive={event.status === 'LIVE'} />
+    </EventStageLayout>
+  );
 }
+
