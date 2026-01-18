@@ -2,6 +2,7 @@
 
 import { SocialInput } from '@/components/shared/SocialInput';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { DEFAULT_USERNAME } from '@/lib/constants/api';
 import { EventPost, User } from '@/lib/types/api';
 import { Edit3, MessageCircle, MoreVertical, ThumbsUp, Trash2 } from 'lucide-react';
@@ -72,9 +73,9 @@ export function MessageCard(props: MessageCardProps) {
               <h3 className="text-[15px] font-bold text-[#000000] tracking-tight leading-none group-hover:text-sky-600 transition-colors">
                 {post.userId?.username || DEFAULT_USERNAME}
               </h3>
-              {post.userId?.role === 'admin' && ( // Example role badge
-                <span className="bg-sky-50 text-sky-600 text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">
-                  Admin
+              {(post.userId?.role === 'admin' || post.userId?.role === 'Moderator' || post.userId?.role === ROLES_ADMIN.Moderator) && (
+                <span className="bg-amber-50 text-amber-600 text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-amber-100 shadow-sm">
+                  Organizer
                 </span>
               )}
             </div>

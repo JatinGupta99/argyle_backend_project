@@ -13,6 +13,9 @@ interface ChatMessagesProps {
   fetchNextPage?: () => void;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
+  fetchPreviousPage?: () => void;
+  hasPreviousPage?: boolean;
+  isFetchingPreviousPage?: boolean;
 }
 
 export interface ChatMessagesRef {
@@ -24,7 +27,10 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
   isLoading,
   fetchNextPage,
   hasNextPage,
-  isFetchingNextPage
+  isFetchingNextPage,
+  fetchPreviousPage,
+  hasPreviousPage,
+  isFetchingPreviousPage
 }, ref) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const prevCount = useRef(messages.length);
@@ -113,11 +119,14 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
 
     const displayPicture = (userData && typeof userData === 'object') ? (userData.pictureUrl || userData.avatar || '') : '';
     const userRole = (userData && typeof userData === 'object' ? userData.role : null) || 'Attendee';
-    const isOrganizer = userRole === ROLES_ADMIN.Moderator;
+    const isOrganizer =
+      userRole === ROLES_ADMIN.Moderator ||
+      userRole?.toLowerCase() === 'moderator' ||
+      userRole?.toLowerCase() === 'admin';
     const initials = getInitials(displayName);
 
     return (
-      <div className="flex gap-3 mb-6 pr-4 animate-in fade-in slide-in-from-left-2 duration-300">
+      <div className="flex gap-3 mb-6 pr-4">
         <Avatar className="h-10 w-10 flex-shrink-0 shadow-sm ring-2 ring-background border border-border">
           <AvatarImage src={displayPicture} alt={displayName} className="object-cover" />
           <AvatarFallback className="text-[14px] font-black bg-accent text-white">
@@ -157,7 +166,7 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
       style={{ height: '100%', width: '100%' }}
       data={sorted}
       initialTopMostItemIndex={Math.max(0, sorted.length - 1)}
-      increaseViewportBy={200}
+      increaseViewportBy={500}
       atBottomThreshold={100}
       alignToBottom={true} // Consider removing if deprecated, but keeping for safety as per original
       atBottomStateChange={(isAtBottom) => {
@@ -168,6 +177,11 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
       startReached={() => {
         if (hasNextPage && !isFetchingNextPage) {
           fetchNextPage?.();
+        }
+      }}
+      endReached={() => {
+        if (hasPreviousPage && !isFetchingPreviousPage) {
+          fetchPreviousPage?.();
         }
       }}
       itemContent={(index, item) => renderMessage(index)}

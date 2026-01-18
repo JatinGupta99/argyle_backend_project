@@ -104,7 +104,7 @@ export function AttendeeStage({ callObject, onLeave }: AttendeeStageProps) {
                 <p className="text-slate-400 max-w-sm leading-relaxed mx-auto">
                     {isModeratorLive
                         ? 'The broadcast has started. You can now join the live stage below.'
-                        : 'The room is open and you are connected. Please wait while the moderators prepare for the broadcast.'}
+                        : 'The room is open and you are connected. Please wait while the organizers prepare for the broadcast.'}
                 </p>
             </div>
 

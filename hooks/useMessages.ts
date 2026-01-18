@@ -6,6 +6,7 @@ import { Message } from '@/lib/types/api';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store/store';
+import { useAuth } from '@/app/auth/auth-context';
 
 export function useMessages(
   sessionType: ChatSessionType,
@@ -14,10 +15,11 @@ export function useMessages(
   query?: Record<string, string | number>
 ) {
   const queryClient = useQueryClient();
+  const { userId: authUserId, role: authRole } = useAuth();
   const currentUser = useSelector((state: RootState) => state.user);
   const queryKey = ['messages', eventId, sessionType, category, JSON.stringify(query)];
 
-  const fetchMessages = async ({ pageParam }: { pageParam?: string }) => {
+  const fetchMessages = async ({ pageParam }: { pageParam?: { before?: string; after?: string } }) => {
     const fullQuery: Record<string, any> = {
       sessionType,
       category,
@@ -25,11 +27,10 @@ export function useMessages(
       ...(query || {}),
     };
 
-    if (pageParam) {
-      fullQuery.before = pageParam;
-    }
+    if (pageParam?.before) fullQuery.before = pageParam.before;
+    if (pageParam?.after) fullQuery.after = pageParam.after;
 
-    const response = await apiClient.get<{ data: Message[] }>(
+    const response = await apiClient.get<Message[]>(
       API_ROUTES.chat.history(eventId, fullQuery)
     );
 
@@ -42,23 +43,25 @@ export function useMessages(
     data,
     fetchNextPage,
     hasNextPage,
+    fetchPreviousPage,
+    hasPreviousPage,
     isFetchingNextPage,
+    isFetchingPreviousPage,
     isLoading,
     error,
-  } = useInfiniteQuery({
+  } = useInfiniteQuery<Message[], Error, InfiniteData<Message[]>, any, { before?: string; after?: string }>({
     queryKey,
     queryFn: fetchMessages,
-    initialPageParam: undefined,
+    initialPageParam: {},
     getNextPageParam: (lastPage) => {
-      // If we have fewer than 50 messages, we likely reached the end of history
       if (!lastPage || lastPage.length < 50) return undefined;
-      // Use the createdAt of the oldest message in the current set as the cursor
-      // Assuming messages are returned newest first or we can find the min date
-      const oldestDate = lastPage.reduce((min, m) =>
-        new Date(m.createdAt).getTime() < new Date(min).getTime() ? m.createdAt : min
-        , lastPage[0].createdAt);
-
-      return oldestDate;
+      const oldest = lastPage[0];
+      return { before: oldest?.createdAt };
+    },
+    getPreviousPageParam: (firstPage) => {
+      if (!firstPage || firstPage.length < 50) return undefined;
+      const newest = firstPage[firstPage.length - 1];
+      return { after: newest?.createdAt };
     },
   });
 
@@ -72,7 +75,7 @@ export function useMessages(
         content,
         sessionType,
         category,
-        userId: currentUser?.id,
+        userId: authUserId || currentUser?.id,
       };
 
       return apiClient.post<Message>(API_ROUTES.chat.create(eventId), payload);
@@ -86,10 +89,11 @@ export function useMessages(
         _id: `temp-${Date.now()}`,
         content,
         userId: {
-          _id: currentUser?.id || 'me',
+          _id: authUserId || currentUser?.id || 'me',
           username: currentUser?.name || 'Me',
           email: currentUser?.email || '',
-          avatar: ''
+          avatar: '',
+          role: authRole || 'Attendee'
         },
         createdAt: new Date().toISOString(),
         likes: [],
@@ -136,7 +140,10 @@ export function useMessages(
     error,
     fetchNextPage,
     hasNextPage,
+    fetchPreviousPage,
+    hasPreviousPage,
     isFetchingNextPage,
+    isFetchingPreviousPage,
     createMessage: createMessageMutation.mutateAsync,
     isSending: createMessageMutation.isPending
   };

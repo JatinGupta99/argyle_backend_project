@@ -35,16 +35,17 @@ export function useChat({
     const queryKey = ['messages', eventId, sessionType, activeCategory];
 
     // 1. History Hydration (REST API)
-    const fetchMessages = async ({ pageParam }: { pageParam?: string }) => {
+    const fetchMessages = async ({ pageParam }: { pageParam?: { before?: string; after?: string } }) => {
         const query: any = {
             limit: 50,
             sessionType,
             category: activeCategory
         };
-        if (pageParam) query.before = pageParam;
+
+        if (pageParam?.before) query.before = pageParam.before;
+        if (pageParam?.after) query.after = pageParam.after;
 
         const response = await apiClient.get<Message[]>(API_ROUTES.chat.history(eventId, query));
-        // Handle potentially wrapped response if API returns { data: [] }
         const data = (Array.isArray(response) ? response : (response as any).data) ?? [];
         return data as Message[];
     };
@@ -53,18 +54,26 @@ export function useChat({
         data,
         fetchNextPage,
         hasNextPage,
+        fetchPreviousPage,
+        hasPreviousPage,
         isFetchingNextPage,
+        isFetchingPreviousPage,
         isLoading
-    } = useInfiniteQuery({
+    } = useInfiniteQuery<Message[], Error, InfiniteData<Message[]>, any, { before?: string; after?: string }>({
         queryKey,
         queryFn: fetchMessages,
-        initialPageParam: undefined as string | undefined,
+        initialPageParam: {},
         getNextPageParam: (lastPage) => {
             if (!lastPage || lastPage.length < 50) return undefined;
-            const oldest = lastPage[lastPage.length - 1]; // Assuming sorted newest -> oldest
-            return oldest?.createdAt;
+            const oldest = lastPage[0];
+            return { before: oldest?.createdAt };
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        getPreviousPageParam: (firstPage) => {
+            if (!firstPage || firstPage.length < 50) return undefined;
+            const newest = firstPage[firstPage.length - 1];
+            return { after: newest?.createdAt };
+        },
+        staleTime: 1000 * 60 * 5,
     });
 
     const messages = data?.pages.flatMap(page => page) ?? [];
@@ -112,12 +121,12 @@ export function useChat({
                 content: raw.content,
                 createdAt: raw.createdAt || new Date().toISOString(),
                 updatedAt: raw.updatedAt || new Date().toISOString(),
-                userId: (raw.userId && typeof raw.userId === 'object') ? raw.userId : {
+                userId: (raw.userId && typeof raw.userId === 'object') ? { ...raw.userId, role: raw.userId.role || raw.role } : {
                     _id: raw.senderId || 'unknown',
                     username: raw.senderName || 'Guest',
                     email: '',
                     avatar: raw.senderAvatar,
-                    role: raw.role
+                    role: raw.role || (raw as any).user?.role
                 },
                 likes: raw.likes || [],
                 comments: raw.comments || []
@@ -194,6 +203,7 @@ export function useChat({
                 _id: userPayload._id,
                 username: userPayload.name,
                 email: userPayload.email || '',
+                role: userPayload.role
             },
             likes: [],
             comments: []
@@ -228,6 +238,9 @@ export function useChat({
         isConnected,
         fetchNextPage,
         hasNextPage,
-        isFetchingNextPage
+        isFetchingNextPage,
+        fetchPreviousPage,
+        hasPreviousPage,
+        isFetchingPreviousPage
     };
 }

@@ -71,7 +71,10 @@ export function ChatPanel({
     isLoading,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage
   } = useChat({
     eventId,
     sessionType: type,
@@ -237,6 +240,9 @@ export function ChatPanel({
               fetchNextPage={fetchNextPage}
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage}
+              fetchPreviousPage={fetchPreviousPage}
+              hasPreviousPage={hasPreviousPage}
+              isFetchingPreviousPage={isFetchingPreviousPage}
             />
           </div>
 

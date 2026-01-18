@@ -78,7 +78,7 @@ export function ParticipantTile({ sessionId, className, isLocal }: ParticipantTi
                     {role === ROLES_ADMIN.Attendee && <Users className="w-3 h-3 text-slate-400" />}
                     {isLocal ? 'You' : (name || 'Participant')}
                     <span className="opacity-60 text-[8px] uppercase tracking-wider ml-1">
-                        ({role})
+                        ({role === ROLES_ADMIN.Moderator ? 'Organizer' : role})
                     </span>
                 </span>
                 {isSpeaking && (
