@@ -2,6 +2,7 @@ import { DailyVideo, useAudioTrack, useActiveSpeakerId, useParticipantProperty }
 import { Mic, MicOff, User, Shield, Users } from 'lucide-react';
 import React from 'react';
 import { ROLES_ADMIN } from '@/app/auth/roles';
+import { normalizeRole } from '@/app/auth/access';
 
 interface ParticipantTileProps {
     sessionId: string;
@@ -19,11 +20,19 @@ export function ParticipantTile({ sessionId, className, isLocal }: ParticipantTi
     const isOwner = useParticipantProperty(sessionId, 'owner');
 
     // Role detection for ROLES_ADMIN
-    let role = ROLES_ADMIN.Speaker as string;
-    if (isOwner) {
-        role = ROLES_ADMIN.Moderator;
-    } else if (name?.startsWith('Attendee_')) {
-        role = ROLES_ADMIN.Attendee;
+    const userData = useParticipantProperty(sessionId, 'userData');
+    const rawRole = (userData as any)?.role || (userData as any)?.participantType || (userData as any)?.participant_type || '';
+    let role = normalizeRole(rawRole);
+
+    // Fallback: If no role in userData, use ownership/name as backup
+    if (role === ROLES_ADMIN.Attendee) {
+        if (isOwner) {
+            role = ROLES_ADMIN.Moderator;
+        } else if (name?.startsWith('Attendee_')) {
+            role = ROLES_ADMIN.Attendee;
+        } else {
+            role = ROLES_ADMIN.Speaker; // Likely a speaker if not moderator or attendee
+        }
     }
 
     const tracks = useParticipantProperty(sessionId, 'tracks');

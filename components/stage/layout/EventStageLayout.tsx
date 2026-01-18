@@ -1,20 +1,20 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import { useEventContext } from '@/components/providers/EventContextProvider';
+import { StageProviders } from '@/components/providers/StageProvider';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
-import { useEventContext } from '@/components/providers/EventContextProvider';
-import { UserID } from '@/lib/constants/api';
+import { } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
-import { StageProviders } from '@/components/providers/StageProvider';
+import { ChatTab } from '@/lib/slices/uiSlice';
+import React, { useMemo } from 'react';
 
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/app/auth/auth-context';
 import { ROLES_ADMIN } from '@/app/auth/roles';
+import { cn } from '@/lib/utils';
 
 type Props = {
-  role?: ROLES_ADMIN; // Keep for legacy compatibility during transition
+  role?: ROLES_ADMIN;
   chatType: ChatSessionType;
   chatTabs: ChatCategoryType[];
   title?: ChatTab | string;
@@ -29,9 +29,8 @@ export function EventStageLayout({
   children,
 }: Props) {
   const event = useEventContext();
-  const { can, role: userRole } = useAuth();
+  const { can, role: userRole, userId } = useAuth();
   const eventId = event._id as string;
-  const userId = UserID;
 
   // Professional filtering: Only show tabs user has permission for
   const authorizedTabs = useMemo(() => {
@@ -55,9 +54,9 @@ export function EventStageLayout({
         )}>
           <ChatPanel
             title3={title ?? ChatTab.Everyone}
-            role={(userRole as unknown as ROLES_ADMIN) || _role}
+            role={userRole || _role || ROLES_ADMIN.Attendee}
             eventId={eventId}
-            currentUserId={userId}
+            currentUserId={userId || undefined}
             type={chatType}
             tabs={authorizedTabs}
           />
@@ -67,7 +66,9 @@ export function EventStageLayout({
           "flex flex-1 flex-col overflow-hidden relative",
           (userRole === ROLES_ADMIN.Speaker || userRole === ROLES_ADMIN.Moderator || _role === ROLES_ADMIN.Speaker) ? "bg-black" : "bg-background"
         )}>
-          <Header title={event.title || 'Live Stage'} />
+          <Header
+            title={title || event.title || 'Live Stage'}
+          />
           <div className="flex-1 overflow-hidden relative">
             {children}
           </div>

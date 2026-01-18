@@ -2,6 +2,7 @@ import { DailyCall } from '@daily-co/daily-js';
 import { useCallback, useState, useEffect } from 'react';
 import { goLive, stopAiring, endEvent as endEventAPI, startRecordingControl, stopRecordingControl } from '@/lib/api/daily';
 import { mergeUserData } from '@/lib/utils/daily-utils';
+import { canSendMedia, normalizeRole } from '@/app/auth/access';
 
 /**
  * useLiveState - Professional broadcast management
@@ -15,6 +16,7 @@ export function useLiveState(
   callObject: DailyCall | null,
   eventId: string,
   roomUrl: string,
+  role?: string,
   initialIsLive: boolean = false
 ) {
   const [isLive, setIsLive] = useState(initialIsLive);
@@ -84,10 +86,17 @@ export function useLiveState(
     setLoading(true);
 
     try {
-      // 1. Sync local media with the live state 
+      // 1. Sync local media with the live state - Only if permitted for this role
       if (callObject) {
-        callObject.setLocalAudio(nextLiveState);
-        callObject.setLocalVideo(nextLiveState);
+        const normalizedRole = normalizeRole(role);
+
+        if (canSendMedia(normalizedRole, 'audio')) {
+          callObject.setLocalAudio(nextLiveState);
+        }
+
+        if (canSendMedia(normalizedRole, 'video')) {
+          callObject.setLocalVideo(nextLiveState);
+        }
 
         // 2. Broadcast live state to other participants via Daily metadata
         await mergeUserData(callObject, { isLive: nextLiveState });
@@ -107,7 +116,7 @@ export function useLiveState(
         console.log('[LiveState] Stopping Airing (Break)...');
         try {
           await stopAiring(eventId);
-          await stopRecordingControl(roomName);
+          // await stopRecordingControl(roomName);
         } catch (err) {
           console.error('[LiveState] Failed to stop airing or recording:', err);
         }

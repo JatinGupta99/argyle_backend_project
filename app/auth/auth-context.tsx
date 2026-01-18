@@ -7,6 +7,7 @@ interface AuthContextType {
   role: Role | null;
   userId: string | null;
   token: string | null;
+  userData: any | null; // Unified user details
   setAuth: (role: Role, userId: string, token: string) => void;
   logout: () => void;
   can: (permission: Permission) => boolean;
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [role, setRoleState] = useState<Role | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any | null>(null);
 
   useEffect(() => {
     // 1. Priority: URL Token (Invite Links)
@@ -44,30 +46,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // We need to decode to get role/userId. 
         // Importing explicitly to avoid circular dependency issues if any, 
         // but jwt-utils is pure.
-        const { getTokenPayload, isTokenExpired } = require('@/lib/utils/jwt-utils');
+        const { extractUserDataFromToken } = require('@/lib/utils/jwt-utils');
+        const userData = extractUserDataFromToken(initialToken);
 
-        if (isTokenExpired(initialToken)) {
-          console.warn('[AuthContext] Token expired, clearing session');
-          localStorage.removeItem('token');
-          return;
-        }
-
-        const payload = getTokenPayload(initialToken);
-        if (payload) {
-          // Map Role
-          // Using simple mapping or importing helper. 
-          // For invite tokens, payload has 'role'.
-          let derivedRole: Role = ROLES_ADMIN.Attendee; // Default
-          if (payload.role?.toLowerCase() === 'moderator' || payload.is_owner) derivedRole = ROLES_ADMIN.Moderator;
-          else if (payload.role?.toLowerCase() === 'speaker') derivedRole = ROLES_ADMIN.Speaker;
-
-          const derivedUserId = payload.id || payload.userId || payload.sub || payload.email || 'guest';
-
-          console.log('[AuthContext] Session restored for:', derivedUserId, derivedRole);
+        if (userData) {
+          console.log('[AuthContext] Session restored for:', userData.userId, userData.role);
 
           setToken(initialToken);
-          setRoleState(derivedRole);
-          setUserId(derivedUserId);
+          setRoleState(userData.role);
+          setUserId(userData.userId);
+          setUserData(userData);
           localStorage.setItem('token', initialToken);
         }
       } catch (e) {
@@ -97,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ role, userId, token, setAuth, logout, can }}>
+    <AuthContext.Provider value={{ role, userId, token, userData, setAuth, logout, can }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import DailyRoom from '@/components/daily/DailyRoom';
+
 import { DailyRoomAttendee } from '@/components/daily/DailyRoomAttendee';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { Role, ROLES_ADMIN } from '@/app/auth/roles';

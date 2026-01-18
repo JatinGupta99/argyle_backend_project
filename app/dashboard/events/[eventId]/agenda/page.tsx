@@ -8,7 +8,6 @@ import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { EventHeader } from '@/components/stage/event-headers';
 import { Header } from '@/components/stage/layout/Header';
 import { SplitLayout } from '@/components/stage/layout/SplitLayout';
-import { UserID } from '@/lib/constants/api';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
 import { ChatTab } from '@/lib/slices/uiSlice';
 import { getEventDownloadUrl } from '@/lib/event';
@@ -139,7 +138,8 @@ function AgendaPageContent() {
 
 
     const eventId = event?._id as string;
-    const currentUserId = userId || UserID;
+    const currentUserId = userId ||
+        "";
 
     useEffect(() => {
         async function loadData() {

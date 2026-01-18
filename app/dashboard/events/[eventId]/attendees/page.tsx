@@ -1,21 +1,20 @@
 'use client';
 
-import { CountdownDisplay } from '@/components/shared/CountdownDisplay';
+import { useAuth } from '@/app/auth/auth-context';
 import { DailyRoomAttendee } from '@/components/daily/DailyRoomAttendee';
-import { CheckCircle2, Loader2 } from 'lucide-react';
 import { useEventContext } from '@/components/providers/EventContextProvider';
+import { CountdownDisplay } from '@/components/shared/CountdownDisplay';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { RoleView } from '@/lib/slices/uiSlice';
+import { CheckCircle2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/app/auth/auth-context';
-import { useSearchParams, useRouter } from 'next/navigation';
 
-import { extractRoleFromInviteToken, extractNameFromToken } from '@/lib/utils/jwt-utils';
 import { ROLES_ADMIN } from '@/app/auth/roles';
 import { PageGuard } from '@/components/auth/PageGuard';
-import { getEventTimingStatus } from '@/lib/utils/event-timing';
 import type { Event as IEvent } from '@/lib/types/components';
+import { getEventTimingStatus } from '@/lib/utils/event-timing';
+import { extractNameFromToken, extractRoleFromInviteToken } from '@/lib/utils/jwt-utils';
 
 
 
@@ -72,7 +71,8 @@ export default function AttendeeViewProfilePage() {
   }, [event]);
 
   const isLiveOnBackend = event.status === 'LIVE';
-  const isCompleted = event.status === 'COMPLETED' || isPastEnd || isExpired;
+  // Allow event to continue if it's LIVE, even if time is past end/expired.
+  const isCompleted = event.status === 'COMPLETED' || (event.status !== 'LIVE' && isExpired);
 
 
 

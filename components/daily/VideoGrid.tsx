@@ -1,18 +1,14 @@
 'use client';
-import { useParticipants } from '@/hooks/useParticipants';
 import { computeGrid } from '@/lib/utils';
 import { DailyCall } from '@daily-co/daily-js';
 import { ParticipantState } from './ParticipantState';
 import { VideoTile } from './VideoTile';
-import { useScreenShare, DailyVideo, useParticipantProperty } from '@daily-co/daily-react';
+import { useScreenShare, DailyVideo, useParticipantProperty, useParticipantIds } from '@daily-co/daily-react';
 import { ROLES_ADMIN } from '@/app/auth/roles';
+import { normalizeRole } from '@/app/auth/access';
 
-interface VideoGridProps {
-  callObject: DailyCall;
-}
-
-export function VideoGrid({ callObject }: VideoGridProps) {
-  const participantIds = useParticipants();
+export function VideoGrid({ callObject }: { callObject: any }) {
+  const participantIds = useParticipantIds({ filter: 'remote' });
   const { screens } = useScreenShare();
   const hasScreenShare = screens.length > 0;
   // Focus on the most recent share
@@ -28,12 +24,14 @@ export function VideoGrid({ callObject }: VideoGridProps) {
     const userData = (p as any).userData || {};
     // Normalize role for comparison, handling potential case differences
     const rawRole = userData.role || userData.participantType || userData.participant_type || '';
-    // Check against ROLES_ADMIN (Title Case) or fallback to lowercase check
-    const isSpeaker = rawRole === ROLES_ADMIN.Speaker || rawRole.toLowerCase() === 'speaker';
-    const isModerator = rawRole === ROLES_ADMIN.Moderator || rawRole.toLowerCase() === 'moderator' || p.owner;
-    const isAttendee = rawRole === ROLES_ADMIN.Attendee || rawRole.toLowerCase() === 'attendee';
+    const pRole = normalizeRole(rawRole);
 
-    // 1. Hide Attendees
+    // 1. Determine roles reliably
+    const isSpeaker = pRole === ROLES_ADMIN.Speaker;
+    const isModerator = pRole === ROLES_ADMIN.Moderator || (pRole === ROLES_ADMIN.Attendee && p.owner);
+    const isAttendee = pRole === ROLES_ADMIN.Attendee && !p.owner;
+
+    // 2. Hide Attendees
     if (isAttendee || p.user_name?.toLowerCase().startsWith('attendee_')) return false;
 
     // 2. Filter by Camera

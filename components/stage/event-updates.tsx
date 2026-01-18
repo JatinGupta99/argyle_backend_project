@@ -3,7 +3,7 @@
 import { useAuth } from '@/app/auth/auth-context';
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { useEventPosts } from '@/hooks/useEventPosts';
-import { UserID } from '@/lib/constants/api';
+import { } from '@/lib/constants/api';
 import { EventPost } from '@/lib/types/api';
 import { Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
@@ -12,7 +12,7 @@ import { MessageCard } from './message/MessageCard';
 
 export function EventUpdates({
   eventId,
-  currentUserId = UserID,
+  currentUserId,
   maxWidthClass = 'max-w-[60rem]',
   inputMaxWidthClass = 'max-w-[50rem]',
 }: {
@@ -88,7 +88,7 @@ export function EventUpdates({
   return (
     <div className="flex flex-col h-full bg-background">
       <RoleGuard permission="post:create">
-        <div className="w-full px-8 md:px-12 py-6 z-10 sticky top-0 bg-background/95 backdrop-blur-md border-b border-border">
+        <div className="w-full px-8 md:px-12 py-3 z-10 sticky top-0 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
           <div className={`${inputMaxWidthClass} mx-auto`}>
             <SocialInput
               value={newPostContent}
@@ -103,7 +103,7 @@ export function EventUpdates({
         </div>
       </RoleGuard>
 
-      <div className="flex-1 overflow-y-auto px-8 md:px-12 pb-20 custom-scrollbar">
+      <div className="px-8 md:px-12 pb-20">
         <div className={`${maxWidthClass} mx-auto space-y-6 pt-6`}>
           {safePosts.length > 0 ? (
             safePosts
@@ -113,7 +113,7 @@ export function EventUpdates({
                 <div key={post._id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <MessageCard
                     post={post}
-                    currentUserId={currentUserId}
+                    currentUserId={currentUserId || ''}
                     isExpanded={expandedComments === post._id}
                     onToggleExpand={() =>
                       setExpandedComments(expandedComments === post._id ? null : post._id)

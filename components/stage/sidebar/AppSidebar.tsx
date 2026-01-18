@@ -35,7 +35,7 @@ export function AppSidebar() {
   // Dynamic Strict Navigation based on Role
   let stagePath = `/dashboard/events/${eventId}/attendees`; // Default for Attendees
 
-  if (role === ROLES_ADMIN.Moderator || ROLES_ADMIN.Speaker) {
+  if (role === ROLES_ADMIN.Moderator || role === ROLES_ADMIN.Speaker) {
     stagePath = `/dashboard/events/${eventId}/speakers/${effectiveInviteId}`;
   }
 

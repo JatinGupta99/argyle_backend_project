@@ -1,32 +1,36 @@
 'use client';
 
+import { getSponsorDownloadUrl } from '@/lib/sponsor';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getSponsorDownloadUrl } from '@/lib/sponsor';
 
-import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { useEventContext } from '@/components/providers/EventContextProvider';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
 import { SplitLayout } from '@/components/stage/layout/SplitLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { toast } from 'sonner';
-import { PopupModal } from 'react-calendly';
 import { Calendar } from 'lucide-react';
+import { PopupModal } from 'react-calendly';
+import { toast } from 'sonner';
 
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { useDetailSponsor } from '@/hooks/useDetailSponsor';
 import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
-import { UserID } from '@/lib/constants/api';
-import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
+import { } from '@/lib/constants/api';
+import { ChatCategoryType } from '@/lib/constants/chat';
+import { ChatTab } from '@/lib/slices/uiSlice';
 import { getChatSessionStatus } from '@/lib/utils/chat-utils';
+
+import { useAuth } from '@/app/auth/auth-context';
 
 export default function SponsorBoothMeet() {
   const { eventId, sponsorId } = useParams() as { eventId: string; sponsorId: string };
+  const { userId } = useAuth();
 
   const ready = Boolean(eventId && sponsorId);
   const { sponsor, loading, error } = useDetailSponsor(
@@ -147,8 +151,8 @@ export default function SponsorBoothMeet() {
           youtubeUrl={sponsor.youtubeUrl}
           title3={ChatTab.Chat}
           eventId={eventId}
-          currentUserId={UserID}
-          role={RoleView.Attendee}
+          currentUserId={userId || ""}
+          role={ROLES_ADMIN.Attendee}
           type={getChatSessionStatus(useEventContext())}
           tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
         />

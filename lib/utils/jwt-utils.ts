@@ -12,6 +12,17 @@ export function getTokenPayload<T = InviteTokenPayload>(token: string): T | null
         return null;
     }
 
+    // Handle common stringified null/undefined cases to avoid decoding errors
+    if (token === 'null' || token === 'undefined' || token.trim() === '') {
+        return null;
+    }
+
+    // Check for JWE (5 parts) - cannot decode client-side
+    // JWS has 3 parts (header.payload.signature)
+    if (token.split('.').length === 5) {
+        return null;
+    }
+
     try {
         return jwtDecode<T>(token);
     } catch (error) {
@@ -160,7 +171,7 @@ export function extractUserDataFromToken(token: string) {
 
     // Support daily_url, dailyRoomUrl, etc.
     const roomUrl = payload.dailyRoomUrl || null;
-    const dailyToken = payload.daily_token || null;
+    const dailyToken = payload.daily_token || payload.dailyToken || null;
 
     // Map role (case-insensitive to be safe)
     const payloadRole = (payload.user_info?.role || payload.role || '').toLowerCase();
@@ -172,15 +183,21 @@ export function extractUserDataFromToken(token: string) {
         resolvedRole = ROLES_ADMIN.Speaker;
     }
 
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < now) {
+        console.warn('[JWT Utils] Token expired');
+        return null;
+    }
+
     const userData = {
         dailyToken: dailyToken,
         dailyUrl: roomUrl,
         name,
         email,
         role: resolvedRole,
-        inviteId: payload.inviteId || ''
+        inviteId: payload.inviteId || '',
+        userId: payload.speakerId || payload.userId || payload.id || payload.sub || payload.email || 'guest'
     };
 
-    console.log('[JWT Utils] Extracted userData:', userData);
     return userData;
 }

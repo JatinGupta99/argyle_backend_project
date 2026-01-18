@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DailyCall, DailyParticipant } from '@daily-co/daily-js';
 import { ROLES_ADMIN } from '@/app/auth/roles';
+import { canSendMedia, normalizeRole } from '@/app/auth/access';
 
 /**
  * useDailyMediaControls - Professional hardware state management
@@ -15,11 +16,18 @@ export function useDailyMediaControls(callObject: DailyCall | null, role?: strin
 
   // Function to sync state from a participant object
   const syncState = useCallback((p: DailyParticipant | null) => {
-    if (!p) return;
+    // If no participant yet, try to get intended state from callObject
+    if (!p) {
+      if (callObject) {
+        setIsMicOn((callObject as any).localAudio?.() ?? false);
+        setIsCamOn((callObject as any).localVideo?.() ?? false);
+      }
+      return;
+    }
     setIsMicOn(!!p.audio);
     setIsCamOn(!!p.video);
     setIsScreenSharing(!!p.screen);
-  }, []);
+  }, [callObject]);
 
   useEffect(() => {
     if (!callObject) return;
@@ -63,15 +71,22 @@ export function useDailyMediaControls(callObject: DailyCall | null, role?: strin
   // High-fidelity toggle actions
   const toggleMic = useCallback(() => {
     if (!callObject) return;
+
+    // Check permissions from central access layer
+    if (!canSendMedia(normalizeRole(role), 'audio')) {
+      console.warn('[MediaControls] Audio not permitted for role:', role);
+      return;
+    }
+
     callObject.setLocalAudio(!isMicOn);
-  }, [callObject, isMicOn]);
+  }, [callObject, isMicOn, role]);
 
   const toggleCam = useCallback(() => {
     if (!callObject) return;
 
-    // Moderators cannot enable camera (permanent off)
-    if (role === ROLES_ADMIN.Moderator && !isCamOn) {
-      console.log('[MediaControls] Moderator camera is permanently disabled');
+    // Strict Enforcement: Only Video-permitted roles (Speakers) can toggle camera
+    if (!canSendMedia(normalizeRole(role), 'video')) {
+      console.warn('[MediaControls] Camera is permanently disabled for', role);
       return;
     }
 
@@ -81,6 +96,11 @@ export function useDailyMediaControls(callObject: DailyCall | null, role?: strin
   const toggleScreenShare = useCallback(async () => {
     if (!callObject) return;
 
+    if (!canSendMedia(normalizeRole(role), 'screenVideo')) {
+      console.warn('[MediaControls] Screen share not permitted for role:', role);
+      return;
+    }
+
     try {
       if (isScreenSharing) {
         await callObject.stopScreenShare();
@@ -89,10 +109,15 @@ export function useDailyMediaControls(callObject: DailyCall | null, role?: strin
         callObject.sendAppMessage({ type: 'SCREEN_SHARE_TAKE_OVER' }, '*');
         await callObject.startScreenShare();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('[MediaControls] Screen share toggle failed:', err);
+      if (err.name === 'NotAllowedError' || err.message?.includes('Permission denied')) {
+        alert('Screen share denied. Please click "Allow" in the browser prompt to share your screen.');
+      } else {
+        alert('Failed to start screen share: ' + (err.errorMsg || err.message || 'Unknown error'));
+      }
     }
-  }, [callObject, isScreenSharing]);
+  }, [callObject, isScreenSharing, role]);
 
   return {
     isMicOn,

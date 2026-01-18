@@ -5,15 +5,22 @@ interface SplitLayoutProps {
     sidebar: React.ReactNode;
     children: React.ReactNode;
     className?: string;
+    sidebarSide?: 'left' | 'right';
 }
 
-export function SplitLayout({ sidebar, children, className }: SplitLayoutProps) {
+export function SplitLayout({ sidebar, children, className, sidebarSide = 'left' }: SplitLayoutProps) {
     return (
-        <div className={cn("flex h-screen w-screen overflow-hidden bg-background", className)}>
-            <aside className="h-full bg-[#FAFAFA] border-r flex-shrink-0 transition-all duration-300 z-10">
+        <div className={cn("flex h-screen w-full overflow-hidden bg-background", className)}>
+            <aside className={cn(
+                "h-full bg-background flex-shrink-0 transition-all duration-300 z-10",
+                sidebarSide === 'left' ? "border-r order-1" : "border-l order-2"
+            )}>
                 {sidebar}
             </aside>
-            <main className="flex-1 flex flex-col overflow-hidden bg-background">
+            <main className={cn(
+                "flex-1 flex flex-col overflow-hidden bg-background",
+                sidebarSide === 'left' ? "order-2" : "order-1"
+            )}>
                 {children}
             </main>
         </div>

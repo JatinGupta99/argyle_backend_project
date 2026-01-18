@@ -1,8 +1,8 @@
 'use client';
 
 import { AppSidebar } from '@/components/stage/sidebar/AppSidebar';
-import { RoleView } from '@/lib/slices/uiSlice';
 import React from 'react';
+import { ROLES_ADMIN } from '../auth/roles';
 interface DashboardLayoutProps {
   children: React.ReactNode;
   ChatTab?: {
@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
     title2?: string;
     title3?: string;
   };
-  chatRole?: RoleView;
+  chatRole?: ROLES_ADMIN;
   eventId?: string;
   currentUserId?: string;
 }

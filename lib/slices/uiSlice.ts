@@ -16,12 +16,6 @@ export enum chatTabsFinal {
   Chat = 'Chat',
   QA = 'Q&A',
 }
-export enum RoleView {
-  Speaker = 'Speaker',
-  Attendee = 'Attendee',
-  Moderator = 'Moderator',
-}
-
 export interface UIState {
   chatTab: ChatCategoryType | ChatTab;
   unreadCount: number;

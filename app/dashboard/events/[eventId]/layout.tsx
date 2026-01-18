@@ -1,6 +1,7 @@
 'use client';
 
 import { EventContextProvider } from '@/components/providers/EventContextProvider';
+import { StageProvider } from '@/components/providers/StageContext';
 import { useEvent } from '@/hooks/useEvents';
 import { Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
@@ -15,12 +16,6 @@ export default function EventLayout({ children }: EventLayoutProps) {
 
   const { event, isLoading, error } = useEvent(eventId);
 
-  console.log('[Event Layout] Debug:', {
-    urlEventId: eventId,
-    fetchedEventId: event?._id,
-    mismatch: eventId !== event?._id,
-    event
-  });
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -42,7 +37,9 @@ export default function EventLayout({ children }: EventLayoutProps) {
 
   return (
     <EventContextProvider event={event}>
-      <div className="h-full">{children}</div>
+      <StageProvider>
+        <div className="h-full">{children}</div>
+      </StageProvider>
     </EventContextProvider>
   );
 }

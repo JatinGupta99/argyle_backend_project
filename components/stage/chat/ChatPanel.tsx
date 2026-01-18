@@ -87,27 +87,8 @@ export function ChatPanel({
   useEffect(() => {
     if (!eventId || youtubeProp) return;
 
-    const loadSponsorVideo = async () => {
-      if (!sponsorMatch?.sponsorId) return;
-
-      setIsLoadingVideo(true);
-      setVideoError(null);
-
-      try {
-        const data = await apiClient.get(
-          API_ROUTES.sponsor.fetchById(eventId, sponsorMatch.sponsorId)
-        );
-
-        const url = data.youtubeUrl ?? data.sponsor?.youtubeUrl;
-        setVideoUrl(url?.trim() || null);
-        if (!url) setVideoError('Sponsor video not available');
-      } catch {
-        setVideoError('Failed to load sponsor video');
-        setVideoUrl(null);
-      } finally {
-        setIsLoadingVideo(false);
-      }
-    };
+    // We no longer load sponsor video here as per requirement to show Event Logo instead
+    // const loadSponsorVideo = async () => { ... }
 
     const loadEventImage = async () => {
       try {
@@ -118,7 +99,7 @@ export function ChatPanel({
       }
     };
 
-    sponsorMatch ? loadSponsorVideo() : loadEventImage();
+    loadEventImage();
   }, [eventId, sponsorMatch, youtubeProp]);
 
   const handleSendMessage = useCallback(
@@ -146,17 +127,17 @@ export function ChatPanel({
   }, [activeCategory]);
 
   const topContent = useMemo(() => {
-    if (videoUrl) {
-      return (
-        <div className="pt-2 pb-4 px-2">
-          <YouTubeEmbed
-            url={videoUrl}
-            title="Sponsor Video"
-            className="rounded-lg shadow-md overflow-hidden"
-          />
-        </div>
-      );
-    }
+    // if (videoUrl) {
+    //   return (
+    //     <div className="pt-2 pb-4 px-2">
+    //       <YouTubeEmbed
+    //         url={videoUrl}
+    //         title="Sponsor Video"
+    //         className="rounded-lg shadow-md overflow-hidden"
+    //       />
+    //     </div>
+    //   );
+    // }
 
     return (
       <div className="pt-2 pb-4 px-2">
@@ -182,7 +163,7 @@ export function ChatPanel({
       <header className="h-16 px-0 flex items-center justify-between bg-card relative">
         <div className={cn(
           "absolute left-4 transition-opacity duration-200",
-          isCollapsed ? "opacity-0 pointer-events-none" : "opacity-100"
+          isCollapsed ? "opacity-0 pointer-events-none" : "opacity-100",
         )}>
           <h2 className="text-[22px] font-bold text-[#000000] tracking-tight truncate">
             {activeLabel}

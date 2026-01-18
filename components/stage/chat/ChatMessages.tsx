@@ -1,11 +1,11 @@
 'use client';
 
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle } from 'react';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Message } from '@/lib/types/api';
-import { RoleView } from '@/lib/slices/uiSlice';
+import { Loader2 } from 'lucide-react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 interface ChatMessagesProps {
   messages: Message[];
@@ -113,7 +113,7 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
 
     const displayPicture = (userData && typeof userData === 'object') ? (userData.pictureUrl || userData.avatar || '') : '';
     const userRole = (userData && typeof userData === 'object' ? userData.role : null) || 'Attendee';
-    const isOrganizer = userRole === RoleView.Moderator;
+    const isOrganizer = userRole === ROLES_ADMIN.Moderator;
     const initials = getInitials(displayName);
 
     return (

@@ -24,7 +24,7 @@ export const ROLE_CONFIG: Record<ROLES_ADMIN, RoleConfig> = {
     enable_screenshare: true,
     enable_prejoin_ui: false,
     start_video_off: true,
-    start_audio_off: false,
+    start_audio_off: true,
     enable_recording: 'cloud',
     permissions: {
       hasPresence: true,

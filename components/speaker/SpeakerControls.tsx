@@ -65,15 +65,17 @@ export function SpeakerControls({
 
       {role === ROLES_ADMIN.Moderator && <div className="w-px h-8 bg-white/10" />}
 
-      <MediaControls
-        isMicOn={isMicOn}
-        isCamOn={isCamOn}
-        isScreenSharing={isScreenSharing}
-        onToggleMic={onToggleMic}
-        onToggleCam={onToggleCam}
-        onToggleScreenShare={onToggleScreenShare}
-        role={role}
-      />
+      {(role === ROLES_ADMIN.Speaker || role === ROLES_ADMIN.Moderator) && (
+        <MediaControls
+          isMicOn={isMicOn}
+          isCamOn={isCamOn}
+          isScreenSharing={isScreenSharing}
+          onToggleMic={onToggleMic}
+          onToggleCam={onToggleCam}
+          onToggleScreenShare={onToggleScreenShare}
+          role={role}
+        />
+      )}
     </div>
   );
 }

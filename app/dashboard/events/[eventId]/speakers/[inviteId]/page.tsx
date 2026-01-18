@@ -2,16 +2,15 @@
 
 import axios from 'axios';
 import { useParams, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerViewContent } from '@/components/speaker/SpeakerViewContent';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { RoleView } from '@/lib/slices/uiSlice';
 import { DailyJoinResponse } from '@/lib/types/daily';
-import { determineRoleWithFallback, extractNameFromToken, extractUserDataFromToken } from '@/lib/utils/jwt-utils';
+import { extractUserDataFromToken } from '@/lib/utils/jwt-utils';
 
 /* -------------------------------------------------------------------------- */
 /*                                Component                                   */
@@ -25,14 +24,13 @@ import { Loader2, ShieldAlert } from 'lucide-react';
 /*                                Component                                   */
 /* -------------------------------------------------------------------------- */
 
-import { CountdownDisplay } from '@/components/shared/CountdownDisplay';
 
 export default function SpeakerPage() {
   const { inviteId } = useParams<{ inviteId: string }>();
   const searchParams = useSearchParams();
   const urlToken = searchParams.get('token');
   const event = useEventContext();
-  const { setAuth, token: authToken } = useAuth(); // Use authToken from context (localStorage)
+  const { setAuth, token: authToken, userData } = useAuth(); // Use authToken from context (localStorage)
 
   const [token, setToken] = useState<string | null>(null);
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
@@ -44,19 +42,20 @@ export default function SpeakerPage() {
   // ... time logic ...
   const targetDate = useMemo(() => {
     const start = event?.schedule?.startTime;
-    if (!start) return new Date();
-    return start instanceof Date ? start : new Date(start);
+    if (!start) return null;
+    const d = start instanceof Date ? start : new Date(start);
+    return isNaN(d.getTime()) ? null : d;
   }, [event?.schedule?.startTime]);
 
   const [eventIsLive, setEventIsLive] = useState<boolean>(
-    new Date() >= targetDate
+    targetDate ? new Date() >= targetDate : true
   );
 
   useEffect(() => {
     if (eventIsLive) return;
 
     const interval = setInterval(() => {
-      if (new Date() >= targetDate) {
+      if (targetDate && new Date() >= targetDate) {
         setEventIsLive(true);
         clearInterval(interval);
       }
@@ -74,12 +73,16 @@ export default function SpeakerPage() {
       try {
         setIsLoading(true);
 
-        // 1. Decode Role from JWT (Look at who is trying to join)
+        // 1. Use context-provided userData if available to avoid redundant decode
+        let details = userData;
         const tokenToAnalyze = urlToken || authToken;
-        const details = tokenToAnalyze ? extractUserDataFromToken(tokenToAnalyze) : null;
+
+        if (!details && tokenToAnalyze) {
+          details = extractUserDataFromToken(tokenToAnalyze);
+        }
 
         if (details) {
-          console.log(`[SpeakerPage] Verifying role: ${details.role} for user: ${details.name}`);
+          console.log(`[SpeakerPage] Using credentials for: ${details.name} (${details.role})`);
         }
 
         // 2. Call backend to verify invite and GENERATE the Daily Meeting Token
@@ -154,22 +157,22 @@ export default function SpeakerPage() {
   return (
     <PageGuard role={[ROLES_ADMIN.Speaker, ROLES_ADMIN.Moderator]}>
       <EventStageLayout
-        role={RoleView.Speaker}
+        role={localRole || ROLES_ADMIN.Speaker}
         chatType={eventIsLive ? ChatSessionType.LIVE : ChatSessionType.PRE_LIVE}
         chatTabs={[ChatCategoryType.EVERYONE, ChatCategoryType.BACKSTAGE]}
-        title="Speaker Live Stage"
+        title={localRole === ROLES_ADMIN.Moderator ? "Moderator Stage" : "Speaker Stage"}
       >
         <div className="flex-1 -mt-4 h-full relative">
           {/* Speakers can always join - backstage mode with countdown shown in header */}
           <div className="w-full h-full p-4">
             <SpeakerViewContent
-              token={urlToken || token}
+              token={urlToken || authToken}
               roomUrl={roomUrl}
               eventId={event!._id!}
               role={localRole}
               userName={userName || undefined}
               initialIsLive={eventIsLive}
-              startTime={targetDate}
+              startTime={targetDate || undefined}
             />
           </div>
         </div>

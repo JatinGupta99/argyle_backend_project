@@ -1,7 +1,6 @@
 'use client';
 
-import { useDailyActiveSpeaker } from '@/hooks/useDailyActiveSpeaker';
-import { useParticipantProperty } from '@daily-co/daily-react';
+import { useParticipantProperty, useActiveSpeakerId } from '@daily-co/daily-react';
 import React, { useEffect } from 'react';
 
 export interface ParticipantProps {
@@ -27,7 +26,7 @@ export function ParticipantState({ id, children }: ParticipantProps) {
 
   const isOwner = useParticipantProperty(id, 'owner');
 
-  const activeSpeakerId = useDailyActiveSpeaker();
+  const activeSpeakerId = useActiveSpeakerId();
   const isActiveSpeaker = id === activeSpeakerId;
   return (
     <>

@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useAuth } from '@/app/auth/auth-context';
 import { extractNameFromToken, extractEmailFromToken } from '@/lib/utils/jwt-utils';
 import { cn } from '@/lib/utils';
+import { useStageContext } from '@/components/providers/StageContext';
 
 interface HeaderProps {
   title?: string;
@@ -12,6 +13,7 @@ interface HeaderProps {
 
 export function Header({ title = '' }: HeaderProps) {
   const { token } = useAuth();
+  const { isBroadcastLive } = useStageContext();
 
   const userName = token ? extractNameFromToken(token) : null;
   const userEmail = token ? extractEmailFromToken(token) : null;
@@ -23,7 +25,7 @@ export function Header({ title = '' }: HeaderProps) {
   return (
     <div className={cn(
       "sticky top-0 z-10 border-b backdrop-blur-md transition-all duration-300",
-      title === 'Speaker Live Stage'
+      (title.includes('Speaker') || title.includes('Moderator'))
         ? "bg-[#000a28]/80 border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]"
         : "bg-white/80 border-slate-200/60 shadow-sm"
     )}>
@@ -31,12 +33,12 @@ export function Header({ title = '' }: HeaderProps) {
         <div className="flex flex-col">
           <h1 className={cn(
             "text-xl font-black tracking-tight",
-            title === 'Speaker Live Stage' ? "text-white" : "text-[#000a28]"
+            (title.includes('Speaker') || title.includes('Moderator')) ? "text-white" : "text-[#000a28]"
           )}>{title}</h1>
           <div className="flex items-center gap-2">
             <div className={cn(
               "w-1.5 h-1.5 rounded-full",
-              title === 'Speaker Live Stage' ? "bg-red-500 animate-pulse" : "bg-emerald-500"
+              isBroadcastLive ? "bg-red-500 animate-pulse" : "bg-emerald-500"
             )} />
           </div>
         </div>

@@ -26,6 +26,7 @@ export interface InviteTokenPayload {
     speakerId?: string; // Speaker/Moderator ID (used as _id in chat)
     is_owner?: boolean; // alternative owner flag
     daily_token?: string; // The token to use for Daily.co join
+    dailyToken?: string; // CamelCase version of daily token
     // The room URL override (snake_case)
     dailyRoomUrl?: string; // The room URL override (camelCase)
     user_info?: {

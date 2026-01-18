@@ -7,9 +7,8 @@ export interface DailyTokenResponse {
 
 export const fetchMeetingToken = async (eventId: string, authToken?: string | null): Promise<string | null> => {
     try {
-        const { data } = await axios.post<{ data: { token: string } }>(
+        const { data } = await axios.get<{ data: { token: string } }>(
             `${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}/join`,
-            {},
             {
                 headers: authToken ? { Authorization: `Bearer ${authToken}` } : {}
             }
@@ -17,6 +16,37 @@ export const fetchMeetingToken = async (eventId: string, authToken?: string | nu
         return data.data.token;
     } catch (error) {
         console.warn('Failed to fetch meeting token:', error);
+        return null;
+    }
+};
+
+export interface JoinEventResponse {
+    token: string;
+    roomUrl: string;
+    frontendUrl?: string;
+}
+
+export const joinEventProxy = async (
+    eventId: string,
+    token: string
+): Promise<JoinEventResponse | null> => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}/joining`;
+
+    try {
+        const response = await axios.post<any>(url, { token });
+
+        return {
+            token: response?.data?.token,
+            roomUrl: response?.data?.roomUrl,
+            frontendUrl: response?.data?.frontendUrl,
+        };
+    } catch (error: any) {
+        console.error('[API] joinEventProxy failed:', {
+            url,
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message,
+        });
         return null;
     }
 };

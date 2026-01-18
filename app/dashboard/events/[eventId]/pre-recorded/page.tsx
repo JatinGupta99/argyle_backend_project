@@ -2,15 +2,14 @@
 
 import * as React from 'react';
 
-import { useParams } from 'next/navigation';
-import { ChatPanel } from '@/components/stage/chat/ChatPanel';
-import { YouTubeEmbed } from '@/components/shared/YouTubeEmbed';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
-import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { UserID } from '@/lib/constants/api';
 import { useAuth } from '@/app/auth/auth-context';
-import { cn } from '@/lib/utils';
 import { ROLES_ADMIN } from '@/app/auth/roles';
+import { YouTubeEmbed } from '@/components/shared/YouTubeEmbed';
+import { ChatPanel } from '@/components/stage/chat/ChatPanel';
+import { } from '@/lib/constants/api';
+import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
+import { ChatTab } from '@/lib/slices/uiSlice';
+import { useParams } from 'next/navigation';
 
 const RAW_VIDEO_URL = "https://www.youtube.com/watch?v=8NJTFdpecaI";
 const YOUTUBE_URL = RAW_VIDEO_URL.replace(/\s/g, '');
@@ -18,7 +17,7 @@ const YOUTUBE_URL = RAW_VIDEO_URL.replace(/\s/g, '');
 export default function PreRecordedPage() {
     const params = useParams();
     const eventId = params?.eventId as string;
-    const { role } = useAuth();
+    const { role, userId } = useAuth();
 
     const canControl = role === ROLES_ADMIN.Moderator;
 
@@ -33,9 +32,9 @@ export default function PreRecordedPage() {
             <div className="h-full z-10 border-r border-border bg-background shadow-xl">
                 <ChatPanel
                     title3={ChatTab.Chat}
-                    role={RoleView.Attendee}
+                    role={ROLES_ADMIN.Attendee}
                     eventId={eventId}
-                    currentUserId={UserID}
+                    currentUserId={userId || ''}
                     type={ChatSessionType.LIVE}
                     tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
                 />
