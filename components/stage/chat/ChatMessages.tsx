@@ -1,34 +1,87 @@
 'use client';
 
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2 } from 'lucide-react';
-import { useEffect, useMemo, useRef } from 'react';
 import { Message } from '@/lib/types/api';
-import userImage from '@/public/professional-man-in-red-shirt.jpg';
-import { RoleView } from '@/lib/slices/uiSlice';
+import { Loader2 } from 'lucide-react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 interface ChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  fetchPreviousPage?: () => void;
+  hasPreviousPage?: boolean;
+  isFetchingPreviousPage?: boolean;
 }
 
-export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
-  const endRef = useRef<HTMLDivElement | null>(null);
+export interface ChatMessagesRef {
+  scrollToBottom: () => void;
+}
+
+export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
+  messages,
+  isLoading,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+  fetchPreviousPage,
+  hasPreviousPage,
+  isFetchingPreviousPage
+}, ref) => {
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const prevCount = useRef(messages.length);
+  const [atBottom, setAtBottom] = useState(true);
+  const [showScrollButton, setShowScrollButton] = useState(false); // Can be used for "New Messages" indicator later
 
   const sorted = useMemo(
     () =>
       [...messages].sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        (a, b) => {
+          const timeA = new Date(a.createdAt).getTime();
+          const timeB = new Date(b.createdAt).getTime();
+          if (isNaN(timeA) || isNaN(timeB)) return 0;
+          return timeA - timeB;
+        }
       ),
     [messages]
   );
 
-  useEffect(() => {
-    if (sorted.length > 0) {
-      endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  useImperativeHandle(ref, () => ({
+    scrollToBottom: () => {
+      // Force scroll to bottom immediately (for user sent messages)
+      setTimeout(() => {
+        virtuosoRef.current?.scrollToIndex({
+          index: sorted.length - 1,
+          behavior: 'smooth',
+          align: 'end',
+        });
+      }, 50);
     }
-  }, [sorted]);
+  }));
+
+  useEffect(() => {
+    // If messages were added
+    if (messages.length > prevCount.current) {
+      // Only auto-scroll if user was already at the bottom
+      if (atBottom) {
+        setTimeout(() => {
+          virtuosoRef.current?.scrollToIndex({
+            index: sorted.length - 1,
+            behavior: 'smooth',
+            align: 'end',
+          });
+        }, 100);
+      } else {
+        // Here we could show a "New messages below" toast
+        setShowScrollButton(true);
+      }
+    }
+    prevCount.current = messages.length;
+  }, [messages.length, sorted.length, atBottom]);
 
   const getInitials = (name: string) => {
     if (!name) return 'U';
@@ -41,7 +94,7 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
       .toUpperCase();
   };
 
-  if (isLoading) {
+  if (isLoading && !isFetchingNextPage) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Loader2 className="animate-spin text-blue-600" size={24} />
@@ -49,51 +102,91 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
     );
   }
 
-  return (
-    <ul className="space-y-6 px-4 pb-4">
-      {sorted.map((m, index) => {
-        const userData = (m as any).userId || (m as any).user;
-        const displayName = userData?.name || userData?.username || 'Anonymous';
-        const displayPicture = userData?.pictureUrl || userData?.avatar || '';
-        const userRole = userData?.role || 'Attendee';
-        const isOrganizer = userRole === RoleView.Moderator;
-        const initials = getInitials(displayName);
+  const renderMessage = (index: number) => {
+    const m = sorted[index];
+    if (!m) return null;
 
-        return (
-          <li key={m._id ?? `msg-${index}`} className="flex gap-4 animate-in fade-in slide-in-from-left-2 duration-300">
-            <Avatar className="h-10 w-10 flex-shrink-0 shadow-sm ring-2 ring-white border border-slate-100">
-              <AvatarImage src={displayPicture} alt={displayName} className="object-cover" />
-              <AvatarFallback className="text-[14px] font-black bg-[#1a9ad6] text-white">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0 pt-0.5">
-              <div className="flex flex-col mb-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[17px] font-black text-slate-900 tracking-tight truncate max-w-[180px] sm:max-w-none">
-                    {displayName}
-                  </span>
-                  <span className="text-[12px] text-slate-400 font-bold shrink-0 uppercase">
-                    {new Date(m.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-                {isOrganizer && (
-                  <span className="text-[13px] font-bold text-orange-500 mt-[-2px]">
-                    (Organizer)
-                  </span>
-                )}
-              </div>
-              <p className="text-[16px] text-slate-700 leading-relaxed break-words font-medium">
-                {m.content}
-              </p>
+    const userData = m.userId;
+    const displayName = userData?.username || 'Guest User';
+    const displayPicture = userData?.avatar || '';
+    const userRole = userData?.role || 'Attendee';
+    const isOrganizer =
+      userRole === ROLES_ADMIN.Moderator ||
+      userRole?.toLowerCase() === 'moderator' ||
+      userRole?.toLowerCase() === 'admin';
+    const initials = getInitials(displayName);
+
+    return (
+      <div className="flex gap-3 mb-6 pr-4">
+        <Avatar className="h-10 w-10 flex-shrink-0 shadow-sm ring-2 ring-background border border-border">
+          <AvatarImage src={displayPicture} alt={displayName} className="object-cover" />
+          <AvatarFallback className="text-[14px] font-black bg-accent text-white">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0 pt-0.5">
+          <div className="flex flex-col mb-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-[15px] font-bold text-[#000000] tracking-tight truncate max-w-[180px] sm:max-w-none">
+                {displayName}
+              </span>
+              <span className="text-[12px] text-muted-foreground/60 font-medium shrink-0">
+                {new Date(m.createdAt).toLocaleTimeString([], {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })}
+              </span>
             </div>
-          </li>
-        );
-      })}
-      <div ref={endRef} />
-    </ul>
+            {isOrganizer && (
+              <span className="text-[12px] font-bold text-warning leading-none mt-0.5">
+                (Organizer)
+              </span>
+            )}
+          </div>
+          <p className="text-[15px] text-[#000000] leading-relaxed break-words font-normal">
+            {m.content}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <Virtuoso
+      ref={virtuosoRef}
+      style={{ height: '100%', width: '100%' }}
+      data={sorted}
+      initialTopMostItemIndex={Math.max(0, sorted.length - 1)}
+      increaseViewportBy={500}
+      atBottomThreshold={100}
+      alignToBottom={true} // Consider removing if deprecated, but keeping for safety as per original
+      atBottomStateChange={(isAtBottom) => {
+        setAtBottom(isAtBottom);
+        if (isAtBottom) setShowScrollButton(false);
+      }}
+      computeItemKey={(index, item) => item._id || index}
+      startReached={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage?.();
+        }
+      }}
+      endReached={() => {
+        if (hasPreviousPage && !isFetchingPreviousPage) {
+          fetchPreviousPage?.();
+        }
+      }}
+      itemContent={(index, item) => renderMessage(index)}
+      components={{
+        Header: () => (
+          isFetchingNextPage ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="animate-spin text-blue-300" size={20} />
+            </div>
+          ) : null
+        ),
+      }}
+    />
   );
-}
+});
+
+ChatMessages.displayName = 'ChatMessages';

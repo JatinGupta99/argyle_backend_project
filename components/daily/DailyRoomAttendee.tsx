@@ -1,12 +1,9 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { DailyAudio, DailyProvider } from '@daily-co/daily-react';
-import { useDailyBase } from '@/hooks/useDailyBase';
+import { useRouter } from 'next/navigation';
+import { DailyProvider } from '@daily-co/daily-react';
 import { Role } from '@/app/auth/roles';
-import { useCountdown } from '@/hooks/useCountdown';
-import { VideoGrid } from './VideoGrid';
-import { fetchMeetingToken } from '@/lib/api/daily';
+import { useAttendeeLogic } from '@/hooks/useAttendeeLogic';
+import { AttendeeWaitingRoom } from './AttendeeWaitingRoom';
+import { AttendeeStage } from './AttendeeStage';
 
 export interface DailyRoomProps {
   role: Role;
@@ -16,76 +13,71 @@ export interface DailyRoomProps {
   eventId: string;
 }
 
-export function DailyRoomAttendee({ role, startTime, roomUrl, eventIsLive, eventId }: DailyRoomProps) {
-  const { hours, minutes, seconds } = useCountdown(startTime);
-  const [userClickedJoin, setUserClickedJoin] = useState(false);
+export function DailyRoomAttendee({ role, startTime, roomUrl: initialRoomUrl, eventIsLive, eventId }: DailyRoomProps) {
+  const router = useRouter();
 
-  const [userName] = useState(() => `Attendee_${Math.floor(Math.random() * 1000)}`);
-  
-  const [token, setToken] = useState<string | null>(null);
+  const {
+    token,
+    dailyUrl,
+    callObject,
+    ready,
+    error
+  } = useAttendeeLogic(role, eventId, eventIsLive);
 
-  useEffect(() => {
-    if (eventIsLive && !token && eventId) {
-      fetchMeetingToken(eventId).then(setToken);
+  const handleLeave = async () => {
+    try {
+      if (callObject) {
+        await callObject.leave();
+      }
+      if (typeof window !== 'undefined' && window.history.length > 1) {
+        router.push(`/dashboard/events/${eventId}/info`);
+      } else {
+        window.close();
+      }
+    } catch (err) {
+      console.error('[DailyRoomAttendee] Failed to leave:', err);
+      router.push(`/dashboard/events/${eventId}/info`);
     }
-  }, [eventIsLive, token, eventId]);
+  };
 
-  const { callObject, ready, error } = useDailyBase(
-    roomUrl,
-    userClickedJoin,
-    userName,
-    token
-  );
-
-  console.log('DailyBase:', { callObject, ready, error });
-  if (!eventIsLive) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-2">
-        <p className="text-lg">Event starts in</p>
-        <p className="font-bold text-green-400 animate-pulse font-mono text-2xl">
-          {hours.toString().padStart(2, '0')}:
-          {minutes.toString().padStart(2, '0')}:
-          {seconds.toString().padStart(2, '0')}
-        </p>
-      </div>
-    );
+  // 1. Invalid Invite Check
+  if (!dailyUrl && token && !dailyUrl) { // Logic: If we have a token but cannot extract a dailyUrl (and proxy failed to return one), it's invalid
+    // Actually useAttendeeLogic handles proxying. If dailyUrl is null but token exists, and we are supposed to have one...
+    // The original logic was: if (!roomUrl && token) -> Invalid Invite.
+    // roomUrl came from tokenParams.dailyUrl.
+    if (!dailyUrl && token) {
+      return <AttendeeWaitingRoom status="invalid-invite" />;
+    }
   }
-  console.log(hours, minutes, seconds, userClickedJoin, 'USER CLICKED JOIN STATUS');
-  if (!userClickedJoin) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4">
-        <p className="text-lg">Event is live!</p>
-        <button
-          onClick={() => setUserClickedJoin(true)}
-          className="px-6 py-3 bg-green-500 rounded-lg text-white font-semibold"
-        >
-          Join Event
-        </button>
-      </div>
-    );
-  }
+
+  // 2. Error Check
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full h-full bg-black text-white gap-4 p-6 text-center">
-        <div className="text-5xl">⚠️</div>
-        <h3 className="text-xl font-bold text-red-500">Connection Failed</h3>
-        <p className="text-gray-300 max-w-md">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors"
-        >
-          Reload Page
-        </button>
-      </div>
-    );
+    const errorMsg = typeof error === 'string' ? error.toLowerCase() : '';
+    const isRoomUnavailable = errorMsg.includes('no longer available') ||
+      errorMsg.includes('meeting has ended') ||
+      errorMsg.includes('room not found') ||
+      errorMsg.includes('room_deleted');
+
+    if (isRoomUnavailable) {
+      return <AttendeeWaitingRoom status="unavailable" />;
+    }
+    return <AttendeeWaitingRoom status="connection-error" error={error} />;
   }
 
-  if (!callObject) return <div>Initializing call…</div>;
-  if (!ready) return <div>Joining meeting…</div>;
+  // 3. Not Live Check
+  if (!eventIsLive) {
+    return <AttendeeWaitingRoom status="countdown" startTime={startTime} />;
+  }
+
+  // 4. Connecting Check
+  if (!callObject || !ready) {
+    return <AttendeeWaitingRoom status="connecting" />;
+  }
+
+  // 5. Active Stage
   return (
     <DailyProvider callObject={callObject}>
-      <DailyAudio autoSubscribeActiveSpeaker maxSpeakers={12} />
-      <VideoGrid callObject={callObject} />
+      <AttendeeStage callObject={callObject} onLeave={handleLeave} />
     </DailyProvider>
   );
 }

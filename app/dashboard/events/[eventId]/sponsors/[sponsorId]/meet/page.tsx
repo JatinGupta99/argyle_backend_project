@@ -1,27 +1,36 @@
 'use client';
 
+import { getSponsorDownloadUrl } from '@/lib/sponsor';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getSponsorDownloadUrl } from '@/lib/sponsor';
 
+import { useEventContext } from '@/components/providers/EventContextProvider';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
 import { Header } from '@/components/stage/layout/Header';
+import { SplitLayout } from '@/components/stage/layout/SplitLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Calendar, Loader2 } from 'lucide-react';
+import { PopupModal } from 'react-calendly';
 import { toast } from 'sonner';
 
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { useDetailSponsor } from '@/hooks/useDetailSponsor';
 import { apiClient } from '@/lib/api-client';
 import { API_ROUTES } from '@/lib/api-routes';
-import { UserID } from '@/lib/constants/api';
-import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
+import { } from '@/lib/constants/api';
+import { ChatCategoryType } from '@/lib/constants/chat';
+import { ChatTab } from '@/lib/slices/uiSlice';
+import { getChatSessionStatus } from '@/lib/utils/chat-utils';
+
+import { useAuth } from '@/app/auth/auth-context';
 
 export default function SponsorBoothMeet() {
   const { eventId, sponsorId } = useParams() as { eventId: string; sponsorId: string };
+  const { userId, userData } = useAuth();
 
   const ready = Boolean(eventId && sponsorId);
   const { sponsor, loading, error } = useDetailSponsor(
@@ -30,6 +39,7 @@ export default function SponsorBoothMeet() {
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCalendlyOpen, setIsCalendlyOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,11 +47,16 @@ export default function SponsorBoothMeet() {
     address: '',
     title: '',
     industry: '',
-    isResearching: '',
+    researchingSolutions: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [signedLogoUrl, setSignedLogoUrl] = useState<string | null>(null);
+  const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setRootElement(document.body);
+  }, []);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -79,8 +94,8 @@ export default function SponsorBoothMeet() {
       newErrors.email = 'Invalid email format.';
     }
 
-    if (!formData.isResearching) {
-      newErrors.isResearching = 'Please select an option.';
+    if (!formData.researchingSolutions) {
+      newErrors.researchingSolutions = 'Please select an option.';
     }
 
     return newErrors;
@@ -101,7 +116,15 @@ export default function SponsorBoothMeet() {
 
     try {
       setIsSubmitting(true);
-      await apiClient.post(API_ROUTES.sponsor.sendLead(eventId, sponsorId), formData);
+
+      const payload = {
+        ...formData,
+        eventId,
+        sponsorId,
+        userId: userId || undefined
+      };
+
+      await apiClient.post(API_ROUTES.inquiries.base, payload);
 
       setFormData({
         name: '',
@@ -110,11 +133,11 @@ export default function SponsorBoothMeet() {
         address: '',
         title: '',
         industry: '',
-        isResearching: '',
+        researchingSolutions: '',
       });
       setErrors({});
 
-      toast.success('Lead sent successfully! Our sponsor team will contact you shortly.');
+      toast.success('Inquiry submitted successfully! A representative will reach out to you shortly.');
     } catch (err) {
       console.error(err);
       toast.error('Failed to submit. Please try again.');
@@ -133,23 +156,23 @@ export default function SponsorBoothMeet() {
     return <div className="flex h-screen items-center justify-center">No sponsor data found.</div>;
 
   return (
-    <div className="flex h-screen bg-background">
-      <aside className="w-[27%] bg-[#FAFAFA] border-r">
+    <SplitLayout
+      sidebar={
         <ChatPanel
           youtubeUrl={sponsor.youtubeUrl}
           title3={ChatTab.Chat}
           eventId={eventId}
-          currentUserId={UserID}
-          role={RoleView.Attendee}
-          type={ChatSessionType.LIVE}
+          currentUserId={userId || ""}
+          role={ROLES_ADMIN.Attendee}
+          type={getChatSessionStatus(useEventContext())}
           tabs={[ChatCategoryType.CHAT, ChatCategoryType.QA]}
         />
-      </aside>
-
-      <main className="flex-1 flex flex-col overflow-y-auto">
-        <Header title={sponsor.name} />
+      }
+    >
+      <Header title={sponsor.name} />
+      <div className="flex-1 overflow-y-auto">
         <div className="flex flex-1 items-center justify-center px-6 py-10">
-          <div className="max-w-4xl w-full bg-white border shadow-sm rounded-lg p-8 space-y-8">
+          <div className="max-w-4xl w-full bg-background border border-border shadow-sm rounded-lg p-8 space-y-8">
             <h1 className="text-3xl font-bold text-center">Meet Our Sponsor</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -167,17 +190,36 @@ export default function SponsorBoothMeet() {
                 <p className="text-sm text-muted-foreground leading-relaxed">{sponsor.description}</p>
                 <section>
                   <h3 className="font-semibold mb-2">Would you like to meet?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Chat with our team via{' '}
-                    <a href={sponsor.meetingLink || '#'} className="text-primary hover:underline">
-                      live chat
-                    </a>{' '}
-                    or schedule time using{' '}
-                    <a href={sponsor.calendlyLink || '#'} className="text-primary hover:underline">
-                      Calendly
-                    </a>
-                    .
-                  </p>
+                  <div className="flex flex-col gap-3">
+                    <p className="text-sm text-muted-foreground">
+                      Chat with our team via{' '}
+                      <a href={sponsor.meetingLink || '#'} className="text-primary hover:underline">
+                        live chat
+                      </a>{' '}
+                      or schedule time directly:
+                    </p>
+                    <Button
+                      onClick={() => setIsCalendlyOpen(true)}
+                      variant="outline"
+                      className="w-full sm:w-auto gap-2 border-primary text-primary hover:bg-primary/5"
+                    >
+                      <Calendar size={16} />
+                      Schedule a Meeting
+                    </Button>
+                  </div>
+
+                  {rootElement && (
+                    <PopupModal
+                      url={sponsor.calendlyLink || "https://calendly.com/"}
+                      onModalClose={() => setIsCalendlyOpen(false)}
+                      open={isCalendlyOpen}
+                      rootElement={rootElement}
+                      prefill={{
+                        email: userData?.email || '',
+                        name: userData?.name || '',
+                      }}
+                    />
+                  )}
                 </section>
               </div>
 
@@ -208,41 +250,47 @@ export default function SponsorBoothMeet() {
 
                   <div className="pt-2 space-y-1">
                     <Label
-                      className={`text-xs font-medium ${errors.isResearching ? 'text-red-600' : 'text-gray-700'}`}
+                      className={`text-xs font-medium ${errors.researchingSolutions ? 'text-red-600' : 'text-gray-700'}`}
                     >
                       Are you actively researching solutions?
                     </Label>
-                    <div className={`rounded-md p-3 border ${errors.isResearching ? 'border-red-600' : 'border-gray-300'}`}>
+                    <div className={`rounded-md p-3 border ${errors.researchingSolutions ? 'border-red-600' : 'border-gray-300'}`}>
                       <RadioGroup
-                        value={formData.isResearching}
+                        value={formData.researchingSolutions}
                         onValueChange={(value) => {
-                          setFormData((prev) => ({ ...prev, isResearching: value }));
-                          setErrors((prev) => ({ ...prev, isResearching: '' }));
+                          setFormData((prev) => ({ ...prev, researchingSolutions: value }));
+                          setErrors((prev) => ({ ...prev, researchingSolutions: '' }));
                         }}
                         className="flex gap-6"
                       >
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem id="research-yes" value="true" />
+                          <RadioGroupItem id="research-yes" value="yes" />
                           <Label htmlFor="research-yes" className="text-sm">Yes</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem id="research-no" value="false" />
+                          <RadioGroupItem id="research-no" value="no" />
                           <Label htmlFor="research-no" className="text-sm">No</Label>
                         </div>
                       </RadioGroup>
                     </div>
-                    {errors.isResearching && <p className="text-red-600 text-xs">{errors.isResearching}</p>}
+                    {errors.researchingSolutions && <p className="text-red-600 text-xs">{errors.researchingSolutions}</p>}
                   </div>
 
                   <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting…' : 'Submit'}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : 'Submit'}
                   </Button>
                 </form>
               </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
+
+      </div>
+    </SplitLayout>
   );
 }

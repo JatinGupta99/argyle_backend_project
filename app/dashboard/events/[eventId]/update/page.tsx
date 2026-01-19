@@ -1,38 +1,44 @@
 'use client';
 
-import { AuthProvider, useAuth } from '@/app/auth/auth-context';
-import { Role, ROLES } from '@/app/auth/roles';
+import { useAuth } from '@/app/auth/auth-context';
+import { ROLES_ADMIN } from '@/app/auth/roles';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { ChatPanel } from '@/components/stage/chat/ChatPanel';
-import { useSearchParams } from 'next/navigation';
-import { extractRoleFromInviteToken } from '@/lib/utils/jwt-utils';
 import { EventHeader } from '@/components/stage/event-headers';
 import { EventUpdates } from '@/components/stage/event-updates';
 import { Header } from '@/components/stage/layout/Header';
-import { UserID } from '@/lib/constants/api';
+import { SplitLayout } from '@/components/stage/layout/SplitLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { ChatTab, RoleView } from '@/lib/slices/uiSlice';
 import { getEventDownloadUrl } from '@/lib/event';
+import { ChatTab } from '@/lib/slices/uiSlice';
+import { extractRoleFromInviteToken } from '@/lib/utils/jwt-utils';
 import { Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 function EventPageContent() {
   const event = useEventContext();
-  const { role, userId, setRole } = useAuth();
+  const { role, userId, token: authToken, setAuth } = useAuth();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const urlToken = searchParams.get('token');
 
   const [imageSignedUrl, setImageSignedUrl] = useState<string | null>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const eventId = event._id as string;
-  const currentUserId = userId || UserID;
+  const currentUserId = userId || "";
+
+  const maxWidthClass = isSidebarCollapsed ? 'max-w-[85rem]' : 'max-w-[70rem]';
+  const inputMaxWidthClass = isSidebarCollapsed ? 'max-w-[75rem]' : 'max-w-[60rem]';
 
   useEffect(() => {
-    if (role) return;
-    const determinedRole = token ? extractRoleFromInviteToken(token) : ROLES.ATTENDEE;
+    if (role) return;
 
-    setRole(determinedRole, UserID);
-  }, [token, role, setRole]);
+    const tokenToUse = urlToken || authToken;
+    const determinedRole = tokenToUse ? extractRoleFromInviteToken(tokenToUse) : ROLES_ADMIN.Attendee;
+
+    setAuth(determinedRole, currentUserId, tokenToUse || '');
+  }, [urlToken, authToken, role, setAuth]);
 
   useEffect(() => {
     async function fetchImage() {
@@ -57,32 +63,36 @@ function EventPageContent() {
   }
 
   return (
-    <div className="flex h-full w-full bg-background overflow-hidden relative">
-
-      <aside className="w-[310px] border-r border-gray-200 bg-white flex-shrink-0">
+    <SplitLayout
+      sidebarSide="left"
+      sidebar={
         <ChatPanel
           title3={ChatTab.Argyle}
-          role={role === ROLES.MODERATOR ? RoleView.Moderator : RoleView.Attendee}
+          role={role === ROLES_ADMIN.Moderator ? ROLES_ADMIN.Moderator : ROLES_ADMIN.Attendee}
           eventId={eventId}
           currentUserId={currentUserId}
           type={ChatSessionType.PRE_LIVE}
           tabs={[ChatCategoryType.EVERYONE, ChatCategoryType.None]}
+          collapsed={isSidebarCollapsed}
+          onToggleCollapse={setIsSidebarCollapsed}
         />
-      </aside>
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-        <Header title={event.title || ''} />
-        <div className="flex-1 overflow-y-auto">
-          <EventHeader
-            title={event.title || ''}
-            imageSrc={imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp'}
-          />
-          <EventUpdates
-            eventId={eventId}
-            currentUserId={currentUserId}
-          />
-        </div>
-      </main>
-    </div>
+      }
+    >
+      <Header title={role === ROLES_ADMIN.Moderator ? "Moderator Stage" : "Speaker Stage"} />
+      <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/30">
+        <EventHeader
+          title={event.title || ''}
+          imageSrc={imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp'}
+          maxWidthClass={maxWidthClass}
+        />
+        <EventUpdates
+          eventId={eventId}
+          currentUserId={currentUserId || ""}
+          maxWidthClass={maxWidthClass}
+          inputMaxWidthClass={inputMaxWidthClass}
+        />
+      </div>
+    </SplitLayout>
   );
 }
 

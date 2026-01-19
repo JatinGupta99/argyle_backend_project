@@ -1,9 +1,9 @@
 'use client';
 
-import DailyRoom from '@/components/daily/DailyRoom';
+
 import { DailyRoomAttendee } from '@/components/daily/DailyRoomAttendee';
 import { useEventContext } from '@/components/providers/EventContextProvider';
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import type { RootState } from '@/lib/store';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -14,22 +14,29 @@ interface VideoPanelProps {
 
 export function VideoPanel({
   eventId,
-  role = ROLES.ATTENDEE,
+  role = ROLES_ADMIN.Attendee,
 }: VideoPanelProps) {
   const dispatch = useDispatch();
-  const isLive = useSelector((state: RootState) => state.ui.isLive);
-  const roomUrl = useSelector((state: RootState) => state.ui.roomUrl);
+  const reduxIsLive = useSelector((state: RootState) => state.ui.isLive);
+  const roomUrl = useSelector((state: RootState) => state.ui.roomUrl);
+
+  let isLive = reduxIsLive;
   let startTime = new Date();
   try {
     const ev = useEventContext();
-    startTime = ev.schedule?.startTime ?? startTime;
-  } catch (e) {
+    const scheduleStart = ev.schedule?.startTime;
+    if (scheduleStart) {
+      startTime = scheduleStart instanceof Date ? scheduleStart : new Date(scheduleStart);
+    }
+  } catch (e) {
+
   }
 
   return (
     <div className="flex flex-col h-full bg-background mt-2">
       <div className="relative flex-none w-full max-w-[600px] aspect-[16/12.5] bg-gray-900 rounded-2xl shadow-lg mx-auto">
-        {isLive && roomUrl ? (
+        {isLive && roomUrl ? (
+
           <DailyRoomAttendee
             role={role}
             startTime={startTime}

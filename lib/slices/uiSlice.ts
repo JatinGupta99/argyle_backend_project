@@ -3,7 +3,7 @@ import { ChatCategoryType } from '../constants/chat';
 
 export enum ChatTab {
   Everyone = 'Everyone',
-  Backstage = 'Backstage',
+  Backstage = 'backStage',
   Chat = 'Chat',
   QA = 'Q&A',
   Argyle = 'Chat with Argyle here',
@@ -16,12 +16,6 @@ export enum chatTabsFinal {
   Chat = 'Chat',
   QA = 'Q&A',
 }
-export enum RoleView {
-  Speaker = 'Speaker',
-  Attendee = 'Attendee',
-  Moderator = 'Moderator',
-}
-
 export interface UIState {
   chatTab: ChatCategoryType | ChatTab;
   unreadCount: number;

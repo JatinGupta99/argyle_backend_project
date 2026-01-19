@@ -1,8 +1,10 @@
-import { UserID } from '@/lib/constants/api';
+import { useAuth } from '@/app/auth/auth-context';
+import { } from '@/lib/constants/api';
 
 export async function toggleLiveState(
   eventId: string,
-  isLive: boolean
+  isLive: boolean,
+  userId: string
 ): Promise<boolean> {
   try {
     const apiUrl =
@@ -10,7 +12,7 @@ export async function toggleLiveState(
     const res = await fetch(`${apiUrl}/events/${eventId}/live`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isLive, userId: UserID }),
+      body: JSON.stringify({ isLive, userId }),
     });
 
     if (!res.ok) {

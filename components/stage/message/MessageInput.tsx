@@ -19,7 +19,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
   };
 
   return (
-    <div className="px-4 pb-6 pt-2 bg-transparent">
+    <div className="p-1 bg-transparent">
       <SocialInput
         value={message}
         onChange={setMessage}

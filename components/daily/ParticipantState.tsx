@@ -1,7 +1,6 @@
 'use client';
 
-import { useDailyActiveSpeaker } from '@/hooks/useDailyActiveSpeaker';
-import { useParticipantProperty } from '@daily-co/daily-react';
+import { useParticipantProperty, useActiveSpeakerId } from '@daily-co/daily-react';
 import React, { useEffect } from 'react';
 
 export interface ParticipantProps {
@@ -13,6 +12,7 @@ export interface ParticipantProps {
     videoPlayable: boolean;
     audioPlayable: boolean;
     isActiveSpeaker: boolean;
+    isOwner: boolean;
   }) => React.ReactNode;
 }
 
@@ -24,7 +24,9 @@ export function ParticipantState({ id, children }: ParticipantProps) {
   const videoState = tracks?.video?.state;
   const audioState = tracks?.audio?.state;
 
-  const activeSpeakerId = useDailyActiveSpeaker();
+  const isOwner = useParticipantProperty(id, 'owner');
+
+  const activeSpeakerId = useActiveSpeakerId();
   const isActiveSpeaker = id === activeSpeakerId;
   return (
     <>
@@ -35,6 +37,7 @@ export function ParticipantState({ id, children }: ParticipantProps) {
         videoPlayable: videoState === 'playable',
         audioPlayable: audioState === 'playable',
         isActiveSpeaker,
+        isOwner: !!isOwner,
       })}
     </>
   );

@@ -8,14 +8,18 @@ interface CountdownDisplayProps {
     eventTitle: string;
     onTimerComplete?: () => void;
     logoUrl?: string;
+    onLeave?: () => void;
 }
+
 
 export function CountdownDisplay({
     startTime,
     eventTitle,
     onTimerComplete,
     logoUrl,
+    onLeave,
 }: CountdownDisplayProps) {
+
     const [timeLeft, setTimeLeft] = useState<{
         days: number;
         hours: number;
@@ -50,7 +54,7 @@ export function CountdownDisplay({
 
     const TimeBox = ({ value, label }: { value: number; label: string }) => (
         <div className="flex flex-col items-center gap-2">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl shadow-2xl flex items-center justify-center border border-slate-100 ring-1 ring-black/5">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-background rounded-xl shadow-2xl flex items-center justify-center border border-border ring-1 ring-black/5">
                 <span className="text-3xl sm:text-4xl font-black text-[#1da1f2] tracking-tighter">
                     {value.toString().padStart(2, '0')}
                 </span>
@@ -99,7 +103,24 @@ export function CountdownDisplay({
                     <div className="text-3xl sm:text-4xl font-black text-white pt-5 opacity-30">:</div>
                     <TimeBox value={timeLeft.seconds} label="Secs" />
                 </motion.div>
+
+                {onLeave && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="mt-12"
+                    >
+                        <button
+                            onClick={onLeave}
+                            className="px-8 py-3 bg-transparent border border-white/10 hover:bg-white/5 rounded-xl font-bold text-slate-400 hover:text-white transition-all text-sm"
+                        >
+                            Leave Event
+                        </button>
+                    </motion.div>
+                )}
             </div>
+
         </div>
     );
 }

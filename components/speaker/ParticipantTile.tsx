@@ -1,7 +1,8 @@
-
-import { DailyVideo, useAudioTrack, useActiveSpeakerId, useLocalParticipant } from '@daily-co/daily-react';
-import { Mic, MicOff } from 'lucide-react';
+import { DailyVideo, useAudioTrack, useActiveSpeakerId, useParticipantProperty } from '@daily-co/daily-react';
+import { Mic, MicOff, User, Shield, Users } from 'lucide-react';
 import React from 'react';
+import { ROLES_ADMIN } from '@/app/auth/roles';
+import { normalizeRole } from '@/app/auth/access';
 
 interface ParticipantTileProps {
     sessionId: string;
@@ -15,32 +16,74 @@ export function ParticipantTile({ sessionId, className, isLocal }: ParticipantTi
     const isSpeaking = activeSpeakerId === sessionId;
     const isMicOff = audioState.isOff;
 
+    const name = useParticipantProperty(sessionId, 'user_name');
+    const isOwner = useParticipantProperty(sessionId, 'owner');
+
+    // Role detection for ROLES_ADMIN
+    const userData = useParticipantProperty(sessionId, 'userData');
+    const rawRole = (userData as any)?.role || (userData as any)?.participantType || (userData as any)?.participant_type || '';
+    let role = normalizeRole(rawRole);
+
+    // Fallback: If no role in userData, use ownership/name as backup
+    if (role === ROLES_ADMIN.Attendee) {
+        if (isOwner) {
+            role = ROLES_ADMIN.Moderator;
+        } else if (name?.startsWith('Attendee_')) {
+            role = ROLES_ADMIN.Attendee;
+        } else {
+            role = ROLES_ADMIN.Speaker; // Likely a speaker if not moderator or attendee
+        }
+    }
+
+    const tracks = useParticipantProperty(sessionId, 'tracks');
+    const hasVideo = tracks?.video?.state === 'playable';
+
     return (
         <div className={`relative bg-slate-900 rounded-lg overflow-hidden shadow border transition-all duration-200 
       ${isSpeaking ? 'border-primary ring-2 ring-primary/50' : 'border-slate-800'} 
       ${className}`}
         >
-            <DailyVideo
-                type="video"
-                sessionId={sessionId}
-                mirror={isLocal}
-                className="w-full h-full object-cover"
-                fit="cover"
-            />
+            {hasVideo ? (
+                <DailyVideo
+                    type="video"
+                    sessionId={sessionId}
+                    mirror={isLocal}
+                    className="w-full h-full object-cover"
+                    fit="cover"
+                />
+            ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 text-slate-500">
+                    <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center mb-2">
+                        {role === ROLES_ADMIN.Moderator ? (
+                            <Shield className="w-8 h-8" />
+                        ) : role === ROLES_ADMIN.Attendee ? (
+                            <Users className="w-8 h-8" />
+                        ) : (
+                            <User className="w-8 h-8" />
+                        )}
+                    </div>
+                </div>
+            )}
 
-            {}
+            {/* Mic Status Indicator (Top Right) */}
             <div className={`absolute top-2 right-2 p-1.5 rounded-full bg-black/60 backdrop-blur-sm text-white transition-colors
         ${isMicOff ? 'text-red-400' : 'text-green-400'}`}>
                 {isMicOff ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
             </div>
 
-            {}
-            <div className={`absolute bottom-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded font-medium transition-all ${isSpeaking ? 'bg-primary/80' : ''}`}>
-                <span>{isLocal ? 'You' : 'Speaker'}</span>
+            {/* Name Label & Speaking Indicator */}
+            <div className={`absolute bottom-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded font-medium transition-all ${isSpeaking ? 'bg-primary/80' : ''}`}>
+                <span className="flex items-center gap-1.5">
+                    {role === ROLES_ADMIN.Moderator && <Shield className="w-3 h-3 text-blue-400" />}
+                    {role === ROLES_ADMIN.Attendee && <Users className="w-3 h-3 text-slate-400" />}
+                    {isLocal ? 'You' : (name || 'Participant')}
+                    <span className="opacity-60 text-[8px] uppercase tracking-wider ml-1">
+                        ({role === ROLES_ADMIN.Moderator ? 'Organizer' : role})
+                    </span>
+                </span>
                 {isSpeaking && (
                     <div className="flex items-center gap-1 text-white animate-pulse">
-                        <div className="w-1 h-1 bg-white rounded-full" />
-                        <span className="font-bold">Speaking...</span>
+                        <div className="w-1 h-1 bg-background rounded-full" />
                     </div>
                 )}
             </div>

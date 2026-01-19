@@ -1,36 +1,23 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { initializeSocket } from '@/lib/socket-client';
-import type { Socket } from 'socket.io-client';
+import { useCallback } from 'react';
+import { useSocketContext } from '@/components/providers/SocketProvider';
 
 export function useSocket() {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-
-  useEffect(() => {
-    const socketInstance = initializeSocket();
-    setSocket(socketInstance);
-
-    const handleConnect = () => setIsConnected(true);
-    const handleDisconnect = () => setIsConnected(false);
-
-    socketInstance.on('connect', handleConnect);
-    socketInstance.on('disconnect', handleDisconnect);
-
-    return () => {
-      socketInstance.off('connect', handleConnect);
-      socketInstance.off('disconnect', handleDisconnect);
-    };
-  }, []);
+  const { socket, isConnected, emitOnce: contextEmitOnce, emit: contextEmit } = useSocketContext();
 
   const emit = useCallback(
-    (event: string, data: any) => {
-      if (socket) {
-        socket.emit(event, data);
-      }
+    (event: string, data: any, callback?: (res: any) => void) => {
+      contextEmit(event, data, callback);
     },
-    [socket]
+    [contextEmit]
+  );
+
+  const emitOnce = useCallback(
+    (event: string, data: any, key: string) => {
+      contextEmitOnce(event, data, key);
+    },
+    [contextEmitOnce]
   );
 
   const on = useCallback(
@@ -51,5 +38,5 @@ export function useSocket() {
     [socket]
   );
 
-  return { socket, isConnected, emit, on, off };
+  return { socket, isConnected, emit, emitOnce, on, off };
 }

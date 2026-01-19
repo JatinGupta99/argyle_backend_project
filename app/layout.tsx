@@ -1,5 +1,6 @@
-import type React from 'react';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
+import { QueryProvider } from '@/components/providers/QueryProvider';
+import { SocketProvider } from '@/components/providers/SocketProvider';
 import './globals.css';
 
 import { Inter } from 'next/font/google';
@@ -12,6 +13,7 @@ export const metadata = {
 };
 
 import { AuthProvider } from '@/app/auth/auth-context';
+import { Toaster } from 'sonner';
 
 export default function RootLayout({
   children,
@@ -22,9 +24,16 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-background`}>
         <ReduxProvider>
-          <AuthProvider>
-            <SidebarProvider>{children}</SidebarProvider>
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <SocketProvider>
+                <SidebarProvider>
+                  {children}
+                  <Toaster position="top-right" richColors />
+                </SidebarProvider>
+              </SocketProvider>
+            </AuthProvider>
+          </QueryProvider>
         </ReduxProvider>
       </body>
     </html>

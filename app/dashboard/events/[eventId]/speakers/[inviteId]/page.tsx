@@ -2,50 +2,60 @@
 
 import axios from 'axios';
 import { useParams, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Role, ROLES } from '@/app/auth/roles';
+import { Role, ROLES_ADMIN } from '@/app/auth/roles';
 import { useEventContext } from '@/components/providers/EventContextProvider';
 import { SpeakerViewContent } from '@/components/speaker/SpeakerViewContent';
 import { EventStageLayout } from '@/components/stage/layout/EventStageLayout';
 import { ChatCategoryType, ChatSessionType } from '@/lib/constants/chat';
-import { RoleView } from '@/lib/slices/uiSlice';
 import { DailyJoinResponse } from '@/lib/types/daily';
-import { determineRoleWithFallback } from '@/lib/utils/jwt-utils';
+import { extractUserDataFromToken } from '@/lib/utils/jwt-utils';
+
+/* -------------------------------------------------------------------------- */
+/*                                Component                                   */
+/* -------------------------------------------------------------------------- */
 
 import { useAuth } from '@/app/auth/auth-context';
 import { PageGuard } from '@/components/auth/PageGuard';
 import { Loader2, ShieldAlert } from 'lucide-react';
 
-import { CountdownDisplay } from '@/components/shared/CountdownDisplay';
+/* -------------------------------------------------------------------------- */
+/*                                Component                                   */
+/* -------------------------------------------------------------------------- */
+
 
 export default function SpeakerPage() {
   const { inviteId } = useParams<{ inviteId: string }>();
   const searchParams = useSearchParams();
   const urlToken = searchParams.get('token');
   const event = useEventContext();
-  const { setRole } = useAuth();
+  const { setAuth, token: authToken, userData } = useAuth(); // Use authToken from context (localStorage)
 
   const [token, setToken] = useState<string | null>(null);
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
   const [localRole, setLocalRole] = useState<Role | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const targetDate = useMemo(
-    () => new Date(event?.schedule?.startTime ?? Date.now()),
-    [event?.schedule?.startTime]
-  );
+  // ... time logic ...
+  const targetDate = useMemo(() => {
+    const start = event?.schedule?.startTime;
+    if (!start) return null;
+    const d = start instanceof Date ? start : new Date(start);
+    return isNaN(d.getTime()) ? null : d;
+  }, [event?.schedule?.startTime]);
 
   const [eventIsLive, setEventIsLive] = useState<boolean>(
-    new Date() >= targetDate
+    targetDate ? new Date() >= targetDate : true
   );
 
   useEffect(() => {
     if (eventIsLive) return;
 
     const interval = setInterval(() => {
-      if (new Date() >= targetDate) {
+      if (targetDate && new Date() >= targetDate) {
         setEventIsLive(true);
         clearInterval(interval);
       }
@@ -60,17 +70,47 @@ export default function SpeakerPage() {
     const fetchToken = async () => {
       try {
         setIsLoading(true);
+
+        // 1. Use context-provided userData if available to avoid redundant decode
+        let details = userData;
+        const tokenToAnalyze = urlToken || authToken;
+
+        if (!details && tokenToAnalyze) {
+          details = extractUserDataFromToken(tokenToAnalyze);
+        }
+
+        if (details) {
+          console.log(`[SpeakerPage] Using credentials for: ${details.name} (${details.role})`);
+        }
+
+        // 2. Call backend to verify invite and GENERATE the Daily Meeting Token
+        // We pass the JWT in the header for secure verification
         const res = await axios.get<{ data: DailyJoinResponse }>(
           `${process.env.NEXT_PUBLIC_API_URL}/invite/join/${inviteId}`,
+          {
+            headers: tokenToAnalyze ? { Authorization: `Bearer ${tokenToAnalyze}` } : {}
+          }
         );
-        const { token: dailyToken, roomUrl: url } = res.data.data;
 
-        const extractedRole = determineRoleWithFallback(urlToken, dailyToken);
+        const { token: generatedDailyToken, roomUrl: apiRoomUrl } = res.data.data;
 
-        setToken(dailyToken);
-        setRoomUrl(url);
-        setLocalRole(extractedRole);
-        setRole(extractedRole, 'speaker-session');
+        // 3. Consolidate Join Parameters
+        // Priority: Room URL from JWT -> Room URL from API
+        const finalRoomUrl = details?.dailyUrl || apiRoomUrl;
+        const extractedRole = details?.role || ROLES_ADMIN.Speaker;
+        const extractedName = details?.name || 'Speaker';
+
+        console.log('[SpeakerPage] Verification complete. Joining stage...');
+
+        setToken(generatedDailyToken);
+        setRoomUrl(finalRoomUrl);
+        setLocalRole(extractedRole);
+        setUserName(extractedName);
+
+        // 4. Sync Auth Context if needed
+        if (tokenToAnalyze && tokenToAnalyze !== authToken) {
+          setAuth(extractedRole, extractedName, tokenToAnalyze);
+        }
 
       } catch (err: any) {
         console.error('[SpeakerPage] Access verification failed:', err);
@@ -81,7 +121,9 @@ export default function SpeakerPage() {
     };
 
     fetchToken();
-  }, [inviteId, urlToken, setRole]);
+  }, [inviteId, urlToken, authToken, setAuth]);
+
+  /* ----------------------------- Render Helpers --------------------------- */
 
   if (error) {
     return (
@@ -111,33 +153,26 @@ export default function SpeakerPage() {
   }
 
   return (
-    <PageGuard role={[ROLES.SPEAKER, ROLES.MODERATOR]}>
+    <PageGuard role={[ROLES_ADMIN.Speaker, ROLES_ADMIN.Moderator]}>
       <EventStageLayout
-        role={RoleView.Speaker}
+        role={localRole || ROLES_ADMIN.Speaker}
         chatType={eventIsLive ? ChatSessionType.LIVE : ChatSessionType.PRE_LIVE}
         chatTabs={[ChatCategoryType.EVERYONE, ChatCategoryType.BACKSTAGE]}
-        title="Speaker Live Stage"
+        title={localRole === ROLES_ADMIN.Moderator ? "Moderator Stage" : "Speaker Stage"}
       >
         <div className="flex-1 -mt-4 h-full relative">
-          {!eventIsLive ? (
-            <div className="absolute inset-0 bg-black">
-              <CountdownDisplay
-                startTime={targetDate}
-                eventTitle={event.title || 'Live Stage'}
-                logoUrl={event.eventLogoUrl}
-                onTimerComplete={() => setEventIsLive(true)}
-              />
-            </div>
-          ) : (
-            <div className="w-full h-full p-6">
-              <SpeakerViewContent
-                token={token}
-                roomUrl={roomUrl}
-                eventId={event!._id!}
-                role={localRole}
-              />
-            </div>
-          )}
+          {/* Speakers can always join - backstage mode with countdown shown in header */}
+          <div className="w-full h-full p-4">
+            <SpeakerViewContent
+              token={urlToken || authToken}
+              roomUrl={roomUrl}
+              eventId={event!._id!}
+              role={localRole}
+              userName={userName || undefined}
+              initialIsLive={eventIsLive}
+              startTime={targetDate || undefined}
+            />
+          </div>
         </div>
       </EventStageLayout>
     </PageGuard>

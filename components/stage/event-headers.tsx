@@ -5,14 +5,17 @@ import Image from 'next/image';
 export function EventHeader({
   title,
   imageSrc,
+  maxWidthClass = 'max-w-[60rem]',
 }: {
   title: string;
   imageSrc: string;
+  maxWidthClass?: string;
 }) {
   return (
     <div className="flex flex-col bg-slate-50/50 dark:bg-slate-950/50">
-      <div className="w-full max-w-5xl mx-auto px-4 md:px-8 mt-8 mb-4">
-        <div className="relative aspect-[21/9] md:aspect-[3/1] rounded-2xl overflow-hidden shadow-2xl border-4 border-white ring-1 ring-slate-100 group">
+      {/* Hero Image Section */}
+      <div className="w-full px-8 md:px-12 mt-4 mb-4">
+        <div className={`relative aspect-[21/9] md:aspect-[4.5/1] w-full ${maxWidthClass} mx-auto rounded-2xl overflow-hidden shadow-xl border border-white/20 ring-1 ring-black/5 group`}>
           <Image
             src={imageSrc}
             alt={title}
@@ -21,20 +24,27 @@ export function EventHeader({
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
 
-          {}
-          <div className="absolute inset-x-0 bottom-0 p-8 md:p-12 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
-            <h1 className="text-white text-3xl md:text-5xl font-black tracking-tight drop-shadow-2xl max-w-2xl">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />
+
+          <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+            <h1 className="text-white text-xl md:text-3xl font-black tracking-tight drop-shadow-lg max-w-3xl leading-tight">
               {title}
             </h1>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto w-full px-4 md:px-8 pt-6 pb-2">
-        <div className="flex items-center gap-3">
-          <h2 className="text-sm font-black text-slate-900 tracking-widest uppercase italic">
-            EVENT UPDATES
+      <div className="w-full px-8 md:px-12 pb-2">
+        <div className={`flex items-center justify-between border-b border-slate-200 pb-3 ${maxWidthClass} mx-auto`}>
+          <h2 className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase flex items-center gap-2">
+            Community Feed
           </h2>
+          <div className="flex items-center gap-4">
+            <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors group">
+              <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-900 transition-colors uppercase tracking-wider">Latest</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

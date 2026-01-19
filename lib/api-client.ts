@@ -5,9 +5,30 @@ function buildUrl(endpoint: string) {
   return `${API_BASE_URL.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
 }
 
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+}
+
+function buildHeaders(additionalHeaders: Record<string, string> = {}): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...additionalHeaders,
+  };
+
+  const token = getAuthToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
 export const apiClient = {
-  async get(endpoint: string) {
-    const response = await fetch(buildUrl(endpoint));
+  async get<T = any>(endpoint: string): Promise<T> {
+    const response = await fetch(buildUrl(endpoint), {
+      headers: buildHeaders(),
+    });
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
@@ -19,10 +40,16 @@ export const apiClient = {
     return result?.data !== undefined ? result.data : result;
   },
 
-  async post(endpoint: string, data: any) {
+  async post<T = any>(endpoint: string, data: any): Promise<T> {
+    console.log('[API Client] POST Request:', {
+      endpoint: buildUrl(endpoint),
+      data,
+      hasAuthToken: !!getAuthToken()
+    });
+
     const response = await fetch(buildUrl(endpoint), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: buildHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -38,10 +65,10 @@ export const apiClient = {
     return result?.data !== undefined ? result.data : result;
   },
 
-  async put(endpoint: string, data: any) {
+  async put<T = any>(endpoint: string, data: any): Promise<T> {
     const response = await fetch(buildUrl(endpoint), {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: buildHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -57,10 +84,10 @@ export const apiClient = {
     return result?.data !== undefined ? result.data : result;
   },
 
-  async patch(endpoint: string, data: any) {
+  async patch<T = any>(endpoint: string, data: any): Promise<T> {
     const response = await fetch(buildUrl(endpoint), {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: buildHeaders(),
       body: JSON.stringify(data),
     });
 
@@ -76,9 +103,10 @@ export const apiClient = {
     return result?.data !== undefined ? result.data : result;
   },
 
-  async delete(endpoint: string) {
+  async delete<T = any>(endpoint: string): Promise<T> {
     const response = await fetch(buildUrl(endpoint), {
       method: 'DELETE',
+      headers: buildHeaders(),
     });
 
     if (!response.ok) {

@@ -34,8 +34,8 @@ export default function CommentSection({
   };
 
   return (
-    <div className="bg-white rounded-lg p-3 space-y-3 border border-border">
-      {}
+    <div className="bg-background rounded-lg p-3 space-y-3 border border-border">
+      {/* Comments List */}
       <div className="space-y-2 max-h-48 overflow-y-auto">
         {isLoading ? (
           <p className="text-sm text-muted">Loading comments...</p>
@@ -61,7 +61,7 @@ export default function CommentSection({
         )}
       </div>
 
-      {}
+      { }
       <div className="flex items-center gap-2 bg-gray-50 rounded p-2">
         <input
           type="text"

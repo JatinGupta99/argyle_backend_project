@@ -44,17 +44,17 @@ export default function SponsorList({ event }: { event: any }) {
 
   return (
     <div className="w-full px-4 py-6">
-      <h1 className="text-center font-bold text-2xl mb-8">VISIT OUR SPONSORS BOOTHS</h1>
+      <h1 className="text-center font-bold text-2xl mb-8">VISIT OUR SPONSORS BOOTHS :</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-8">
         {sponsors.map((sponsor) => (
           <button
             key={sponsor._id}
             onClick={() => router.push(`/dashboard/events/${event._id}/sponsors/${sponsor._id}/bill`)}
-            className="transition-all hover:shadow-md hover:scale-[1.02]"
+            className="w-full text-left focus:outline-none"
           >
             <SponsorCardMemo
-              imageSrc={signedLogoUrls[sponsor._id] || sponsor.logoKey}
+              imageSrc={signedLogoUrls[sponsor._id] || ''}
               name={sponsor.name}
             />
           </button>

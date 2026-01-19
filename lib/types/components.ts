@@ -1,5 +1,6 @@
-import { ChatCategoryType, ChatSessionType } from '../constants/chat.js';
-import { RoleView } from '../slices/uiSlice.ts';
+import { ROLES_ADMIN } from '@/app/auth/roles';
+import { ChatCategoryType, ChatSessionType } from '../constants/chat';
+
 
 export interface EventPageProps {
   params: { eventId: string };
@@ -15,7 +16,7 @@ export interface ChatPanelProps {
   eventId: string;
   youtubeUrl?: string;
   currentUserId?: string;
-  role: RoleView;
+  role: ROLES_ADMIN;
   type: ChatSessionType;
   tabs: ChatCategoryType[];
 }
@@ -44,6 +45,30 @@ export interface EventAnalytics {
   joinedUsers: string[];
 }
 
+
+export interface AgendaSpeaker {
+  _id: string;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
+  title: string;
+  pictureUrl: string;
+}
+
+export interface Agenda {
+  _id: string;
+  title: string;
+  description: string;
+  date: string; // ISO Date string
+  startTime: string; // HH:mm format
+  endTime: string; // HH:mm format
+  speakers: AgendaSpeaker[];
+  hasPoll: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Event {
   _id: string;
   title: string;
@@ -53,10 +78,11 @@ export interface Event {
   schedule: EventSchedule;
   privacy: 'public' | 'private' | string;
   status: 'UPCOMING' | 'LIVE' | 'COMPLETED' | string;
-  host: string;
-  agendas: any[];
-  sponsors: any[];
-  attendees: any[];
+  host: string; // User ID
+  agendas: Agenda[];
+  sponsors: any[]; // Consider defining a specific Sponsor interface later
+
+  attendees: any[]; // Consider defining a specific Attendee interface later
   analytics: EventAnalytics;
   invitedUsers: any[];
   createdBy: string;

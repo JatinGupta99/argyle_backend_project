@@ -22,6 +22,9 @@ export function useApiRequest<T>(
   }, deps);
 
   useEffect(() => {
+    setData(null);
+    setIsLoading(true);
+    setError(null);
     fetchData();
   }, [fetchData]);
 
