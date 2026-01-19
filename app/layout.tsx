@@ -13,6 +13,7 @@ export const metadata = {
 };
 
 import { AuthProvider } from '@/app/auth/auth-context';
+import { Toaster } from 'sonner';
 
 export default function RootLayout({
   children,
@@ -26,7 +27,10 @@ export default function RootLayout({
           <QueryProvider>
             <AuthProvider>
               <SocketProvider>
-                <SidebarProvider>{children}</SidebarProvider>
+                <SidebarProvider>
+                  {children}
+                  <Toaster position="top-right" richColors />
+                </SidebarProvider>
               </SocketProvider>
             </AuthProvider>
           </QueryProvider>

@@ -4,17 +4,20 @@ import { useCallback } from 'react';
 import { useSocketContext } from '@/components/providers/SocketProvider';
 
 export function useSocket() {
-  const { socket, isConnected } = useSocketContext();
+  const { socket, isConnected, emitOnce: contextEmitOnce, emit: contextEmit } = useSocketContext();
 
   const emit = useCallback(
-    (event: string, data: any) => {
-      if (socket) {
-        socket.emit(event, data);
-      } else {
-        console.warn('[useSocket] Cannot emit, socket instance missing:', event);
-      }
+    (event: string, data: any, callback?: (res: any) => void) => {
+      contextEmit(event, data, callback);
     },
-    [socket, isConnected]
+    [contextEmit]
+  );
+
+  const emitOnce = useCallback(
+    (event: string, data: any, key: string) => {
+      contextEmitOnce(event, data, key);
+    },
+    [contextEmitOnce]
   );
 
   const on = useCallback(
@@ -35,5 +38,5 @@ export function useSocket() {
     [socket]
   );
 
-  return { socket, isConnected, emit, on, off };
+  return { socket, isConnected, emit, emitOnce, on, off };
 }

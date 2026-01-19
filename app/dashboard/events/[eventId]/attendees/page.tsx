@@ -76,7 +76,7 @@ export default function AttendeeViewProfilePage() {
 
 
 
-  const chatType = isLiveOnBackend && isTimeReached
+  const chatType = (isLiveOnBackend || isTimeReached)
     ? ChatSessionType.LIVE
     : ChatSessionType.PRE_LIVE;
 

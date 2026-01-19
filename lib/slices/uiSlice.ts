@@ -3,7 +3,7 @@ import { ChatCategoryType } from '../constants/chat';
 
 export enum ChatTab {
   Everyone = 'Everyone',
-  Backstage = 'backstage',
+  Backstage = 'backStage',
   Chat = 'Chat',
   QA = 'Q&A',
   Argyle = 'Chat with Argyle here',

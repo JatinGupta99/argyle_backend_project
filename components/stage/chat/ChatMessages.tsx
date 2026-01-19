@@ -106,19 +106,10 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
     const m = sorted[index];
     if (!m) return null;
 
-    const userData = (m as any).userId || (m as any).user;
-
-    // Robustly extract name
-    let displayName = 'Guest User';
-    if (userData && typeof userData === 'object') {
-      displayName = userData.name || userData.username || userData.displayName || 'Guest User';
-    } else if (typeof userData === 'string') {
-      // rare case if just an ID came back
-      displayName = 'Guest User';
-    }
-
-    const displayPicture = (userData && typeof userData === 'object') ? (userData.pictureUrl || userData.avatar || '') : '';
-    const userRole = (userData && typeof userData === 'object' ? userData.role : null) || 'Attendee';
+    const userData = m.userId;
+    const displayName = userData?.username || 'Guest User';
+    const displayPicture = userData?.avatar || '';
+    const userRole = userData?.role || 'Attendee';
     const isOrganizer =
       userRole === ROLES_ADMIN.Moderator ||
       userRole?.toLowerCase() === 'moderator' ||

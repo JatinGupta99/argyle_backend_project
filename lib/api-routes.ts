@@ -40,5 +40,8 @@ export const API_ROUTES = {
     },
     fetchById: (eventId: string, agendaId: string) => `/events/${eventId}/agendas/${agendaId}`,
   },
+  inquiries: {
+    base: '/inquiries',
+  },
 };
 

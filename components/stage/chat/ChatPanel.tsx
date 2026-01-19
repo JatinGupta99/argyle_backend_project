@@ -88,22 +88,26 @@ export function ChatPanel({
   }, [pathname]);
 
   useEffect(() => {
-    if (!eventId || youtubeProp) return;
+    if (!eventId) return;
 
     // We no longer load sponsor video here as per requirement to show Event Logo instead
     // const loadSponsorVideo = async () => { ... }
 
     const loadEventImage = async () => {
+      console.log('🖼️ [ChatPanel] Loading Event Logo for eventId:', eventId);
       try {
         const url = await getEventDownloadUrl(eventId);
-        if (url) setImageSignedUrl(url);
-      } catch {
-        console.error('Failed to fetch event image');
+        if (url) {
+          console.log('✅ [ChatPanel] Event Logo successfully signed:', url);
+          setImageSignedUrl(url);
+        }
+      } catch (err) {
+        console.error('❌ [ChatPanel] Failed to fetch event image:', err);
       }
     };
 
     loadEventImage();
-  }, [eventId, sponsorMatch, youtubeProp]);
+  }, [eventId, youtubeProp]);
 
   const handleSendMessage = useCallback(
     async (text: string) => {
@@ -124,36 +128,23 @@ export function ChatPanel({
       case ChatCategoryType.CHAT: return 'Chat';
       case ChatCategoryType.BACKSTAGE: return 'Backstage';
       default: return 'Chat';
-
-
     }
   }, [activeCategory]);
 
   const topContent = useMemo(() => {
-    // if (videoUrl) {
-    //   return (
-    //     <div className="pt-2 pb-4 px-2">
-    //       <YouTubeEmbed
-    //         url={videoUrl}
-    //         title="Sponsor Video"
-    //         className="rounded-lg shadow-md overflow-hidden"
-    //       />
-    //     </div>
-    //   );
-    // }
-
+    const finalUrl = imageSignedUrl || event.eventLogoUrl || '/images/virtual_event.webp';
     return (
       <div className="pt-2 pb-4 px-2">
-        <div className="aspect-video rounded-xl shadow-md bg-gray-100 overflow-hidden">
+        <div className="aspect-video rounded-xl shadow-md bg-gray-50 overflow-hidden flex items-center justify-center p-2">
           <img
-            src={imageSignedUrl || event.eventLogoUrl || '/placeholder.svg'}
+            src={finalUrl}
             alt={event.title || 'Event'}
-            className="w-full h-full object-cover"
+            className="max-w-full max-h-full object-contain"
           />
         </div>
       </div>
     );
-  }, [videoUrl, imageSignedUrl, event]);
+  }, [imageSignedUrl, event]);
 
   return (
     <div

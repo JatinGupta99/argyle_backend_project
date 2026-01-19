@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Calendar } from 'lucide-react';
+import { Calendar, Loader2 } from 'lucide-react';
 import { PopupModal } from 'react-calendly';
 import { toast } from 'sonner';
 
@@ -30,7 +30,7 @@ import { useAuth } from '@/app/auth/auth-context';
 
 export default function SponsorBoothMeet() {
   const { eventId, sponsorId } = useParams() as { eventId: string; sponsorId: string };
-  const { userId } = useAuth();
+  const { userId, userData } = useAuth();
 
   const ready = Boolean(eventId && sponsorId);
   const { sponsor, loading, error } = useDetailSponsor(
@@ -47,11 +47,16 @@ export default function SponsorBoothMeet() {
     address: '',
     title: '',
     industry: '',
-    isResearching: '',
+    researchingSolutions: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [signedLogoUrl, setSignedLogoUrl] = useState<string | null>(null);
+  const [rootElement, setRootElement] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setRootElement(document.body);
+  }, []);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -89,8 +94,8 @@ export default function SponsorBoothMeet() {
       newErrors.email = 'Invalid email format.';
     }
 
-    if (!formData.isResearching) {
-      newErrors.isResearching = 'Please select an option.';
+    if (!formData.researchingSolutions) {
+      newErrors.researchingSolutions = 'Please select an option.';
     }
 
     return newErrors;
@@ -111,7 +116,15 @@ export default function SponsorBoothMeet() {
 
     try {
       setIsSubmitting(true);
-      await apiClient.post(API_ROUTES.sponsor.sendLead(eventId, sponsorId), formData);
+
+      const payload = {
+        ...formData,
+        eventId,
+        sponsorId,
+        userId: userId || undefined
+      };
+
+      await apiClient.post(API_ROUTES.inquiries.base, payload);
 
       setFormData({
         name: '',
@@ -120,11 +133,11 @@ export default function SponsorBoothMeet() {
         address: '',
         title: '',
         industry: '',
-        isResearching: '',
+        researchingSolutions: '',
       });
       setErrors({});
 
-      toast.success('Lead sent successfully! Our sponsor team will contact you shortly.');
+      toast.success('Inquiry submitted successfully! A representative will reach out to you shortly.');
     } catch (err) {
       console.error(err);
       toast.error('Failed to submit. Please try again.');
@@ -197,12 +210,18 @@ export default function SponsorBoothMeet() {
                     </Button>
                   </div>
 
-                  <PopupModal
-                    url={sponsor.calendlyLink || "https://calendly.com/"}
-                    onModalClose={() => setIsCalendlyOpen(false)}
-                    open={isCalendlyOpen}
-                    rootElement={document.body}
-                  />
+                  {rootElement && (
+                    <PopupModal
+                      url={sponsor.calendlyLink || "https://calendly.com/"}
+                      onModalClose={() => setIsCalendlyOpen(false)}
+                      open={isCalendlyOpen}
+                      rootElement={rootElement}
+                      prefill={{
+                        email: userData?.email || '',
+                        name: userData?.name || '',
+                      }}
+                    />
+                  )}
                 </section>
               </div>
 
@@ -233,34 +252,39 @@ export default function SponsorBoothMeet() {
 
                   <div className="pt-2 space-y-1">
                     <Label
-                      className={`text-xs font-medium ${errors.isResearching ? 'text-red-600' : 'text-gray-700'}`}
+                      className={`text-xs font-medium ${errors.researchingSolutions ? 'text-red-600' : 'text-gray-700'}`}
                     >
                       Are you actively researching solutions?
                     </Label>
-                    <div className={`rounded-md p-3 border ${errors.isResearching ? 'border-red-600' : 'border-gray-300'}`}>
+                    <div className={`rounded-md p-3 border ${errors.researchingSolutions ? 'border-red-600' : 'border-gray-300'}`}>
                       <RadioGroup
-                        value={formData.isResearching}
+                        value={formData.researchingSolutions}
                         onValueChange={(value) => {
-                          setFormData((prev) => ({ ...prev, isResearching: value }));
-                          setErrors((prev) => ({ ...prev, isResearching: '' }));
+                          setFormData((prev) => ({ ...prev, researchingSolutions: value }));
+                          setErrors((prev) => ({ ...prev, researchingSolutions: '' }));
                         }}
                         className="flex gap-6"
                       >
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem id="research-yes" value="true" />
+                          <RadioGroupItem id="research-yes" value="yes" />
                           <Label htmlFor="research-yes" className="text-sm">Yes</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem id="research-no" value="false" />
+                          <RadioGroupItem id="research-no" value="no" />
                           <Label htmlFor="research-no" className="text-sm">No</Label>
                         </div>
                       </RadioGroup>
                     </div>
-                    {errors.isResearching && <p className="text-red-600 text-xs">{errors.isResearching}</p>}
+                    {errors.researchingSolutions && <p className="text-red-600 text-xs">{errors.researchingSolutions}</p>}
                   </div>
 
                   <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting…' : 'Submit'}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : 'Submit'}
                   </Button>
                 </form>
               </div>

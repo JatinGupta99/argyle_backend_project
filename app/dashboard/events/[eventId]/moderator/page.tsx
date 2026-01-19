@@ -63,7 +63,7 @@ export default function ModeratorPage() {
   return (
     <PageGuard permission="event:manage" role={ROLES_ADMIN.Moderator}>
       <EventStageLayout
-        chatType={eventIsLive ? ChatSessionType.LIVE : ChatSessionType.PRE_LIVE}
+        chatType={event.status === 'LIVE' || eventIsLive ? ChatSessionType.LIVE : ChatSessionType.PRE_LIVE}
         chatTabs={[ChatCategoryType.EVERYONE, ChatCategoryType.QA, ChatCategoryType.BACKSTAGE]}
         title="Moderator Stage"
       >
