@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { setAttendeeTokenCookie } from '@/lib/utils/cookie-utils';
+import { extractUserDataFromToken } from '@/lib/utils/jwt-utils';
 
 export interface DailyTokenResponse {
     token: string;
@@ -35,9 +37,27 @@ export const joinEventProxy = async (
     try {
         const response = await axios.post<any>(url, { token });
 
+        const jwtToken = response?.data?.data || response?.data?.token;
+
+        // Save the JWT token to cookie for persistence
+        if (jwtToken) {
+            setAttendeeTokenCookie(jwtToken);
+        }
+
+        // Decode the JWT to extract dailyRoomUrl (it's inside the token, not in the API response root)
+        const decodedData = extractUserDataFromToken(jwtToken);
+        const roomUrl = decodedData?.dailyUrl || response?.data?.roomUrl || response?.data?.dailyRoomUrl || '';
+
+        console.log('[API] joinEventProxy decoded:', {
+            hasToken: !!jwtToken,
+            roomUrl,
+            dailyToken: decodedData?.dailyToken?.substring(0, 20) + '...',
+            eventId: decodedData?.eventId
+        });
+
         return {
-            token: response?.data?.token,
-            roomUrl: response?.data?.roomUrl,
+            token: jwtToken,
+            roomUrl: roomUrl,
             frontendUrl: response?.data?.frontendUrl,
         };
     } catch (error: any) {

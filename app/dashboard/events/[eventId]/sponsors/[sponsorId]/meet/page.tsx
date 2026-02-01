@@ -210,7 +210,7 @@ export default function SponsorBoothMeet() {
 
                   {rootElement && (
                     <PopupModal
-                      url={sponsor.calendlyLink || "https://calendly.com/"}
+                      url={sponsor.calendlyLink || "https://calendly.com/jatin-gupta-melonleaf/30min"}
                       onModalClose={() => setIsCalendlyOpen(false)}
                       open={isCalendlyOpen}
                       rootElement={rootElement}

@@ -153,6 +153,9 @@ export function extractUserDataFromToken(token: string) {
     const roomUrl = payload.dailyRoomUrl || null;
     const dailyToken = payload.daily_token || payload.dailyToken || null;
 
+    // Extract eventId from the token payload
+    const eventId = payload.eventId || '';
+
     // Map role (case-insensitive to be safe)
     const payloadRole = (payload.user_info?.role || payload.role || '').toLowerCase();
     let resolvedRole: Role = ROLES_ADMIN.Attendee;
@@ -170,6 +173,7 @@ export function extractUserDataFromToken(token: string) {
     }
 
     const userData = {
+        eventId: eventId,
         dailyToken: dailyToken,
         dailyUrl: roomUrl,
         name,
@@ -179,5 +183,15 @@ export function extractUserDataFromToken(token: string) {
         userId: payload.speakerId || payload.userId || payload.id || payload.sub || payload.email || 'guest'
     };
 
+    console.log('[JWT] Decoded attendee details:', {
+        eventId,
+        name,
+        email,
+        role: resolvedRole,
+        dailyUrl: roomUrl,
+        hasDailyToken: !!dailyToken
+    });
+
     return userData;
 }
+

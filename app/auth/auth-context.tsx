@@ -28,15 +28,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      const urlToken = params.get('token');
+      let urlToken = params.get('token');
+
+      // Check for attendee cookie if no other token is primary
+      const { getAttendeeTokenCookie } = require('@/lib/utils/cookie-utils');
+      const attendeeCookieToken = getAttendeeTokenCookie();
 
       if (urlToken) {
         console.log('[AuthContext] Found token in URL, hydrating session...');
+        if (urlToken.includes(' ')) {
+          urlToken = urlToken.replace(/ /g, '+');
+        }
         initialToken = urlToken;
 
         // Clean URL history (remove token)
         const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.hash;
         window.history.replaceState({ path: newUrl }, '', newUrl);
+      } else if (!initialToken && attendeeCookieToken) {
+        console.log('[AuthContext] Found attendee token in cookie, hydrating session...');
+        initialToken = attendeeCookieToken;
       }
     }
 
