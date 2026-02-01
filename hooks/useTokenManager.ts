@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { extractUserDataFromToken } from '@/lib/utils/jwt-utils';
 import { Role } from '@/app/auth/roles';
 import { fetchMeetingToken, joinEventProxy } from '@/lib/api/daily';
+import { useAuth } from '@/app/auth/auth-context';
+import { getAttendeeTokenCookie } from '@/lib/utils/cookie-utils';
 
 interface TokenState {
     token: string | null;
@@ -16,15 +18,29 @@ export function useTokenManager(
     eventId: string,
     eventIsLive: boolean
 ) {
+    const { setAuth } = useAuth();
+
     const [tokenState, setTokenState] = useState<TokenState>(() => {
         if (typeof window === 'undefined') return { token: null, dailyToken: null, dailyUrl: null, isProxying: false };
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlToken = urlParams.get('token') || authToken;
 
-        if (urlToken) {
-            const details = extractUserDataFromToken(urlToken);
+        // First, check for cookie (for returning attendees)
+        const cookieToken = getAttendeeTokenCookie();
+
+        // Then check URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        let urlToken = urlParams.get('token') || authToken;
+
+        if (urlToken && urlToken.includes(' ')) {
+            urlToken = urlToken.replace(/ /g, '+');
+        }
+
+        // Prioritize: URL token > Cookie token > authToken
+        const tokenToUse = urlToken || cookieToken;
+
+        if (tokenToUse) {
+            const details = extractUserDataFromToken(tokenToUse);
             return {
-                token: urlToken,
+                token: tokenToUse,
                 dailyToken: details?.dailyToken || null,
                 dailyUrl: details?.dailyUrl || null,
                 isProxying: false
@@ -53,10 +69,7 @@ export function useTokenManager(
         if (!eventIsLive || !eventId) return;
 
         // Only Attendees usually need proxy, but we handle generic "missing dailyToken"
-        // If not attendee and has token, usually means it's a direct invite (should have dailyToken if JWE? or might need proxy)
-        // For now, mirroring DailyRoomAttendee logic
-
-        const needsProxy = (role === 'Attendee' && authToken) || (!tokenState.token && role === 'Attendee'); // Simplify for attendee
+        const needsProxy = (role === 'Attendee' && authToken) || (!tokenState.token && role === 'Attendee');
 
         if (needsProxy) {
             // Logic from DailyRoomAttendee
@@ -65,9 +78,25 @@ export function useTokenManager(
                 joinEventProxy(eventId, authToken)
                     .then(res => {
                         if (res) {
+                            // The backend returns a new signed JWT containing the daily token
+                            const newJwt = res.token;
+                            const decoded = extractUserDataFromToken(newJwt);
+
+                            // 1. Upgrade the session globally (persists to localStorage)
+                            if (decoded && decoded.userId) {
+                                console.log('[TokenManager] Upgrading session with new token from proxy');
+                                setAuth(role, decoded.userId, newJwt);
+                                // Store with a specific name for debugging/visibility as requested
+                                if (typeof window !== 'undefined') {
+                                    localStorage.setItem('daily_full_token', newJwt);
+                                }
+                            }
+
+                            // 2. Update local state
                             setTokenState(prev => ({
                                 ...prev,
-                                dailyToken: res.token,
+                                token: newJwt, // Store the FULL PROXY JWT as the main token now
+                                dailyToken: decoded?.dailyToken || newJwt, // Extract actual Daily token (fallback to raw if fail)
                                 dailyUrl: res.roomUrl || prev.dailyUrl,
                                 isProxying: false
                             }));
@@ -87,7 +116,7 @@ export function useTokenManager(
                 });
             }
         }
-    }, [eventIsLive, eventId, tokenState.token, role, authToken, tokenState.dailyToken, tokenState.isProxying]);
+    }, [eventIsLive, eventId, tokenState.token, role, authToken, tokenState.dailyToken, tokenState.isProxying, setAuth]);
 
     const userData = useMemo(() => {
         if (!tokenState.token) return null;

@@ -110,7 +110,7 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
     const displayName = userData?.username || 'Guest User';
     const displayPicture = userData?.avatar || '';
     const userRole = userData?.role || 'Attendee';
-    const isOrganizer =
+    const isModerator =
       userRole === ROLES_ADMIN.Moderator ||
       userRole?.toLowerCase() === 'moderator' ||
       userRole?.toLowerCase() === 'admin';
@@ -137,7 +137,7 @@ export const ChatMessages = forwardRef<ChatMessagesRef, ChatMessagesProps>(({
                 })}
               </span>
             </div>
-            {isOrganizer && (
+            {isModerator && (
               <span className="text-[12px] font-bold text-warning leading-none mt-0.5">
                 (Organizer)
               </span>

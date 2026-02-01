@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { YouTubeEmbed } from '@/components/shared/YouTubeEmbed';
+import { InlineWidget } from 'react-calendly';
 
 interface SponsorDetailsProps {
   sponsor?: Sponsor;
@@ -301,13 +302,34 @@ export default function SponsorDetails({
               </div>
             </section>
 
-            <div className="flex flex-wrap items-center justify-center mt-8 gap-3 text-center">
-              <h3 className="text-base sm:text-lg font-bold text-[#000000] ml-2">
-                Hey, would you like to meet?
-              </h3>
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base">
-                Request a Meeting
-              </Button>
+            <div className="flex flex-col items-center justify-center mt-8 gap-6 text-center border-t border-gray-100 pt-8">
+              <div className="space-y-2">
+                <h3 className="text-lg sm:text-xl font-bold text-[#000000]">
+                  Schedule a Meeting
+                </h3>
+                <p className="text-gray-500 text-sm max-w-md mx-auto">
+                  Pick a time that works for you to connect with the {name} team directly.
+                </p>
+              </div>
+
+              <div className="w-full max-w-2xl border border-gray-100 rounded-xl overflow-hidden shadow-sm bg-gray-50/50">
+                <InlineWidget
+                  url={sponsor.calendlyLink || "https://calendly.com/jatin-gupta-melonleaf/30min"}
+                  styles={{
+                    height: '650px'
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <p className="text-sm font-medium text-gray-700">Can't find a time?</p>
+                <Button
+                  onClick={handleRequestInfo}
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                >
+                  Request More Information
+                </Button>
+              </div>
             </div>
           </>
         )}

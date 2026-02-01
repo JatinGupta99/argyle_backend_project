@@ -11,6 +11,7 @@ interface VideoTileProps {
   micOn: boolean;
   isActiveSpeaker: boolean;
   hasVideo?: boolean; // optional
+  role?: string | null;
 }
 
 export const VideoTile = React.memo(function VideoTile({
@@ -20,12 +21,19 @@ export const VideoTile = React.memo(function VideoTile({
   micOn,
   isActiveSpeaker,
   hasVideo = true,
+  role,
 }: VideoTileProps) {
+  const displayRole =
+    role === 'Speaker'
+      ? ' (Speaker)'
+      : role === 'Moderator'
+        ? ' (Organiser)'
+        : '';
+
   return (
     <div
-      className={`relative w-full h-full rounded-xl bg-black overflow-hidden ${
-        isActiveSpeaker ? 'ring-4 ring-yellow-400 ring-offset-2' : ''
-      }`}
+      className={`relative w-full h-full rounded-xl bg-black overflow-hidden ${isActiveSpeaker ? 'ring-4 ring-yellow-400 ring-offset-2' : ''
+        }`}
     >
       {hasVideo ? (
         <DailyVideo
@@ -38,7 +46,7 @@ export const VideoTile = React.memo(function VideoTile({
       )}
 
       <div className="absolute bottom-0 left-0 w-full bg-black/75 px-3 py-1 flex justify-between text-white text-xs">
-        <span>{isLocal ? 'You' : name || id}</span>
+        <span>{isLocal ? 'You' : (name || id) + displayRole}</span>
         {micOn ? (
           <Mic className="w-4 h-4 text-green-400" />
         ) : (

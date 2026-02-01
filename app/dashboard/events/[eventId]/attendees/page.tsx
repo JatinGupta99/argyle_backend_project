@@ -24,7 +24,9 @@ export default function AttendeeViewProfilePage() {
   const { setAuth, token: authToken } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const urlToken = searchParams.get('token');
+  const rawToken = searchParams.get('token');
+  // Fix for URL decoding of '+' characters (which become spaces)
+  const urlToken = rawToken && rawToken.includes(' ') ? rawToken.replace(/ /g, '+') : rawToken;
 
 
   const timing = getEventTimingStatus(event as IEvent);
@@ -37,19 +39,25 @@ export default function AttendeeViewProfilePage() {
 
 
   useEffect(() => {
-    // Sync URL token or existing token to AuthContext to ensure Socket connects.
-    // For attendees, role is almost always Attendee, but token might carry info.
-    const tokenToUse = urlToken || authToken;
+    // 1. Determine the best token to use (URL > AuthContext > Cookie)
+    const { getAttendeeTokenCookie } = require('@/lib/utils/cookie-utils');
+    const cookieToken = getAttendeeTokenCookie();
+    const tokenToUse = urlToken || authToken || cookieToken;
 
     if (tokenToUse) {
-      const determinedRole = extractRoleFromInviteToken(tokenToUse);
-      // Fallback to Attendee if token doesn't specify (or if it's just a raw id token)
-      const finalRole = determinedRole || ROLES_ADMIN.Attendee;
-      const userId = extractNameFromToken(tokenToUse) || 'attendee-guest';
+      const { extractChatUserFromToken } = require('@/lib/utils/jwt-utils');
+      const chatUser = extractChatUserFromToken(tokenToUse);
 
-      // Only update if we have a token (avoid clearing if just navigating)
-      // But setAuth is safe.
-      setAuth(finalRole, userId, tokenToUse);
+      if (chatUser) {
+        console.log('🆔 [Attendee Page] Hydrating identity:', {
+          name: chatUser.name,
+          role: chatUser.role,
+          id: chatUser._id
+        });
+
+        // Sync with AuthContext so Chat and other hooks can use it
+        setAuth(chatUser.role, chatUser._id, tokenToUse);
+      }
     }
   }, [urlToken, authToken, setAuth]);
 

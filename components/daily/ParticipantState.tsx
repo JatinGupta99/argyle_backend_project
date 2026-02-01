@@ -13,6 +13,7 @@ export interface ParticipantProps {
     audioPlayable: boolean;
     isActiveSpeaker: boolean;
     isOwner: boolean;
+    role: string | null;
   }) => React.ReactNode;
 }
 
@@ -25,6 +26,8 @@ export function ParticipantState({ id, children }: ParticipantProps) {
   const audioState = tracks?.audio?.state;
 
   const isOwner = useParticipantProperty(id, 'owner');
+  const userData = useParticipantProperty(id, 'userData') as any;
+  const role = userData?.role || userData?.participantType || userData?.participant_type || null;
 
   const activeSpeakerId = useActiveSpeakerId();
   const isActiveSpeaker = id === activeSpeakerId;
@@ -38,6 +41,7 @@ export function ParticipantState({ id, children }: ParticipantProps) {
         audioPlayable: audioState === 'playable',
         isActiveSpeaker,
         isOwner: !!isOwner,
+        role,
       })}
     </>
   );

@@ -15,36 +15,54 @@ export function VideoGrid({ callObject }: { callObject: any }) {
   const screenId = hasScreenShare ? screens[screens.length - 1].session_id : null;
   const screenUserName = useParticipantProperty(screenId || '', 'user_name');
 
-  console.log('Participants:', participantIds);
+  console.log('[VideoGrid] Total participants:', participantIds.length);
 
   const filteredIds = participantIds.filter((id: string) => {
     const p = callObject.participants()?.[id];
-    if (!p) return false;
+    if (!p) {
+      console.log(`[VideoGrid] Participant ${id}: NOT FOUND`);
+      return false;
+    }
 
     const userData = (p as any).userData || {};
     // Normalize role for comparison, handling potential case differences
     const rawRole = userData.role || userData.participantType || userData.participant_type || '';
     const pRole = normalizeRole(rawRole);
 
+    // Debug logging
+    console.log(`[VideoGrid] Participant ${p.user_name}:`, {
+      id,
+      rawRole,
+      normalizedRole: pRole,
+      userData,
+      hasVideo: p.video,
+      isOwner: p.owner
+    });
+
     // 1. Determine roles reliably
-    const isSpeaker = pRole === ROLES_ADMIN.Speaker;
-    const isModerator = pRole === ROLES_ADMIN.Moderator || (pRole === ROLES_ADMIN.Attendee && p.owner);
-    const isAttendee = pRole === ROLES_ADMIN.Attendee && !p.owner;
+    const isSpeaker = pRole === ROLES_ADMIN.Speaker || rawRole === 'Speaker';
+    const isModerator = pRole === ROLES_ADMIN.Moderator || rawRole === 'Moderator' || (pRole === ROLES_ADMIN.Attendee && p.owner);
+    const isAttendee = pRole === ROLES_ADMIN.Attendee && !p.owner && rawRole !== 'Speaker' && rawRole !== 'Moderator';
+
+    console.log(`[VideoGrid] ${p.user_name} role check:`, { isSpeaker, isModerator, isAttendee });
 
     // 2. Hide Attendees
-    if (isAttendee || p.user_name?.toLowerCase().startsWith('attendee_')) return false;
+    if (isAttendee || p.user_name?.toLowerCase().startsWith('attendee_')) {
+      console.log(`[VideoGrid] ${p.user_name}: FILTERED OUT (attendee)`);
+      return false;
+    }
 
-    // 2. Filter by Camera
-    if (!p.video) return false;
+    // 3. Show Speakers and Moderators (even if camera is off - they'll show avatar/name)
+    if (isSpeaker || isModerator) {
+      console.log(`[VideoGrid] ${p.user_name}: SHOWING (speaker/moderator)`);
+      return true;
+    }
 
-    // 3. Strict Allowance: ONLY Speakers
-    // User requested to hide Moderators ("how moderator is coming?????")
-    // So we only return true if isSpeaker. Moderators are explicitly excluded by not being included here.
-    if (isSpeaker) return true;
-
-    // 4. Fallback Block (Includes Moderators)
+    console.log(`[VideoGrid] ${p.user_name}: FILTERED OUT (unknown role)`);
     return false;
   });
+
+  console.log('[VideoGrid] Filtered participants:', filteredIds.length);
 
   if (!filteredIds.length && !hasScreenShare) {
     return (
@@ -84,6 +102,7 @@ export function VideoGrid({ callObject }: { callObject: any }) {
                       micOn={state.audioPlayable}
                       isActiveSpeaker={state.isActiveSpeaker}
                       hasVideo={state.videoPlayable}
+                      role={state.role}
                     />
                   )}
                 </ParticipantState>
@@ -125,6 +144,7 @@ export function VideoGrid({ callObject }: { callObject: any }) {
                   micOn={state.audioPlayable}
                   isActiveSpeaker={state.isActiveSpeaker}
                   hasVideo={state.videoPlayable}
+                  role={state.role}
                 />
               )}
             </ParticipantState>
@@ -153,6 +173,7 @@ export function VideoGrid({ callObject }: { callObject: any }) {
                 micOn={state.audioPlayable}
                 isActiveSpeaker={state.isActiveSpeaker}
                 hasVideo={state.videoPlayable}
+                role={state.role}
               />
             )}
           </ParticipantState>
